@@ -10,10 +10,10 @@
 }
 
 :root {
-    --mdc-theme-primary: #440412 !important;
-    --mdc-theme-secondary: #AB0A3D !important;
-    --primary: #440412 !important;
-    --secondary: #AB0A3D !important;
+    --mdc-theme-primary: #316a71 !important;
+    --mdc-theme-secondary: #308b88 !important;
+    --primary: #316a71 !important;
+    --secondary: #308b88 !important;
     font-size: 11px;
 }
 
