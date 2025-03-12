@@ -1,0 +1,67 @@
+@namespace SICEM_Blazor.Pages
+@page "/Configuracion/CatUsuarios"
+
+<div class="tarifasLayout">
+    <div style="grid-area:1/1/2/2;">
+        <div class="title-page" style="grid-area:1/1/2/2;">CATALOGO USUARIOS</div>
+    </div>
+
+    <nav aria-label="breadcrumb" style="grid-area:2/1/3/2;">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="./">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/Configuracion">Configuracion</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Usuarios</li>
+        </ol>
+    </nav>
+
+    <!-- ****** Acciones ****** -->
+    <div class="grid border rounded bg-white px-2 d-flex align-items-center" style="grid-area:3/1/4/2;">
+        
+        <div class="button px-3 py-2 bg-success mx-1" @onclick="AgregarUsuarioClick">
+            <i class="fa fa-user me-2"></i>
+            <span>Agregar Usuario</span>
+        </div>
+
+        <div class="button px-3 py-2 bg-success mx-1" @onclick="HandleExportarUsuariosClick" >
+            <i class="fa fa-file-excel me-2"></i>
+            <span>Exportar Catalogo</span>
+        </div>
+    </div>
+
+    <!-- ****** Datagrid ****** -->
+    <div class="d-flex align-items-center" style="grid-area:4/1/5/2;">
+        @if(isBusy) {
+            <div class="spinner-border" role="status"> </div>
+        }
+        else {
+            <SfGrid @ref="dataGrid" DataSource="@catUsuarios" AllowExcelExport="true" AllowResizing="true" Height="100%" AllowSorting="true" RowHeight="28">
+                <GridColumns>
+                    <GridColumn Field=@nameof(Usuario.Nombre) HeaderText="Nombre" TextAlign="TextAlign.Left" Width="140"></GridColumn>
+                    <GridColumn Field=@nameof(Usuario.Usuario1) HeaderText="Usuario" TextAlign="TextAlign.Left" Width="80"></GridColumn>
+                    <GridColumn Field=@nameof(Usuario.Administrador) HeaderText="Admin" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" Width="68" />
+                    <GridColumn Field=@nameof(Usuario.Inactivo) HeaderText="Inactivo" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" Width="68" />
+                    <GridColumn Field=@nameof(Usuario.CfgOfi) HeaderText="Conf. Oficinas" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" Width="68" />
+                    <GridColumn Field=@nameof(Usuario.UltimaModif) HeaderText="Ultima Modificacion" TextAlign="TextAlign.Center" Width="120" Format="f"/>
+                    <GridColumn HeaderText="" TextAlign="TextAlign.Left" Width="120">
+                        <Template>
+                            @{
+                                var user = (context as Usuario);
+                                <div class="d-flex">
+                                    <div class="d-flex px-2">
+                                        <input class="button user-select-none px-2" type="button" value="Modificar" @onclick="@( e => HandleModificarUsuarioClick(e, user))" />
+                                    </div>
+
+                                    <div class="d-flex px-2">
+                                        <input class="btn user-select-none px-2 pb-1 @(user.Inactivo == true ?"btn-success": "btn-danger") " type="button" value="@(user.Inactivo == true ?"Activar Usuario" :"Desactivar Usuario" )" @onclick="@( e => HandleChangeUserStatus(e, user))" />
+                                    </div>
+                                </div>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        }
+    </div>
+</div>
+
+<ModificarUsuario @ref="ModificarUsuarioVtn" Visible="@ModificarUsuarioVtn_Visible" CerrarModal="@ModificarUsuario_Closed" />

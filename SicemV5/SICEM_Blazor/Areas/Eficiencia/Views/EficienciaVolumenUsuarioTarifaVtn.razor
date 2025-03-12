@@ -1,0 +1,97 @@
+@using SICEM_Blazor.Eficiencia.Data
+@using SICEM_Blazor.Eficiencia.Models
+@using Syncfusion.Blazor.Grids
+@inject IJSRuntime JSRuntime
+
+<VentanaSecundaria Titulo="@Titulo" Filas="@GridFilas" Columnas="GridColumnas" CerrarVentana="Cerrar_Modal">
+    <Content>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 1/2; grid-column: 1/2;">
+            <div class="w-100 d-flex align-items-center">
+                <MatButton Class="ml-1 mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">Exportar Excel <i class="fa fa-file-excel-o ml-2" aria-hidden="true"></i> </MatButton>
+            </div>
+        </div>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 2/3; grid-column: 1/2;">
+            <SfGrid @ref="dataGrid" DataSource="@DatosGrid" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="auto" EnableHover="true">
+                <GridColumns>
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.Poblacion)" HeaderText="Poblacion" TextAlign="TextAlign.Left" Width="220" Visible="true" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.Tarifa)" HeaderText="Tarifa" TextAlign="TextAlign.Left" Width="220" Visible="true" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.Facturado)" HeaderText="Facturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.Anticipado)" HeaderText="Anticipado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.Descontado)" HeaderText="Descontado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.Refacturado)" HeaderText="Refacturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.EficienciaPorcentaje)" HeaderText="Eficiencia Com" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                    <GridColumn Field="@nameof(EficienciaUsuarioPoblacionTarifa.EficienciaCNA)" HeaderText="Efi Conagua" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                </GridColumns>
+            </SfGrid>
+        </div>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 3/4; grid-column: 1/2;">
+            <SfChart Title="Eficiencia por Localidades">
+                <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
+                <ChartPrimaryYAxis Visible="false" LabelFormat="p2" Maximum="1" />
+                <ChartTooltipSettings Enable="true" Header="Usuarios" Format="<b>${series.name}</b> : ${point.y}" Shared="true"></ChartTooltipSettings>
+                
+                <ChartSeriesCollection>
+                    <ChartSeries DataSource="@itemsGrafica" Name="Eficiencia Comercial" XName="Descripcion" YName="Valor1" Type="ChartSeriesType.Column">
+                        <ChartMarker>
+                            <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
+                        </ChartMarker>
+                    </ChartSeries>
+                    <ChartSeries DataSource="@itemsGrafica" Name="Eficiencia Conagua" XName="Descripcion" YName="Valor2" Type="ChartSeriesType.Column">
+                        <ChartMarker>
+                            <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
+                        </ChartMarker>
+                    </ChartSeries>
+                </ChartSeriesCollection>
+            </SfChart>
+        </div>
+
+    </Content>
+</VentanaSecundaria>
+
+
+@code {
+
+    [Parameter] public EventCallback CerrarModal { get; set; }
+    [Parameter] public DateTime Fecha1 { get; set; }
+    [Parameter] public DateTime Fecha2 { get; set; }
+    [Parameter] public int Subsistema { get; set; }
+    [Parameter] public int Sector { get; set; }
+    [Parameter] public List<EficienciaUsuarioPoblacionTarifa> DatosGrid { get; set; }
+    [Parameter] public String Titulo {get;set;} = "EFICIENCIA POR LOCALIDADES";
+    
+    
+    private SfGrid<EficienciaUsuarioPoblacionTarifa> dataGrid;
+    private List<double> GridFilas = new List<double>() { 50, .4, .4 };
+    private List<double> GridColumnas = new List<double>() { .8 };
+    public List<ChartItem> itemsGrafica = new List<ChartItem>();
+    
+
+    protected override void OnInitialized()
+    {
+        foreach(var item in DatosGrid.OrderBy( item => item.EficienciaPorcentaje).ToList()){
+            itemsGrafica.Add(
+                new ChartItem(){
+                    Descripcion = item.Tarifa,
+                    Valor1 = (decimal) item.EficienciaPorcentaje,
+                    Valor2 = (decimal) item.EficienciaCNA
+                }
+            );
+        }
+    }
+
+    private async Task GenerarExcel() {
+        await this.dataGrid.ExcelExport(new ExcelExportProperties {
+            IncludeHiddenColumn = true,
+            FileName = string.Format("sicem_{0}.xlsx", Guid.NewGuid().ToString().Replace("-", ""))
+        });
+    }
+
+    private async Task Cerrar_Modal() {
+        await CerrarModal.InvokeAsync("");
+    }
+
+}

@@ -1,0 +1,16 @@
+@namespace SICEM_Blazor.Shared.Dialogs
+
+<VentanaSecundaria 
+    Titulo="@Titulo" 
+    Filas="@(new double[]{40, .75})"
+    Columnas="@(new double[]{.75})" 
+    CerrarVentana="HandleCerrarVentanaClick" 
+    Draggable="false"
+>
+
+    <Content>
+        <div class="p-2" style="width:100%; height:100%; grid-area: 1/1/3/2">
+            <div id="map" style="height:100%;width:100%;"></div>
+        </div>
+    </Content>
+</VentanaSecundaria>

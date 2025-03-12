@@ -1,0 +1,112 @@
+@using SICEM_Blazor.Eficiencia.Data
+@using SICEM_Blazor.Eficiencia.Models
+@using Syncfusion.Blazor.Grids
+@inject IJSRuntime JSRuntime
+@inject IEficienciaService eficienciaService
+@inject IMatToaster Toaster
+
+<VentanaSecundaria Titulo="@Titulo" Filas="@GridFilas" Columnas="GridColumnas" CerrarVentana="Cerrar_Modal">
+    <Content>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 1/2; grid-column: 1/2;">
+            <div class="w-100 d-flex align-items-center">
+                <MatButton Class="ml-1 mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">Exportar Excel <i class="fa fa-file-excel-o ml-2" aria-hidden="true"></i> </MatButton>
+            </div>
+        </div>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 2/3; grid-column: 1/2;">
+            <SfGrid @ref="dataGrid" DataSource="@DatosGrid" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="auto" EnableHover="true">
+                <GridColumns>
+                    <GridColumn Field="@nameof(EficienciaLocalidad.Poblacion)" HeaderText="Localidad" TextAlign="TextAlign.Left" Width="220" Visible="true" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.EsRural)" HeaderText="Es Rural" TextAlign="TextAlign.Left" Width="100" DisplayAsCheckBox="true" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.Facturado)" HeaderText="Facturado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.Anticipado)" HeaderText="Refacturado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.Descuentos)" HeaderText="Anticipado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.Cobrado)" HeaderText="Descontado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.Refacturacion)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.EfiComePer)" HeaderText="Eficiencia Com" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.EfiConaguaPer)" HeaderText="Efi Conagua" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.EfiCapa)" HeaderText="Efi Capa" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                    <GridColumn Field="@nameof(EficienciaLocalidad.CobroCapa)" HeaderText="Cobrado Capa" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                    <GridColumn HeaderText="Acciones" TextAlign="TextAlign.Center" Width="70">
+                        <Template>
+                            @{
+                                var data = (context as EficienciaLocalidad);
+                                if(data.IdPoblacion > 0 && data.IdPoblacion < 999) {
+                                    <div class="d-flex p-1">
+                                        <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia por Tarifas" @onclick=@( e => EficienciaTarifasPorLocalidadClick(data) ) >
+                                            <i class="fa fa-tag" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                }
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </Content>
+</VentanaSecundaria>
+
+<BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
+
+@if(eficienciaPoblacionTarifaVisible){
+    <EficienciaImportePoblacionTarifaVtn DatosGrid="@DatosPoblacionTarifa" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" Titulo="@($"{Enlace.Nombre} - EFICIENCIA DE IMPOTE POR TARIFAS")" CerrarModal="@(e => eficienciaPoblacionTarifaVisible=false )" />
+}
+
+@code {
+
+    [Parameter] public EventCallback CerrarModal { get; set; }
+    [Parameter] public DateTime Fecha1 { get; set; }
+    [Parameter] public DateTime Fecha2 { get; set; }
+    [Parameter] public int Subsistema { get; set; }
+    [Parameter] public int Sector { get; set; }
+    [Parameter] public IEnlace Enlace { get; set; }
+    [Parameter] public List<EficienciaLocalidad> DatosGrid { get; set; }
+    [Parameter] public String Titulo {get;set;} = "EFICIENCIA POR LOCALIDADES";
+    [Parameter] public bool SoloPropios {get;set;} = true;
+    
+    
+    private SfGrid<EficienciaLocalidad> dataGrid;
+    private List<double> GridFilas = new List<double>() { 50, .8 };
+    private List<double> GridColumnas = new List<double>() { .8 };
+    private bool busyDialog = false, eficienciaPoblacionTarifaVisible = false;
+    private List<EficienciaImpPoblacionTarifa> DatosPoblacionTarifa = new List<EficienciaImpPoblacionTarifa>();
+
+
+    protected override void OnInitialized() {
+        //
+    }
+
+    private async Task GenerarExcel() {
+        await this.dataGrid.ExcelExport(new ExcelExportProperties {
+            IncludeHiddenColumn = true,
+            FileName = string.Format("sicem_{0}.xlsx", Guid.NewGuid().ToString().Replace("-", ""))
+        });
+    }
+
+    private async Task Cerrar_Modal() {
+        await CerrarModal.InvokeAsync("");
+    }
+
+    private async Task EficienciaTarifasPorLocalidadClick(EficienciaLocalidad context ){
+        if(eficienciaPoblacionTarifaVisible){
+            return;
+        }
+
+        this.busyDialog = true;
+        await Task.Delay(100);
+        
+        this.DatosPoblacionTarifa = eficienciaService.ObtenerEficienciaPoblacionesTarifa( Enlace, Fecha1.Year, Fecha1.Month, Subsistema, Sector, context.IdPoblacion, SoloPropios ).ToList();
+        if(this.DatosPoblacionTarifa.Count() > 0){
+            eficienciaPoblacionTarifaVisible = true;
+        }else{
+            Toaster.Add("Error al procesar la consulta, intentelo mas tarde.", MatToastType.Warning);
+        }
+
+        await Task.Delay(100);
+        this.busyDialog = false;
+        
+    }
+
+}

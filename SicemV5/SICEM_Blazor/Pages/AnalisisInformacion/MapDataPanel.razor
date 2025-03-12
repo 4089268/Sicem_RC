@@ -1,0 +1,146 @@
+@namespace SICEM_Blazor.Pages.AnalisisInformacion
+@using SICEM_Blazor.Data.KML
+@using System.IO
+
+<div class="container-full" style="
+    display:grid;
+    grid-template-columns:300px calc(100% - 300px);
+    width:100%;
+    height:100%;
+">
+    @if(cargandoDatos){
+        <div class="containter d-flex flex-column align-items-center justify-content-center" style="grid-area: 1/1/2/3;">
+            <h2 class="text-muted fa-2x text-uppercase">Cargando datos</h2>
+            <progress style="width:24rem; height:4rem; margin-top:5px;"></progress>
+        </div>
+    }
+    else{
+
+    <div class="p-2" style="grid-column: 1/2; overflow: auto;">
+        @if(userData != null){
+        <ul class="px-2" style="list-style-type: none;">
+            <li>
+
+                <div class="d-flex flex-column align-items-start">
+                    <div class="mt-2 text-uppercase text-muted font-weight-bold">Razon Social</div>
+                    <div class="pl-2">@userData.Razon_social</div>
+                </div>
+            </li>
+
+            <li>
+                <div class="d-flex flex-column align-items-start">
+                    <div class="mt-2 text-uppercase text-muted font-weight-bold">Cuenta</div>
+                    <div class="pl-2">@userData.Id_Cuenta</div>
+                </div>
+            </li>
+
+            <li>
+                <div class="d-flex flex-column align-items-start">
+                    <div class="mt-2 text-uppercase text-muted font-weight-bold">Localizacion</div>
+                    <div>@userData.Localizacion</div>
+                </div>
+            </li>
+
+            <li>
+                <div class="d-flex flex-column align-items-start">
+                    <div class="mt-2 text-uppercase text-muted font-weight-bold">Direccion</div>
+                    <div class="pl-2">@userData.Direccion @userData.Colonia @userData.Codigo_postal</div>
+                </div>
+            </li>
+
+            <li>
+                <div class="d-flex flex-column align-items-start">
+                    <div class="mt-2 text-uppercase text-muted font-weight-bold">Servicio</div>
+                    <div class="pl-2">@userData.Servicio</div>
+                </div>
+            </li>
+
+            <li>
+                <div class="d-flex flex-column align-items-start">
+                    <div class="mt-2 text-uppercase text-muted font-weight-bold">Tarifa</div>
+                    <div class="pl-2">@userData.Tarifa</div>
+                </div>
+            </li>
+
+            <li>
+                <div class="d-flex flex-column align-items-start">
+                    <div class="mt-2 text-uppercase text-muted font-weight-bold">Meses Adeudo</div>
+                    <div class="pl-4">@userData.MesesAdeudo</div>
+                </div>
+            </li>
+
+        </ul>
+        }
+
+    </div>
+
+    <div style="grid-column:2/3; display:grid; grid-template-rows: 55px calc(100% - 60px); grid-template-columns: 100%; overflow: auto;">
+        
+        <div style="grid-area: 1/1/2/2;">
+            <MatTabBar style="width: 100%;" ActiveIndexChanged="HandlePanelSelectedIndexChanged">
+                <MatTabLabel>Movimientos</MatTabLabel>
+                <MatTabLabel>Ordenes de trabajo</MatTabLabel>
+                <MatTabLabel>Bitacora ABC</MatTabLabel>
+            </MatTabBar>
+        </div>
+
+        <div class="text-uppercase" style="grid-row-star: 2/1/3/2; background-color: salmon;">
+            @if(panelIndexSelected == 0){
+                <SfGrid DataSource="@datosMovimientos" AllowResizing="true" AllowSorting="true" AllowFiltering="false" Height="100%" Width="100%" EnableHover="true" RowHeight="22">
+                    <GridColumns>
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Folio_movto)" HeaderText="Folio Movimiento" TextAlign="TextAlign.Center" Width="100" />
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Fecha)" HeaderText="Fecha" TextAlign="TextAlign.Center" Width="220" Format="dd MMM yyyy HH:mm"/>
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Operacion)" HeaderText="Operacion" TextAlign="TextAlign.Left" Width="220" />
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Cargo)" HeaderText="Cargo" TextAlign="TextAlign.Right" Width="100" Format="c2" />
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Abono)" HeaderText="Abono" TextAlign="TextAlign.Right" Width="100" Format="c2" />
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Saldo)" HeaderText="Saldo" TextAlign="TextAlign.Right" Width="100" Format="c2" />
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Quien)" HeaderText="Realizo" TextAlign="TextAlign.Left" Width="220" />
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Sucursal)" HeaderText="Sucursal" TextAlign="TextAlign.Left" Width="220" />
+                        <GridColumn Field="@nameof(ConsultaGreal_MovimientosResponse.Observacion)" HeaderText="Observacion" TextAlign="TextAlign.Left" Width="220" ClipMode="ClipMode.EllipsisWithTooltip" />
+                    </GridColumns>
+                </SfGrid>
+            }
+
+            @if(panelIndexSelected == 1){
+                <SfGrid DataSource="@datosOrdenes" AllowResizing="true" AllowSorting="true" AllowFiltering="false" Height="100%" Width="100%" EnableHover="true" RowHeight="22">
+                    <GridColumns>
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Id_Orden)" HeaderText="Id Orden" TextAlign="TextAlign.Center" Width="100" />
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Fecha_Genero)" HeaderText="Fecha Generacion" TextAlign="TextAlign.Center" Width="220" Format="dd MMM yyyy HH:mm"/>
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Ejecutada)" HeaderText="Ejecutada" TextAlign="TextAlign.Center" Width="100" DisplayAsCheckBox="true" />
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Tipo_OrdenDesc)" HeaderText="Tipo Orden" TextAlign="TextAlign.Left" Width="200" />
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Genero)" HeaderText="U Genero" TextAlign="TextAlign.Left" Width="200"/>
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Estatus)" HeaderText="Estatus" TextAlign="TextAlign.Left" Width="200"/>
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Trabajo)" HeaderText="Trabajo" TextAlign="TextAlign.Left" Width="220" />
+                        <GridColumn Field="@nameof(ConsultaGral_Ordenesresponse.Observaciones_Orden)" HeaderText="Observaciones" TextAlign="TextAlign.Left" Width="220" ClipMode="ClipMode.EllipsisWithTooltip" />
+                    </GridColumns>
+                </SfGrid>
+            }
+
+            @if(panelIndexSelected == 2){
+                <SfGrid DataSource="@datosBitacorABC" AllowResizing="true" AllowGrouping="true" AllowSorting="true" AllowFiltering="false" Height="100%" Width="100%" EnableHover="true" RowHeight="22">
+                    <GridGroupSettings Columns="@(new string[] { "Id_abc"})" ShowDropArea="false">
+                        <CaptionTemplate>
+                            @{
+                                var order = (context as CaptionTemplateContext);
+                                <div>Modificacion @order.Key</div>
+                            }
+                        </CaptionTemplate>
+                    </GridGroupSettings>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(ModificacionABCResume.Id_abc)" HeaderText="Id Movimiento" TextAlign="TextAlign.Center" Width="100" />
+                        <GridColumn Field="@nameof(ModificacionABCResume.Fecha)" HeaderText="Fecha" TextAlign="TextAlign.Center" Width="200" Format="dd MMM yyyy HH:mm"/>
+                        <GridColumn Field="@nameof(ModificacionABCResume.Sucursal)" HeaderText="Sucursal" TextAlign="TextAlign.Left" Width="200"/>
+                        <GridColumn Field="@nameof(ModificacionABCResume.Operador)" HeaderText="Operador" TextAlign="TextAlign.Left" Width="200"/>
+                        <GridColumn Field="@nameof(ModificacionABCResume.Maquina)" HeaderText="Maquina" TextAlign="TextAlign.Left" Width="200" />
+                        <GridColumn Field="@nameof(ModificacionABCResume.Campo)" HeaderText="Campo" TextAlign="TextAlign.Left" Width="200"/>
+                        <GridColumn Field="@nameof(ModificacionABCResume.Valor_Ant)" HeaderText="Valor_Ant" TextAlign="TextAlign.Left" Width="200"/>
+                        <GridColumn Field="@nameof(ModificacionABCResume.Valor_Act)" HeaderText="Valor_Act" TextAlign="TextAlign.Left" Width="200" />
+                        <GridColumn Field="@nameof(ModificacionABCResume.Observacion)" HeaderText="Observaciones" TextAlign="TextAlign.Left" Width="220" ClipMode="ClipMode.EllipsisWithTooltip" />
+                    </GridColumns>
+                </SfGrid>
+            }
+        </div>
+    </div>
+    }
+
+</div>

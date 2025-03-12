@@ -1,0 +1,50 @@
+@namespace SICEM_Blazor.Shared.Dialogs
+
+<VentanaSecundaria Titulo="Seleccione los campos a exportar" Filas="@gridFilas" Columnas="@gridColumnas" CerrarVentana="@(e => CerrarVentana_Click(false))">
+    <Content>
+        <div class="p-2" style="width:100%; height:100%; grid-area:1/1/2/2">
+            <SfGrid @ref="@DataGrid1" DataSource="@catCamposExportar" TValue="Dictionary<string, string>" Height="100%" Width="100%" EnableHover="true">
+                <GridEvents RowSelected="RowSelectHandler" OnRecordDoubleClick="RecordDoubleClickHandler" TValue="Dictionary<string, string>"></GridEvents>
+                <GridColumns>
+                    <GridColumn HeaderText="Campos disponibles" TextAlign="TextAlign.Center" Width="120">
+                        <Template>
+                            @{
+                                var data = (context as Dictionary<string, string>);
+                                <div>
+                                    @data["Desc"]
+                                </div>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+
+        <div class="p-2 d-flex flex-column align-items-center justify-content-center" style="width:100%; height:100%; grid-area:1/2/2/3">
+            <button class="button m-4" @onclick="ButtonRight2Left_Click"> @("<<") </button>
+            <button class="button m-4" @onclick="ButtonLeft2Right_Click"> @(">>") </button>
+        </div>
+
+        <div class="p-2 " style="width:100%; height:100%; grid-area:1/3/2/4">
+            <SfGrid @ref="@DataGrid2" DataSource="@camposAExportar" TValue="Dictionary<string, string>" Height="100%" Width="100%" EnableHover="true">
+                <GridEvents RowSelected="RowSelectHandler2" OnRecordDoubleClick="RecordDoubleClickHandler2" TValue="Dictionary<string, string>"></GridEvents>
+                <GridColumns>
+                    <GridColumn HeaderText="Campos a exportar" TextAlign="TextAlign.Center" Width="120">
+                        <Template>
+                            @{
+                                var data = (context as Dictionary<string, string>);
+                                <div>
+                                    @data["Desc"]
+                                </div>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+
+        <div class="p-2 d-flex align-items-center justify-content-center" style="width:100%; height:100%; grid-area:2/1/3/4">
+            <button class="button px-3 py-2" style="width: 14rem;" @onclick="@(e => CerrarVentana_Click(true))">Exportar</button>
+        </div>
+    </Content>
+</VentanaSecundaria>

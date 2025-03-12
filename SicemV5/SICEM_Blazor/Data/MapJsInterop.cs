@@ -1,0 +1,49 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using SICEM_Blazor.Data.KML;
+using SICEM_Blazor.Data.Contracts;
+using SICEM_Blazor.Models;
+
+namespace SICEM_Blazor.Pages.AnalisisInformacion {
+    public class MapJsInterop : IAsyncDisposable
+    {
+
+        /// <summary>
+        /// reference of the js module
+        /// </summary>
+        private readonly Lazy<Task<IJSObjectReference>> moduleTask;
+
+        public MapJsInterop(IJSRuntime jSRuntime){
+            moduleTask = new Lazy<Task<IJSObjectReference>>(() => jSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/sicem/map.js").AsTask() );
+        }
+
+        public async Task InitializedMapAsync(object objRef, string elementId, IMapPoint point) {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("initialize", objRef, elementId, point);
+        }
+
+        public async Task MoveMap(object objRef, IMapPoint point, double? zoom){
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("moveMap", objRef, point, zoom);
+        }
+
+        public async Task UpdateMarks(object objRef, IEnumerable<MapMark> marks){
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("updateMarks", objRef, marks);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if( moduleTask.IsValueCreated){
+                var module = await moduleTask.Value;
+                await module.DisposeAsync();
+            }
+        }
+    }
+
+}

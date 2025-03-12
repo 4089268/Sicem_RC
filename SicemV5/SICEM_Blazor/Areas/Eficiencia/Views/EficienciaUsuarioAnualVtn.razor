@@ -1,0 +1,93 @@
+@using SICEM_Blazor.Eficiencia.Data
+@using SICEM_Blazor.Eficiencia.Models
+@using Syncfusion.Blazor.Grids
+@inject IJSRuntime JSRuntime
+
+<VentanaSecundaria Titulo="@Titulo" Filas="@GridFilas" Columnas="GridColumnas" CerrarVentana="Cerrar_Modal">
+    <Content>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 1/2; grid-column: 1/2;">
+            <div class="w-100 d-flex align-items-center">
+                <MatButton Class="ml-1 mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">Exportar Excel <i class="fa fa-file-excel-o ml-2" aria-hidden="true"></i> </MatButton>
+                <MatButton Class="mr-2" Raised="true" Style="height:2.5rem;" Disabled="true">Generar Reporte <i class="fa fa-file-pdf-o ml-2" aria-hidden="true"></i></MatButton>
+            </div>
+        </div>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 2/3; grid-column: 1/2;">
+            <SfGrid @ref="dataGrid" DataSource="@DatosGrid" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="auto" EnableHover="true">
+                <GridColumns>
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.Oficina)" HeaderText="Oficina" TextAlign="TextAlign.Left" Width="170" Visible="false" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.Periodo)" HeaderText="Mes" TextAlign="TextAlign.Left" Width="100" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.Facturado)" HeaderText="Facturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.Refacturado)" HeaderText="Refacturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.Anticipado)" HeaderText="Anticipado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.Descontado)" HeaderText="Descontado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.EficienciaPorcentaje)" HeaderText="Eficiencia" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                    <GridColumn Field="@nameof(EficienciResumenUsuario.EficienciaCNA)" HeaderText="Eficiencia CNA" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                </GridColumns>
+            </SfGrid>
+        </div>
+
+        <div class="m-1 p-2 border rounded bg-white" style="grid-row: 3/4; grid-column: 1/2;">
+            <SfChart title="EFICIENCIA ANUAL">
+                <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
+                <ChartPrimaryYAxis Visible="false" LabelFormat="n2" />
+                <ChartTooltipSettings Enable="true" Header="Usuarios" Format="<b>${series.name}</b> : ${point.y}" Shared="true"></ChartTooltipSettings>
+                <ChartLegendSettings Position="LegendPosition.Right" Visible="false" />
+                <ChartSeriesCollection>
+                    <ChartSeries DataSource="@itemsGrafica" Name="Eficiencia" XName="Descripcion" YName="Valor1" Type="ChartSeriesType.Line">
+                        <ChartMarker Visible="true" Height="10" Width="10" Shape="ChartShape.Circle">
+                            <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
+                        </ChartMarker>
+                    </ChartSeries>
+                </ChartSeriesCollection>
+            </SfChart>
+        </div>
+
+    </Content>
+</VentanaSecundaria>
+
+
+@code {
+
+    [Parameter] public EventCallback CerrarModal { get; set; }
+    [Parameter] public DateTime Fecha1 { get; set; }
+    [Parameter] public DateTime Fecha2 { get; set; }
+    [Parameter] public int Subsistema { get; set; }
+    [Parameter] public int Sector { get; set; }
+    [Parameter] public IEnlace Enlace { get; set; }
+    [Parameter] public List<EficienciResumenUsuario> DatosGrid { get; set; }
+    [Parameter] public String Titulo {get;set;} = "EFICIENCIA COMERCIAL ANUAL";
+    
+    
+    private SfGrid<EficienciResumenUsuario> dataGrid;
+    private List<double> GridFilas = new List<double>() { 50, 460, 240 };
+    private List<double> GridColumnas = new List<double>() { .8 };
+    public List<ChartItem> itemsGrafica = new List<ChartItem>();
+    
+
+    protected override void OnInitialized()
+    {
+        foreach(var item in DatosGrid){
+            itemsGrafica.Add(
+                new ChartItem(){
+                    Descripcion = item.Mes,
+                    Valor1 = (decimal) item.Porcentaje
+                }
+            );
+        }
+    }
+
+    private async Task GenerarExcel() {
+        await this.dataGrid.ExcelExport(new ExcelExportProperties {
+            IncludeHiddenColumn = true,
+            FileName = string.Format("sicem_{0}.xlsx", Guid.NewGuid().ToString().Replace("-", ""))
+        });
+    }
+
+    private async Task Cerrar_Modal() {
+        await CerrarModal.InvokeAsync("");
+    }
+
+}

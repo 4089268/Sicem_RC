@@ -1,0 +1,460 @@
+@page "/EficienciaUsuarios"
+@using System.Threading
+@using System.Threading.Tasks
+@using SICEM_Blazor.Eficiencia.Models
+@using SICEM_Blazor.Eficiencia.Data
+@using SICEM_Blazor.Data.Contracts
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Charts
+@inject IMatToaster Toaster
+@inject IEficienciaService eficienciaService
+@inject SicemService sicemService
+@inject NavigationManager navigationManager
+
+
+<div class="layout-page1">
+
+    <div class="title-page" style="grid-area:1/1/2/2;">EFICIENCIA COMERCIAL POR USUARIOS</div>
+
+    <div class="border rounded bg-white px-2 d-flex align-items-center" style="grid-area:2/1/3/2;">
+        <SeleccionarFecha fecha1="@Fecha1" fecha2="@Fecha2" ProcesarParam="@Procesar" MostrarPeriodos="false" />
+    </div>
+
+
+    @* ****** Acciones ****** *@
+    <div class="border rounded bg-white d-flex align-items-center" style="grid-area:3/1/4/2;">
+        <MatButton Class="mx-2" style="min-width: 130px;" Raised="true" @onclick="ExportarExcel_Click">Exportar Excel</MatButton>
+    </div>
+   
+    
+    <MatTabGroup @ref="tabGroupVolumen" Class="p-1 border rounded bg-white h-100" Style="grid-row: 4/5; grid-column:1/2;">
+        <MatTab>
+            <LabelContent><span class="h5">PROPIOS</span></LabelContent>
+            <ChildContent>
+                <div class="p-1 w-100 h-100">
+                    <SfGrid @ref="dataGridB1" DataSource="@datosGridB1" TValue="EficienciResumenUsuario" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="100%" EnableHover="true">
+                        <GridColumns>
+                            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="40">
+                                <Template>
+                                    @{
+                                        var data = (context as EficienciResumenUsuario);
+                                        if(data.Id > 0 && data.Id < 999) {
+                                            @switch (data.Estatus) {
+                                                case ResumenOficinaEstatus.Completado:
+                                                    <i class="fas fa-check-circle" style="color:green; font-size:1.5rem;"></i>
+                                                    break;
+                                                case ResumenOficinaEstatus.Error:
+                                                    <i class="fas fa-exclamation-circle" style="color:red; font-size:1.5rem;"></i>
+                                                    break;
+                                                default:
+                                                    <div class="spinner-border p-2" role="status"> </div>
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Oficina)" HeaderText="Oficina" TextAlign="TextAlign.Left" Width="170" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Facturado)" HeaderText="Facturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Refacturado)" HeaderText="Refacturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Anticipado)" HeaderText="Anticipado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Descontado)" HeaderText="Descontado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.EficienciaPorcentaje)" HeaderText="Eficiencia" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.EficienciaCNA)" HeaderText="% CNA" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                            <GridColumn HeaderText="Acciones" TextAlign="TextAlign.Left" Width="240">
+                                <Template>
+                                    @{
+                                        var data = (context as EficienciResumenUsuario);
+                                        if(data.Id > 0 && data.Id < 999) {
+                                            <div class="d-flex p-1">
+                                                <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia Anual" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaAnualVolClick(data, true) ) >
+                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia por Tarifas" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaTarifasVolClick(data, true) ) >
+                                                    <i class="fa fa-tag" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia por Localidades" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaLocalidadesVolClick(data, true) ) >
+                                                    <i class="fa fa-building" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            </ChildContent>
+        </MatTab>
+
+        <MatTab>
+            <LabelContent><span class="h5">AGUA</span></LabelContent>
+            <ChildContent>
+                <div class="p-1 w-100 h-100" Style="display:grid; grid-template-rows: 1fr; grid-template-columns: 100%;">
+                    <SfGrid @ref="dataGridB2" DataSource="@datosGridB2" TValue="EficienciResumenUsuario" AllowResizing="true" AllowSorting="true" AllowFiltering="false"
+                            AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="100%" EnableHover="true">
+                        <GridColumns>
+                            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="40">
+                                <Template>
+                                    @{
+                                        var data = (context as EficienciResumenUsuario);
+                                        if(data.Id > 0 && data.Id < 999) {
+                                            @switch (data.Estatus) {
+                                                case ResumenOficinaEstatus.Completado:
+                                                    <i class="fas fa-check-circle" style="color:green; font-size:1.5rem;"></i>
+                                                    break;
+                                                case ResumenOficinaEstatus.Error:
+                                                    <i class="fas fa-exclamation-circle" style="color:red; font-size:1.5rem;"></i>
+                                                    break;
+                                                default:
+                                                    <div class="spinner-border p-2" role="status"> </div>
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                </Template>
+                            </GridColumn>
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Oficina)" HeaderText="Oficina" TextAlign="TextAlign.Left" Width="170" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Facturado)" HeaderText="Facturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Refacturado)" HeaderText="Refacturado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Anticipado)" HeaderText="Anticipado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Descontado)" HeaderText="Descontado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="n0" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.EficienciaPorcentaje)" HeaderText="Eficiencia" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                            <GridColumn Field="@nameof(EficienciResumenUsuario.EficienciaCNA)" HeaderText="% CNA" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                            <GridColumn HeaderText="Acciones" TextAlign="TextAlign.Left" Width="240">
+                                <Template>
+                                    @{
+                                        var data = (context as EficienciResumenUsuario);
+                                        if(data.Id > 0 && data.Id < 999) {
+                                            <div class="d-flex p-1">
+                                                <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia Anual" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaAnualVolClick(data, true) ) >
+                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia por Tarifas" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaTarifasVolClick(data, false) ) >
+                                                    <i class="fa fa-tag" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia por Localidades" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaLocalidadesVolClick(data, false) ) >
+                                                    <i class="fa fa-building" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+            </ChildContent>
+        </MatTab>
+    </MatTabGroup>
+
+
+    @* ****** Graficas ****** *@
+    <div class="p-2 border rounded bg-white" style="grid-row: 5/6; grid-column: 1/2;">
+        <SfChart @ref="graficaFacturacion" Title="TARIFAS FACTURADAS">
+            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
+            <ChartPrimaryYAxis Visible="false" LabelFormat="p2" Maximum="1" />
+            <ChartTooltipSettings Enable="true" Header="Usuarios" Format="<b>${series.name}</b> : ${point.y}" Shared="true"></ChartTooltipSettings>
+            <ChartLegendSettings Position="LegendPosition.Right" />
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@datosGrafica" Name="Eficiencia Comercial (Propios)" XName="Descripcion" YName="Valor1" Type="ChartSeriesType.Column">
+                    <ChartMarker>
+                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
+                    </ChartMarker>
+                </ChartSeries>
+                <ChartSeries DataSource="@datosGrafica" Name="Eficiencia Conagua (Propios)" XName="Descripcion" YName="Valor2" Type="ChartSeriesType.Column">
+                    <ChartMarker>
+                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
+                    </ChartMarker>
+                </ChartSeries>
+                <ChartSeries DataSource="@datosGrafica" Name="Eficiencia Comercial (Agua)" XName="Descripcion" YName="Valor3" Type="ChartSeriesType.Column">
+                    <ChartMarker>
+                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
+                    </ChartMarker>
+                </ChartSeries>
+                <ChartSeries DataSource="@datosGrafica" Name="Eficiencia Conagua (Agua)" XName="Descripcion" YName="Valor4" Type="ChartSeriesType.Column">
+                    <ChartMarker>
+                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
+                    </ChartMarker>
+                </ChartSeries>
+            </ChartSeriesCollection>
+        </SfChart>
+    </div>
+
+</div>
+
+<style type="text/css">
+    .fact-item{
+        display:flex;
+        flex-flow:column;
+        align-items:center;
+        justify-content:space-around;
+        height:3rem;
+    }
+    .fact-item .usu, .fact-item .fac{
+        text-align:center;
+        font-size:1rem;
+        height:2rem;
+    }
+</style>
+
+
+@* ****** Dialogos y ventanas secundarias ****** *@
+<BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
+
+@if(EficienciaUsuarioTarifasVisible){
+    <EficienciaUsuarioTarifaVtn DatosGrid="@DatosEficienciaTarifas" Enlace="@EnlaceSeleccionado" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" Titulo="@($"{EnlaceSeleccionado.Nombre} - EFICIENCIA DE USUARIOS POR TARIFAS")" CerrarModal="@(e => EficienciaUsuarioTarifasVisible=false )" />
+}
+
+@if(EficienciausuarioPoblacionVisible){
+    <EficienciaUsuarioLocalidadesVtn DatosGrid="@DatosEficienciaPoblacion" Enlace="@EnlaceSeleccionado" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" Titulo="@($"{EnlaceSeleccionado.Nombre} - EFICIENCIA DE USUARIOS POR LOCALIDADES")" CerrarModal="@(e => EficienciausuarioPoblacionVisible=false )" />
+}
+
+@if(EficienciaUsuariosAnualVisible){
+    <EficienciaUsuarioAnualVtn DatosGrid="@DatosEficienciaUsuariosAnual" Enlace="@EnlaceSeleccionado" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" Titulo="@($"{EnlaceSeleccionado.Nombre} - EFICIENCIA COMERCIAL ANUAL")" CerrarModal="@(e => EficienciaUsuariosAnualVisible=false )" />
+}
+
+
+@code{
+    private SfGrid<EficienciResumenUsuario> dataGridB1 {get;set;}
+    private SfGrid<EficienciResumenUsuario> dataGridB2 {get;set;}
+    private List<EficienciResumenUsuario> datosGridB1 {get;set;}
+    private List<EficienciResumenUsuario> datosGridB2 {get;set;}
+
+    private SfChart graficaFacturacion {get;set;}
+    private List<ChartItem> datosGrafica {get;set;}
+    private MatTabGroup tabGroupVolumen;
+
+    private bool busyDialog = false;
+
+    private DateTime Fecha1, Fecha2;
+    private int Subsistema, Sector;
+    private bool EficienciaUsuarioTarifasVisible = false;
+    private bool EficienciausuarioPoblacionVisible = false;
+    private bool EficienciaUsuariosAnualVisible = false;
+
+    private IEnlace EnlaceSeleccionado;
+    private List<EficienciResumenUsuario> DatosEficienciaUsuariosAnual;
+    private List<EficienciaUsuarioTarifa> DatosEficienciaTarifas;
+    private List<EficienciaUsuarioPoblacion> DatosEficienciaPoblacion;
+
+    private int tabIndexSelected = 0;
+
+    private List<Task> tareas = new List<Task>();
+    private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+
+    //********* Funciones  *********
+    protected override void OnInitialized() {
+        // Validar si se cuenta con la opcion
+        if(!sicemService.Usuario.OpcionSistemas.Select(item => item.Id).Contains(OpcionesSistema.EFICIENCIA_COMERCIAL)){
+            navigationManager.NavigateTo("/");
+            return;
+        }
+
+        var _now = DateTime.Now.AddMonths(-1);
+        this.Fecha1 = new DateTime(_now.Year, _now.Month, 1);
+        this.Fecha2 = new DateTime(_now.Year, _now.Month, DateTime.DaysInMonth(_now.Year, _now.Month));
+        this.Subsistema = 0;
+        this.Sector = 0;
+    }
+
+    public void Procesar(SeleccionarFechaEventArgs e) {
+        this.Fecha1 = e.Fecha1;
+        this.Fecha2 = e.Fecha2;
+        this.Subsistema = e.Subsistema;
+        this.Sector = e.Sector;
+
+        // Inicializar listas
+        datosGridB1 = new List<EficienciResumenUsuario>();
+        datosGridB2 = new List<EficienciResumenUsuario>();
+        datosGrafica = new List<ChartItem>();
+
+        // Obtener enlaces
+        var enlaces = sicemService.ObtenerOficinasDelUsuario();
+        tareas = new List<Task>();
+
+        foreach(IEnlace enlace in enlaces){
+            this.datosGridB1.Add( new EficienciResumenUsuario(enlace) );
+            this.datosGridB2.Add( new EficienciResumenUsuario(enlace) );
+
+            // Inicializar datagrid
+            var newChart = new ChartItem(){
+                Id = enlace.Id,
+                Descripcion = enlace.Nombre,
+                Valor1 = 0m,
+                Valor2 = 0m,
+                Valor3 = 0m,
+                Valor4 = 0m,
+                Valor5 = 0m
+            };
+            this.datosGrafica.Add(newChart);
+            tareas.Add( new Task( () => ProcesarConsulta(enlace, cancellationTokenSource.Token), cancellationTokenSource.Token ));
+        }
+
+        //*** Fila total
+        if(enlaces.Count() > 1){
+            this.datosGridB1.Add( new EficienciResumenUsuario() );
+            this.datosGridB2.Add( new EficienciResumenUsuario() );
+        }
+
+        tareas.ForEach(item => item.Start());
+    }
+
+    private void ProcesarConsulta(IEnlace enlace, CancellationToken cancellationToken){
+
+        var resultVolPropios = eficienciaService.ObtenerResumenUsuariosEnlace(enlace, Fecha1.Year, Fecha1.Month, Subsistema, Sector, true );
+        var resultVolAgua = eficienciaService.ObtenerResumenUsuariosEnlace(enlace, Fecha1.Year, Fecha1.Month, Subsistema, Sector, false);
+
+
+        // * Datos Volumen propios 
+        lock(datosGridB1){
+            var itemList = this.datosGridB1.Where(item=> item.Id == enlace.Id).FirstOrDefault();
+            if(itemList != null){
+                itemList.Estatus = resultVolPropios.Estatus;
+                itemList.Mes = resultVolPropios.Mes;
+                itemList.Facturado = resultVolPropios.Facturado;
+                itemList.Refacturado = resultVolPropios.Refacturado;
+                itemList.Anticipado = resultVolPropios.Anticipado;
+                itemList.Descontado = resultVolPropios.Descontado;
+                itemList.Cobrado = resultVolPropios.Cobrado;
+                itemList.Porcentaje = resultVolPropios.Porcentaje;
+                itemList.PorcentajeCNA = resultVolPropios.PorcentajeCNA;
+            }
+            //**** Recalcular fila total
+            RecalcularTotalVolumen( this.datosGridB1 );
+            
+        }
+
+        // * Datos Volumen propios 
+        lock(datosGridB2){
+            var itemList = this.datosGridB2.Where(item=> item.Id == enlace.Id).FirstOrDefault();
+            if(itemList != null){
+                itemList.Estatus = resultVolAgua.Estatus;
+                itemList.Mes = resultVolAgua.Mes;
+                itemList.Facturado = resultVolAgua.Facturado;
+                itemList.Refacturado = resultVolAgua.Refacturado;
+                itemList.Anticipado = resultVolAgua.Anticipado;
+                itemList.Descontado = resultVolAgua.Descontado;
+                itemList.Cobrado = resultVolAgua.Cobrado;
+                itemList.Porcentaje = resultVolAgua.Porcentaje;
+                itemList.PorcentajeCNA = resultVolAgua.PorcentajeCNA;
+            }
+            //**** Recalcular fila total
+            RecalcularTotalVolumen( this.datosGridB2 );
+        }
+
+
+        dataGridB1.Refresh();
+        dataGridB2.Refresh();
+        
+        // * Grafica
+        lock(datosGrafica){
+            var itemGraf = this.datosGrafica.Where(item => item.Id == enlace.Id).FirstOrDefault();
+            if(itemGraf != null){
+                itemGraf.Valor1 = (decimal)resultVolPropios.EficienciaPorcentaje;
+                itemGraf.Valor2 = (decimal)resultVolPropios.EficienciaCNA;
+                itemGraf.Valor3 = (decimal)resultVolAgua.EficienciaPorcentaje;
+                itemGraf.Valor4 = (decimal)resultVolAgua.EficienciaCNA;
+            }
+            graficaFacturacion.Refresh();
+        }
+    }
+
+    private void RecalcularTotalVolumen(List<EficienciResumenUsuario> datosGrid) {
+        var filaTotal = datosGrid.Where(item => item.Id == 999).FirstOrDefault();
+        if (filaTotal != null) {
+            var _tmpDatos = datosGrid.Where(item => item.Id > 0 && item.Id < 999).ToList();
+            filaTotal.Mes = "";
+            filaTotal.Facturado = _tmpDatos.Sum(item => item.Facturado);
+            filaTotal.Refacturado = _tmpDatos.Sum(item => item.Refacturado);
+            filaTotal.Anticipado = _tmpDatos.Sum(item => item.Anticipado);
+            filaTotal.Descontado = _tmpDatos.Sum(item => item.Descontado);
+            filaTotal.Cobrado = _tmpDatos.Sum(item => item.Cobrado);
+            filaTotal.Porcentaje = _tmpDatos.Average(item => item.Porcentaje);
+        }
+    }
+
+    private async Task ExportarExcel_Click(){
+        if( tabIndexSelected == 0){
+            var p = new ExcelExportProperties();
+            p.IncludeHiddenColumn = true;
+            await this.dataGridB1.ExportToExcelAsync(p);
+        }else{
+            var p = new ExcelExportProperties();
+            p.IncludeHiddenColumn = true;
+            await this.dataGridB2.ExportToExcelAsync(p);
+        }
+    }
+
+
+    //*** Funciones Ventanas Secundarias
+    private async Task EficienciaTarifasVolClick(EficienciResumenUsuario context, bool solo_propios){
+        
+        if(EficienciaUsuarioTarifasVisible){
+            return;
+        }
+
+        this.busyDialog = true;
+        await Task.Delay(100);
+        
+        this.EnlaceSeleccionado = context.Enlace;
+
+        this.DatosEficienciaTarifas = eficienciaService.ObtenerResumenUsuariosTarifas(context.Enlace, Fecha1.Year, Fecha1.Month, Subsistema, Sector, solo_propios ).ToList();
+        if(this.DatosEficienciaTarifas.Count() > 0){
+            EficienciaUsuarioTarifasVisible = true;
+        }else{
+            Toaster.Add("Error al procesar la consulta, intentelo mas tarde.", MatToastType.Warning);
+        }
+
+        await Task.Delay(100);
+        this.busyDialog = false;
+    }
+
+    private async Task EficienciaLocalidadesVolClick(EficienciResumenUsuario context, bool solo_propios){
+        if(EficienciausuarioPoblacionVisible){
+            return;
+        }
+
+        this.busyDialog = true;
+        await Task.Delay(100);
+        
+        this.EnlaceSeleccionado = context.Enlace;
+
+        this.DatosEficienciaPoblacion = eficienciaService.ObtenerResumenUsuariosPoblaciones(context.Enlace, Fecha1.Year, Fecha1.Month, Subsistema, Sector, solo_propios ).ToList();
+        if(this.DatosEficienciaPoblacion.Count() > 0){
+            EficienciausuarioPoblacionVisible = true;
+        }else{
+            Toaster.Add("Error al procesar la consulta, intentelo mas tarde.", MatToastType.Warning);
+        }
+
+        await Task.Delay(100);
+        this.busyDialog = false;
+        
+    }
+
+    private async Task EficienciaAnualVolClick(EficienciResumenUsuario context, bool solo_propios ){
+        if(EficienciaUsuariosAnualVisible){
+            return;
+        }
+
+        this.busyDialog = true;
+        await Task.Delay(100);
+
+        this.EnlaceSeleccionado = context.Enlace;
+
+        this.DatosEficienciaUsuariosAnual = eficienciaService.ObtenerResumenUsuariosAnual(context.Enlace, Fecha1.Year, Subsistema, Sector, solo_propios).ToList();
+        if(DatosEficienciaUsuariosAnual.Count() > 0){
+            EficienciaUsuariosAnualVisible = true;
+        }else{
+            Toaster.Add("Error al procesar la consulta, intentelo mas tarde.", MatToastType.Warning);
+        }
+
+        await Task.Delay(100);
+        this.busyDialog = false;
+    
+    }
+
+}

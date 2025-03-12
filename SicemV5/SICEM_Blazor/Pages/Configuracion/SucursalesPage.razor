@@ -1,0 +1,161 @@
+@page "/Configuracion/Sucursales"
+@using SICEM_Blazor.Models.Entities.Arquos
+@using SICEM_Blazor.Shared.Dialogs
+@inject SucursalesService SucursalesService
+@inject IMatToaster Toaster
+
+<div class="tarifasLayout">
+    <div style="grid-area:1/1/2/2;">
+        <div class="title-page text-uppercase" style="grid-area:1/1/2/2;">Catalogo Sucursales</div>
+    </div>
+
+    <nav aria-label="breadcrumb" style="grid-area:2/1/3/2;">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="./">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="./Configuracion">Configuracion</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Sucursales</li>
+        </ol>
+    </nav>
+
+    @* Container *@
+    <div class="d-flex mx-auto border rounded bg-white px-2 py-4" style="grid-area:3/1/5/2; max-width: 1400px;">
+        
+        <div style="width: 30rem !important; margin-right:1rem;">
+            @if( this.Oficinas == null){
+                <div class="alert alert-danger" role="alert">A simple danger alert—check it out!</div>
+            }else{
+                <ul class="list-group">
+                    @foreach( var item in this.Oficinas){
+                        <li class="list-group-item office-link @( OficinaSeleccionada == null ? "" : ( OficinaSeleccionada.Id == item.Id ? "active":"") )"
+                            @onclick="(e => HandleOficinaClick(item) )"
+                        >
+                            <div>
+                                <i class="fa fa-building mr-1" />
+                                @item.Nombre
+                            </div>
+                            @if( messageErrors.Keys.Contains( item.Id)){
+                                <div class="text-danger mt-1">
+                                    @messageErrors[item.Id]
+                                </div>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div style="width: calc(100% - 32rem);">
+            <SfGrid @ref="DataGrid" DataSource="@DatosGrid" TValue="CatSucursale" AllowResizing="true" AllowSorting="false" AllowFiltering="false"
+                AllowExcelExport="true" Height="100%" Width="100%" EnableHover="true">
+                <GridColumns>
+                    <GridColumn Field="@nameof(CatSucursale.IdSucursal)" HeaderText="ID" TextAlign="TextAlign.Center" Width="70" />
+                    <GridColumn Field="@nameof(CatSucursale.Descripcion)" HeaderText="Descripcion" TextAlign="TextAlign.Left" Width="200" />
+                    <GridColumn Field="@nameof(CatSucursale.Sb)" HeaderText="Subsistema" TextAlign="TextAlign.Center" Width="120" />
+                    <GridColumn Field="@nameof(CatSucursale.Inactivo)" HeaderText="Inactivo" TextAlign="TextAlign.Center" DisplayAsCheckBox="true" Width="100" />
+                    <GridColumn Field="@nameof(CatSucursale.DatabaseName)" HeaderText="DatabaseName" TextAlign="TextAlign.Center" Width="100"/>
+                    <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="115">
+                    <Template>
+                        @{
+                            var data = (context as CatSucursale);
+                            <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Conceptos y Tipos de Usuarios" @onclick=@( e => handleEditSucursal(data) )>
+                                <i class="fa fa-disk" aria-hidden="true"></i>
+                                <span>Editar</span>
+                            </button>
+                        }
+                    </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+
+</div>
+
+<BusyIndicator Busy="@loadingPoblaciones" ContentText="Cargando datos...." />
+
+@if(editarSucursalVisible){
+    <ModificarSucursalVtn IdOficina="@OficinaSeleccionada.Id" Sucursal="@sucursalSeleccionado" OnClosed="handleEditSucursalClosed" />
+}
+
+<style>
+    .office-link{
+        cursor:pointer;
+    }
+    .office-link:hover{
+        background-color: #eee;
+    }
+
+</style>
+
+@code {
+    private IEnumerable<IEnlace> Oficinas {get;set;} = Array.Empty<IEnlace>();
+    private IEnlace OficinaSeleccionada = null;    
+    private SfGrid<CatSucursale> DataGrid {get;set;}
+    private List<CatSucursale> DatosGrid {get;set;}
+    private Dictionary<int, string> messageErrors = new Dictionary<int, string>();
+    private CatSucursale sucursalSeleccionado;
+
+    private bool loadingPoblaciones = false, editarSucursalVisible = false;
+    
+    protected override void OnInitialized() {
+        CargarOficinas();
+    }
+
+    private void CargarOficinas(){
+        try{
+            this.Oficinas = SucursalesService.ObtenerOficinas()
+                ?? throw new Exception("Error al tratar de obtener las oficinas");
+        }catch(Exception){
+            this.Oficinas = null;
+        }
+    }
+
+    private async Task CargarPoblaciones(){
+        if( OficinaSeleccionada == null){
+            return;
+        }
+
+        this.loadingPoblaciones = true;
+
+        // Clear previous error
+        if(messageErrors.ContainsKey(OficinaSeleccionada.Id)) {
+            messageErrors.Remove(OficinaSeleccionada.Id);
+        }
+        
+        await Task.Delay(200);
+        
+        try{
+            var datos = this.SucursalesService.ObtenerSucursales( OficinaSeleccionada.Id );
+            this.DatosGrid = datos.ToList();
+        }catch(Exception err){
+            this.DatosGrid = null;
+            messageErrors[OficinaSeleccionada.Id] = err.Message;
+            Toaster.Add( $"Error al obtener las sucursales de la oficina\n  {err.Message}", MatToastType.Danger);
+        }
+
+        await Task.Delay(200);
+        this.loadingPoblaciones = false;
+    }
+
+    private async Task HandleOficinaClick(IEnlace e){
+        this.OficinaSeleccionada = e;
+        await CargarPoblaciones();
+    }
+
+    private async Task handleEditSucursal(CatSucursale sucursal){
+        if( this.editarSucursalVisible){
+            return;
+        }
+        this.sucursalSeleccionado = sucursal;
+        this.editarSucursalVisible = true;
+        await Task.Delay(200);
+    }
+
+    private async Task handleEditSucursalClosed(){
+        this.editarSucursalVisible = false;
+        await Task.Delay(200);
+
+        await CargarPoblaciones();
+    }
+    
+}

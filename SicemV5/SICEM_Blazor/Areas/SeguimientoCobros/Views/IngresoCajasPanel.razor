@@ -1,0 +1,52 @@
+@namespace SICEM_Blazor.SeguimientoCobros.Views
+@using SICEM_Blazor.SeguimientoCobros.Models
+    
+@if(Enlace != null){
+    <div class="flex-column border rounded bg-white @(IndexPage.ShowPanelInfo ?"d-flex": "collapse")" style="grid-area: 2/1/3/2; padding: .75rem 40.75rem .75rem .75rem;">
+
+        <div class="d-flex align-items-center">
+            <h2 class="px-4 text-uppercase">@Enlace?.Nombre - Recaudacion por sucursales</h2>
+            <MatIcon Class="close-icon" @onclick="@(e => HandleClosePanelInfo())" style="margin-left: auto; padding: 2px; cursor:pointer;" Icon="clear"></MatIcon>
+        </div>
+        
+        <div style="height: calc(100% - 3.2rem); width:100%;">
+            @if(CargandoLocalidades){
+                <div class="containter d-flex flex-column align-items-center justify-content-center h-100">
+                    <h2 class="text-muted fa-2x text-uppercase">Cargando datos</h2>
+                    <progress style="width:24rem; height:4rem; margin-top:5px;"></progress>
+                </div>
+            }else{
+                <SfGrid DataSource="@IngresosHorarios" TValue="IngresoHorario" Height="100%" Width="100%" EnableHover="true" AllowGrouping="true">
+                    <GridGroupSettings Columns="@(new string[] { "Sucursal"})" ShowDropArea="false">
+                        <CaptionTemplate>
+                            @{
+                                var order = (context as CaptionTemplateContext);
+                                var totalCobrado = IngresosHorarios.Where( item => item.Sucursal == order.Key).Sum( item => item.Cobrado);
+                                <div>SUCURSAL @order.Key <span class="px-2 fw-bold">@totalCobrado.ToString("c2")</span></div>
+                            }
+                        </CaptionTemplate>
+                    </GridGroupSettings>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(IngresoHorario.Sucursal)" HeaderText="Localidad" TextAlign="TextAlign.Left" Width="200" />
+                        <GridColumn Field="@nameof(IngresoHorario.Caja)" HeaderText="Caja" TextAlign="TextAlign.Right" Format="c2" Width="220" />
+                        <GridColumn Field="@nameof(IngresoHorario.Recibos)" HeaderText="Recibos" TextAlign="TextAlign.Center" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Format="c2" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora0708)" HeaderText="07:00 - 08:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora0809)" HeaderText="08:00 - 09:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora0910)" HeaderText="09:00 - 10:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1011)" HeaderText="10:00 - 11:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1112)" HeaderText="11:00 - 12:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1213)" HeaderText="12:00 - 13:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1314)" HeaderText="13:00 - 14:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1415)" HeaderText="14:00 - 15:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1516)" HeaderText="15:00 - 16:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1617)" HeaderText="16:00 - 17:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1718)" HeaderText="17:00 - 18:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1819)" HeaderText="18:00 - 19:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                        <GridColumn Field="@nameof(IngresoHorario.Hora1920)" HeaderText="19:00 - 20:00" TextAlign="TextAlign.Right" Format="n0" Width="140" />
+                    </GridColumns>
+                </SfGrid>
+            }
+        </div>
+    </div>
+}

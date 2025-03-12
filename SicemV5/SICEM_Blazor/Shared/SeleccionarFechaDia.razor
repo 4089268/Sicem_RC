@@ -1,0 +1,81 @@
+@inject SicemService sicemService
+
+<div class="seleccionar-fecha d-flex flex-row align-items-center" style="height:4rem; font-size:1.2rem; overflow-x:auto;">
+    
+    <div class="mx-1 d-flex" style="gap:1rem;">        
+        <input type="date" class="px-2" style="width:180px; height:2.5rem;" @bind-value="@fecha1" >
+        <input type="button" style="width:100px; border:1px solid gray;" @onclick="@Procesar1_Click" Value="PROCESAR"></input>
+    </div>
+</div>
+
+<style>
+    .seleccionar-fecha input[type="button"]:hover{
+        background-color:whitesmoke;
+        outline: 1px solid #009bc1;
+    }
+</style>
+
+
+@code {
+    [Parameter]
+    public EventCallback<SeleccionarFechaEventArgs> ProcesarParam { get; set; }
+
+
+    [Parameter] public DateTime fecha1 {get;set;} = DateTime.Now;
+    [Parameter] public DateTime fecha2 {get;set;} = DateTime.Now;
+    private int SubSistema = 0;
+    private int Sector = 0;
+    private int añoInput = DateTime.Now.Year;
+    private int mesInput = DateTime.Now.Month;
+    private int estatusSeleccionado = 1;
+    private SeleccionarFechaEventArgs args = new SeleccionarFechaEventArgs();
+    private Dictionary<int,string> catalogoEstatus = new Dictionary<int,string>();
+
+    protected override void OnParametersSet()
+    {
+        añoInput = fecha1.Year;
+        mesInput = fecha1.Month;
+
+        catalogoEstatus = sicemService.CatalogoEstatusPadron();
+        StateHasChanged();
+    }
+    public void ActualizarFecha(DateTime xt){
+        this.fecha1 = xt;
+        this.fecha2 = xt;
+    }
+    public void ActualizarFecha(DateTime xt1, DateTime xt2){
+        this.fecha1 = xt1;
+        this.fecha2 = xt2;
+
+        this.añoInput = xt1.Year;
+        this.mesInput = xt1.Month;
+
+    }
+
+    private void Procesar1_Click() {
+        añoInput = fecha1.Year;
+        mesInput = fecha1.Month;
+
+        args.Fecha1 = fecha1;
+        args.Fecha2 = fecha2;
+        args.Subsistema = this.SubSistema;
+        args.Sector = this.Sector;
+        args.IdEstatus = estatusSeleccionado;
+
+        ProcesarParam.InvokeAsync(args);
+    }
+    private void Procesar2_Click() {
+        int diasMaxM = DateTime.DaysInMonth(añoInput,mesInput);
+        fecha1 = new DateTime(añoInput, mesInput, 1);
+        fecha2 = new DateTime(añoInput, mesInput, diasMaxM);
+
+        args.Fecha1 = fecha1;
+        args.Fecha2 = fecha2;
+        args.Subsistema = this.SubSistema;
+        args.Sector = this.Sector;
+        args.IdEstatus = estatusSeleccionado;
+        
+        ProcesarParam.InvokeAsync(args);
+    }
+
+}

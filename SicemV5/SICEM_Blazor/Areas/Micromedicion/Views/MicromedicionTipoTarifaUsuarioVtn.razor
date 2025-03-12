@@ -1,0 +1,70 @@
+@using Syncfusion.Blazor.Grids
+@using SICEM_Blazor.Micromedicion.Models
+@if(Visible){
+    <VentanaSecundaria Titulo="@Titulo" CerrarVentana="@CerrarModalClick" Filas="@(new double[] { 50, 610 })" Columnas="@(new double[]{900})">
+        <Content>
+
+            <div class="m-1 p-2 border rounded bg-white" style="grid-row: 1/2; grid-column: 1/2;">
+                <div class="w-100 d-flex align-items-center">
+                    <MatButton Class="ml-1 mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">
+                        <span>Exportar Excel</span>
+                        <i class="fa fa-file-excel-o ml-2 ms-2" aria-hidden="true"></i>
+                    </MatButton>
+                </div>
+            </div>
+
+            <div class="m-1 p-2 border rounded bg-white" style="grid-row: 2/3; grid-column: 1/2;">
+                <SfGrid @ref="DataGrid" DataSource="@DatosGrid" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="auto" EnableHover="true">
+                    <GridColumns>
+                        <GridColumn Field="@nameof(ResumenTarifaUsuario.Tarifa)" HeaderText="Tarifa" TextAlign="TextAlign.Left" Width="140" />
+                        <GridColumn Field="@nameof(ResumenTarifaUsuario.Reales)" HeaderText="Reales" TextAlign="TextAlign.Center" Width="100" Format="n0" />
+                        @* <GridColumn Field="@nameof(ResumenTarifaUsuario.RealesPorcFormat)" HeaderText="% Reales" TextAlign="TextAlign.Center" Width="100" Format="p2" /> *@
+                        <GridColumn Field="@nameof(ResumenTarifaUsuario.Promedios)" HeaderText="Promedios" TextAlign="TextAlign.Center" Width="100" Format="n0" />
+                        @* <GridColumn Field="@nameof(ResumenTarifaUsuario.PromediosPorcFormat)" HeaderText="% Promedios" TextAlign="TextAlign.Center" Width="100" Format="p2" /> *@
+                        <GridColumn Field="@nameof(ResumenTarifaUsuario.Medidos)" HeaderText="Medidos" TextAlign="TextAlign.Center" Width="100" Format="n0" />
+                        @* <GridColumn Field="@nameof(ResumenTarifaUsuario.MedidosPorcFormat)" HeaderText="% Medidos" TextAlign="TextAlign.Center" Width="100" Format="p2" /> *@
+                        <GridColumn Field="@nameof(ResumenTarifaUsuario.Fijos)" HeaderText="Fijos" TextAlign="TextAlign.Center" Width="100" Format="n0" />
+                        @* <GridColumn Field="@nameof(ResumenTarifaUsuario.FijosPorcFormat)" HeaderText="% Fijos" TextAlign="TextAlign.Center" Width="100" Format="p2" /> *@
+                        <GridColumn Field="@nameof(ResumenTarifaUsuario.Total)" HeaderText="Total" TextAlign="TextAlign.Center" Width="100" Format="n0" />
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </Content>
+    </VentanaSecundaria>
+}
+
+@code {
+    [Parameter] public bool Visible {get;set;} = false;
+    [Parameter] public EventCallback CerrarModal { get; set; }
+    [Parameter] public DateTime Fecha1 { get; set; }
+    [Parameter] public DateTime Fecha2 { get; set; }
+    [Parameter] public int Subsistema { get; set; }
+    [Parameter] public int Sector { get; set; }
+    public IEnlace Enlace { get; set; }
+    public string Titulo = "RESUMEN MICROMEDICION POR TIPO TARIFA Y TIPO USUARIO";
+
+    private SfGrid<ResumenTarifaUsuario> DataGrid {get;set;}
+    public List<ResumenTarifaUsuario> DatosGrid {get;set;}
+
+
+    //"******** Funciones ********"
+    public void Inicializar(IEnlace e, IEnumerable<ResumenTarifaUsuario> datos)
+    {
+        this.Enlace = e;
+        Titulo = $"{Enlace.Nombre.ToUpper()} - RESUMEN MICROMEDICION POR TIPO TARIFA Y TIPO USUARIO";
+        this.DatosGrid = datos.ToList();
+    }
+
+    private async Task GenerarExcel()
+    {
+        await this.DataGrid.ExcelExport(new ExcelExportProperties {
+            FileName = string.Format("sicem_{0}.xlsx", Guid.NewGuid().ToString().Replace("-", ""))
+        });
+    }
+
+    private async Task CerrarModalClick()
+    {
+        await CerrarModal.InvokeAsync(null);
+    }
+
+}

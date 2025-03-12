@@ -1,0 +1,59 @@
+@namespace SICEM_Blazor.SeguimientoCobros.Views
+@using SICEM_Blazor.SeguimientoCobros.Models
+@page "/seguimiento_cobros"
+
+<div style="
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: calc(100% - 28rem) 28rem;
+    grid-row-gap: 4px;
+">
+    <div id="map-wraper" class="p-2" style="width:100%; height:100%; grid-area: @(ShowPanelInfo ? "1/1/2/2" : "1/1/3/2") ;">
+        <div id="map" style="width:100%; height:100%;"></div>
+    </div>
+
+
+    @if(showDrawer){
+        <div class="d-flex p-2 justify-content-end" style="height:90vh; position:fixed; right:0; ">
+            <div class="border rounded-lg  m-2 p-2 bg-white" style=" width: 40rem;">
+                <div style="height:40%; width:100%;"> 
+                    <SfGrid @ref="dataGrid" DataSource="@IncomeDataGrid" TValue="OfficePushpinMap" Height="100%" Width="100%" EnableHover="true">
+                        <GridEvents RowSelected="OnGridSelectionChanged" TValue="OfficePushpinMap" />
+                        <GridColumns>
+                            <GridColumn Field="@nameof(OfficePushpinMap.Office)" HeaderText="Sucursal" TextAlign="TextAlign.Left" />
+                            <GridColumn Field="@nameof(OfficePushpinMap.Bills)" HeaderText="Recibos" TextAlign="TextAlign.Right" Format="n0" Width="70" />
+                            <GridColumn Field="@nameof(OfficePushpinMap.Income)" HeaderText="Ingresos" TextAlign="TextAlign.Right" Format="c2" Width="110" />
+                        </GridColumns>
+                    </SfGrid>
+                </div>
+                <div style="height:60%; width:100%;"> 
+                    
+                    <BlazorBootstrap.PieChart @ref="pieChart" Width="500" />
+
+                    @*
+                    <SfAccumulationChart @ref="myChart" Title="Ingresos por oficina">
+                        <AccumulationChartSeriesCollection>
+                            <AccumulationChartLegendSettings Visible="true" Position="LegendPosition.Bottom"></AccumulationChartLegendSettings>
+                            <AccumulationChartSeries DataSource="@incomeDataGraph" XName="Descripcion" YName="Valor1" Name="Ingresos" InnerRadius="40%" Palettes="@palettes">
+                                <AccumulationDataLabelSettings Visible="true" Name="Ingresos"></AccumulationDataLabelSettings>
+                            </AccumulationChartSeries>
+                        </AccumulationChartSeriesCollection>
+                        <AccumulationChartLegendSettings Visible="false"></AccumulationChartLegendSettings>
+                        <AccumulationChartTooltipSettings Enable="true"></AccumulationChartTooltipSettings>
+                    </SfAccumulationChart>
+                    *@
+                </div>
+            </div>
+        </div>
+    }
+    
+    
+    <CascadingValue Value="@(this)" IsFixed="true">
+        <IngresoCajasPanel @ref="IngresoCajasPanel" Enlace="EnlaceSeleccionado" />
+    </CascadingValue>
+
+</div>
+
+<BusyIndicator Busy="@isBusy" ContentText="Cargando oficinas...." />

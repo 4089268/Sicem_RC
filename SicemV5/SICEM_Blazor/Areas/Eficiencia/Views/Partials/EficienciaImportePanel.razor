@@ -1,0 +1,189 @@
+@namespace SICEM_Blazor.Eficiencia.Views.Partials
+@using Syncfusion.Blazor.Grids
+@using SICEM_Blazor.Eficiencia.Models
+@using SICEM_Blazor.Eficiencia.Data
+@using SICEM_Blazor.Data.Contracts
+@inject IMatToaster Toaster
+
+<MatTabGroup @ref="tabGroup">
+    <MatTab>
+        <LabelContent><span class="h5">PROPIOS</span></LabelContent>
+        <ChildContent>
+            <div class="p-1 w-100 h-100" Style="display:grid; grid-template-rows: 1fr; grid-template-columns: 100%;">
+                <SfGrid @ref="dataGridPropios" DataSource="@DatosGridPropios" TValue="EficienciaResumen" AllowResizing="true" AllowSorting="true" AllowFiltering="false"
+                        AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="100%" EnableHover="true">
+                    <GridColumns>
+                        <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="40">
+                            <Template>
+                                @{
+                                    var data = (context as EficienciaResumen);
+                                    if(data.Id > 0 && data.Id < 999) {
+                                        @switch (data.Estatus) {
+                                            case ResumenOficinaEstatus.Completado:
+                                                <i class="fas fa-check-circle" style="color:green; font-size:1.5rem;"></i>
+                                                break;
+                                            case ResumenOficinaEstatus.Error:
+                                                <i class="fas fa-exclamation-circle" style="color:red; font-size:1.5rem;"></i>
+                                                break;
+                                            default:
+                                                <div class="spinner-border p-2" role="status"> </div>
+                                                break;
+                                        }
+                                    }
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(EficienciaResumen.Oficina)" HeaderText="Oficina" TextAlign="TextAlign.Left" Width="170" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Facturado)" HeaderText="Facturado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Refacturado)" HeaderText="Refacturado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Anticipado)" HeaderText="Anticipado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Descontado)" HeaderText="Descontado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.EficienciaPorcentaje)" HeaderText="Eficiencia" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.EficienciaCNA)" HeaderText="% CNA" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                        <GridColumn HeaderText="Acciones" TextAlign="TextAlign.Left" Width="240">
+                            <Template>
+                                @{
+                                    var data = (context as EficienciaResumen);
+                                    if(data.Id > 0 && data.Id < 999) {
+                                        <div class="d-flex p-1">
+                                            <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia Anual" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaAnual_Click(data) ) >
+                                                <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia por Localidades" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaLocalidades_Click(data, true) ) >
+                                                <i class="fa fa-building" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </ChildContent>
+    </MatTab>
+
+    <MatTab>
+        <LabelContent><span class="h5">AGUA</span></LabelContent>
+        <ChildContent>
+            <div class="p-1 w-100 h-100" Style="display:grid; grid-template-rows: 1fr; grid-template-columns: 100%;">
+                <SfGrid @ref="dataGridAgua" DataSource="@DatosGridAgua" TValue="EficienciaResumen" AllowResizing="true" AllowSorting="true" AllowFiltering="false"
+                        AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="100%" EnableHover="true">
+                    <GridColumns>
+                        <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="40">
+                            <Template>
+                                @{
+                                    var data = (context as EficienciaResumen);
+                                    if(data.Id > 0 && data.Id < 999) {
+                                        @switch (data.Estatus) {
+                                            case ResumenOficinaEstatus.Completado:
+                                                <i class="fas fa-check-circle" style="color:green; font-size:1.5rem;"></i>
+                                                break;
+                                            case ResumenOficinaEstatus.Error:
+                                                <i class="fas fa-exclamation-circle" style="color:red; font-size:1.5rem;"></i>
+                                                break;
+                                            default:
+                                                <div class="spinner-border p-2" role="status"> </div>
+                                                break;
+                                        }
+                                    }
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(EficienciaResumen.Oficina)" HeaderText="Oficina" TextAlign="TextAlign.Left" Width="170" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Facturado)" HeaderText="Facturado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Refacturado)" HeaderText="Refacturado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Anticipado)" HeaderText="Anticipado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Descontado)" HeaderText="Descontado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.EficienciaPorcentaje)" HeaderText="Eficiencia" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                        <GridColumn Field="@nameof(EficienciaResumen.EficienciaCNA)" HeaderText="% CNA" TextAlign="TextAlign.Center" Width="110" Format="p2" />
+                        <GridColumn HeaderText="Acciones" TextAlign="TextAlign.Left" Width="240">
+                            <Template>
+                                @{
+                                    var data = (context as EficienciaResumen);
+                                    if(data.Id > 0 && data.Id < 999) {
+                                        <div class="d-flex p-1">
+                                            <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia Anual" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaAnual_Click(data) ) >
+                                                <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Eficiencia por Localidades" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => EficienciaLocalidades_Click(data, false) ) >
+                                                <i class="fa fa-building" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </ChildContent>
+    </MatTab>
+</MatTabGroup>
+
+@code {
+
+    [Parameter]
+    public List<EficienciaResumen> DatosGridPropios {get;set;}
+    [Parameter]
+    public List<EficienciaResumen> DatosGridAgua {get;set;}
+
+    private SfGrid<EficienciaResumen> dataGridPropios {get;set;}
+    private SfGrid<EficienciaResumen> dataGridAgua {get;set;}
+    
+    private MatTabGroup tabGroup;
+
+
+    private async Task EficienciaAnual_Click(EficienciaResumen context){
+        Toaster.Add("Eficiencia Anual click", MatToastType.Warning);
+        await Task.Delay(100);
+
+        //if(EficienciaAnual_Visible){
+        //    return;
+        //}
+        //
+        //this.busyDialog = true;
+        //await Task.Delay(100);
+        //
+        //this.EnlaceSeleccionado = context.Enlace;
+        //
+        //this.DatosEficienciaAnual = eficienciaService.ObtenerResumenAnual(context.Enlace, Fecha1.Year, Subsistema, Sector).ToList();
+        //if(DatosEficienciaAnual.Count() > 0){
+        //    EficienciaAnual_Visible = true;
+        //}else{
+        //    Toaster.Add("Error al procesar la consulta, intentelo mas tarde.", MatToastType.Warning);
+        //}
+        //
+        //await Task.Delay(100);
+        //this.busyDialog = false;
+    
+    }
+
+    private async Task EficienciaLocalidades_Click(EficienciaResumen context , bool solo_propios ){
+        Toaster.Add("Eficiencia Localidades click", MatToastType.Warning);
+        await Task.Delay(100);
+
+        //if(EficienciaLocalidadesVisible){
+        //    return;
+        //}
+        //
+        //this.busyDialog = true;
+        //await Task.Delay(100);
+        //
+        //this.EnlaceSeleccionado = context.Enlace;
+        //
+        //this.DatosEficienciaLocalidades = eficienciaService.EficienciaPorLocalidades(context.Enlace, Fecha1.Year, Fecha1.Month, Subsistema, Sector, solo_propios ).ToList();
+        //if(this.DatosEficienciaLocalidades.Count() > 0){
+        //    EficienciaLocalidadesVisible = true;
+        //}else{
+        //    Toaster.Add("Error al procesar la consulta, intentelo mas tarde.", MatToastType.Warning);
+        //}
+        //
+        //await Task.Delay(100);
+        //this.busyDialog = false;
+        
+    }
+
+}

@@ -1,0 +1,127 @@
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using SICEM_Blazor.Descuentos.Models
+@inject IJSRuntime JSRuntime
+
+@if (Visible){
+    <VentanaSecundaria Titulo="@Titulo" CerrarVentana="@CerrarModal" Filas="@(new double[] {50, 600})" Columnas="@(new double[]{1010})">
+        <Content>
+            <div class="m-1 p-2 border rounded bg-white" style="grid-row: 1/2; grid-column: 1/2;">
+                <div class="w-100 d-flex align-items-center">
+                    <MatButton Class="ml-1 mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">Exportar Excel <i class="fa fa-file-excel-o ml-2" aria-hidden="true"></i> </MatButton>
+                    <MatButton Class="mr-2" Raised="true" Style="height:2.5rem;" Disabled="true">Generar Reporte <i class="fa fa-file-pdf-o ml-2" aria-hidden="true"></i></MatButton>
+                </div>
+            </div>
+
+            <div class="m-1 p-2 border rounded bg-white" style="grid-row: 2/3; grid-column: 1/2;">
+                <SfGrid @ref="dataGrid" DataSource="@datosGrid" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="auto" EnableHover="true">
+                    <GridColumns>
+                        <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="55">
+                            <Template>
+                                @{
+                                    var data = (context as Descuentos_Autorizo_Detalle);
+                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Mostrar Datos General" @onclick="@( e => MostrarEnConsultaGeneral(data))" disabled="@(data.Cuenta <= 0)">
+                                        <i class="fa fa-address-book-o" aria-hidden="true"></i>
+                                    </button>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Id_Abono)" HeaderText="Id Abono" TextAlign="TextAlign.Left" Width="140" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Cuenta)" HeaderText="Cuenta" TextAlign="TextAlign.Center" Width="110" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Usuarios)" HeaderText="Usuario" TextAlign="TextAlign.Left" Width="220" />
+                        @*<GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Colonia)" HeaderText="Colonia" TextAlign="TextAlign.Left" Width="220" />*@
+                        @*<GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Tipo_Usuario)" HeaderText="Tipo Usuario" TextAlign="TextAlign.Left" Width="200" />*@
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Fecha)" HeaderText="Fecha" TextAlign="TextAlign.Center" Width="135" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Cve)" HeaderText="CVE" TextAlign="TextAlign.Center" Width="120" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Autorizo)" HeaderText="Autorizo" TextAlign="TextAlign.Left" Width="220" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Justifica)" HeaderText="Justifica" TextAlign="TextAlign.Left" Width="240" />
+                        @*<GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Agua)" HeaderText="Agua" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Drenaje)" HeaderText="Drenaje" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Saneamiento)" HeaderText="Saneamiento" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Rez_Agua)" HeaderText="Rez Agua" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Rez_Drenaje)" HeaderText="Rez Drenaje" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Rez_Saneamiento)" HeaderText="Rez Sane" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Otros)" HeaderText="Otros" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Recargos)" HeaderText="Recargos" TextAlign="TextAlign.Right" Width="120" Format="c2" />*@
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Subtotal)" HeaderText="Subtotal" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Iva)" HeaderText="IVA" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Descuentos_Autorizo_Detalle.Total)" HeaderText="Total" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+
+                    </GridColumns>
+                </SfGrid>
+            </div>
+
+        </Content>
+    </VentanaSecundaria>    
+
+    @if(DatosGenerales_visible){
+        <DatosGenerales_Dialog IdOficina="@(enlaceSeleccionado.Id)" Cuenta="@CuentaActual" CerrarVentana="@(e => DatosGenerales_visible = false)"/>
+    }
+
+}
+
+@code {
+
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback CerrarModal { get; set; }
+    [Parameter] public DateTime Fecha1 { get; set; }
+    [Parameter] public DateTime Fecha2 { get; set; }
+    [Parameter] public int Subsistema { get; set; }
+    [Parameter] public int Sector { get; set; }
+    public string Titulo = "";
+    private IEnlace enlaceSeleccionado;
+
+    SfGrid<Descuentos_Autorizo_Detalle> dataGrid;
+    public List<Descuentos_Autorizo_Detalle> datosGrid;
+    private bool DatosGenerales_visible = false;
+    private string CuentaActual = "0";
+
+
+    //"******** Funciones ********"
+    private async Task Cerrar_Modal() {
+        this.datosGrid = new List<Descuentos_Autorizo_Detalle>();
+        await CerrarModal.InvokeAsync("");
+    }
+    public void Inicializar(IEnlace enlace, IEnumerable<Descuentos_Autorizo_Detalle> datos) {
+        this.enlaceSeleccionado = enlace;
+        this.datosGrid = datos.ToList();
+    }
+    private void MostrarEnConsultaGeneral(Descuentos_Autorizo_Detalle e) {
+        this.CuentaActual = e.Cuenta.ToString();
+        DatosGenerales_visible = true;
+    }
+
+    private async Task GenerarExcel() {
+        await this.dataGrid.ExcelExport(new ExcelExportProperties {
+            FileName = string.Format("sicem_{0}.xlsx", Guid.NewGuid().ToString().Replace("-", ""))
+        });
+    }
+    private async Task GenerarPdf() {
+        string titulo = string.Format("Ingresos por Conceptos del {0} al {1}", this.Fecha1.ToString("dd/MM/yyyy"), this.Fecha2.ToString("dd/MM/yyyy"));
+        List<PdfHeaderFooterContent> xconts = new List<PdfHeaderFooterContent>();
+        xconts.Add(
+            new PdfHeaderFooterContent() {
+                Type = ContentType.Text,
+                Value = titulo,
+                Position = new PdfPosition() { X = 10, Y = 10 },
+                Style = new PdfContentStyle() {
+                    TextBrushColor = "#000000",
+                    FontSize = 13
+                }
+            }
+        );
+
+        await this.dataGrid.PdfExport(new PdfExportProperties {
+            PageOrientation = PageOrientation.Landscape,
+            Header = new PdfHeader {
+                Contents = xconts
+            },
+            FileName = string.Format("sicem_IngresosxDias{0}.pdf", Guid.NewGuid().ToString().Replace("-", ""))
+        });
+    }
+
+
+}

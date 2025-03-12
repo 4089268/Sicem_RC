@@ -1,0 +1,199 @@
+﻿@inject IJSRuntime JSRuntime
+@inject SicemService sicemService
+
+<div class="sidebar-menu h-100">
+
+    <MatNavMenu @ref="navMenu">
+        @if(OpcionesDisponibles.Contains(12)){
+        <MatNavItem Title="Consulta General Test" Href="/consultaGeneral">
+            <MatIcon Icon="assignment_ind"/>&nbsp;Consulta General
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(11)){
+        <MatNavItem Title="Busqueda Avanzada Test" Href="/analisisInfo">
+            <MatIcon Icon="search"/>&nbsp;Busqueda Avanzada
+        </MatNavItem>
+        }
+
+        <MatDivider></MatDivider>
+
+        
+        <MatNavItem Title="Seguimiento Cobros" Href="/seguimiento_cobros">
+            <MatIcon Icon="settings_input_antenna"/>&nbsp;Seguimiento Cobros
+        </MatNavItem>
+
+        @if(OpcionesDisponibles.Contains(1)){
+        <MatNavItem Title="Recaudacion" Href="/recaudacion">
+            <MatIcon Icon="local_atm"/>&nbsp;Recaudación
+        </MatNavItem>
+        }
+
+        <MatNavItem Title="Litros Segundos" Href="/litros-segundos">
+            <MatIcon Icon="opacity"/>&nbsp;Litros Segundo
+        </MatNavItem>
+
+        @if(OpcionesDisponibles.Contains(2)){
+        <MatNavItem Title="Descuentos" Href="/descuentos">
+            <MatIcon Icon="book"/>&nbsp;Descuentos
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(5)){
+        <MatNavItem Title="Facturación" Href="/facturacion">
+            <MatIcon Icon="receipt"/>&nbsp;Facturación
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(13)){
+        <MatNavSubMenu>
+            <MatNavSubMenuHeader Title="Eficiencia">
+                <MatNavItem AllowSelection="false">
+                    <MatIcon Icon="trending_up"/>&nbsp;Eficiencia
+                </MatNavItem>
+            </MatNavSubMenuHeader>
+            <MatNavSubMenuList>
+                <MatNavItem Title="Eficiencia X Ingresos" Href="/eficiencia">
+                    <MatIcon Icon="attach_money"/>&nbsp;Eficiencia X Ingresos
+                </MatNavItem>
+                <MatNavItem Title="Eficiencia X Volumen" Href="/eficienciaVolumen">
+                    <MatIcon Icon="opacity"/>&nbsp;Eficiencia X Volumen
+                </MatNavItem>
+                <MatNavItem Title="Eficiencia X Usuarios" Href="/EficienciaUsuarios">
+                    <MatIcon Icon="supervised_user_circle"/>&nbsp;Eficiencia X Usuarios
+                </MatNavItem>
+            </MatNavSubMenuList>
+        </MatNavSubMenu>
+        }
+
+        @if(OpcionesDisponibles.Contains(14)){
+        <MatNavItem Title="Micromedición" Href="/micromedicion">
+            <MatIcon Icon="looks"/>&nbsp;Micromedición
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(9)){
+        <MatNavItem Title="Padrón de Usuarios" Href="/padron">
+            <MatIcon Icon="supervisor_account"/>&nbsp;Padrón de Usuarios
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(10)){
+        <MatNavItem Title="Ordenes de Trabajo" Href="/ordenes">
+            <MatIcon Icon="event_note"/>&nbsp;Ordenes de Trabajo
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(8)){
+        <MatNavItem Title="Antiguedad de Saldos" Href="/controlRezago">
+            <MatIcon Icon="ballot"/>&nbsp;Antiguedad de Saldos
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(15)){
+        <MatNavItem Title="Atención de Usuarios" Href="/atencion">
+            <MatIcon Icon="beenhere"/>&nbsp;Atención de Usuarios
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(16)){
+        <MatNavItem Title="Simulador Tarifario" Href="/simuladorTarifario">
+            <MatIcon Icon="touch_app"/>&nbsp;Simulador Tarifario
+        </MatNavItem>
+        }
+
+        @if(OpcionesDisponibles.Contains(17)){
+        
+        <MatNavSubMenu>
+            <MatNavSubMenuHeader Title="Ubitoma">
+                <MatNavItem AllowSelection="false">
+                    <MatIcon Icon="phonelink_ring"/>&nbsp;Ubitoma
+                </MatNavItem>
+            </MatNavSubMenuHeader>
+            <MatNavSubMenuList>
+                <MatNavItem Title="Consulta Movimientos" Href="/consulta-ubitoma">
+                    <MatIcon Icon="system_update"/>&nbsp;Consulta Movimientos
+                </MatNavItem>
+                <MatNavItem Title="Rutas" Href="/rutas-ubitoma">
+                    <MatIcon Icon="near_me"/>&nbsp;Rutas
+                </MatNavItem>
+                <MatNavItem Title="Operadores Ubitoma" Href="/ubitoma/operadores">
+                    <MatIcon Icon="record_voice_over"/>&nbsp;Operadores Ubitoma
+                </MatNavItem>
+            </MatNavSubMenuList>
+        </MatNavSubMenu>
+
+        }
+
+        <MatNavItem Title="Lecturas" Href="/lecturas">
+            <MatIcon Icon="gps_fixed"/>&nbsp;Lecturas
+        </MatNavItem>
+        
+
+        <MatDivider></MatDivider>
+
+        @if(sicemService.Usuario.Administrador){
+        <MatNavItem Title="Configuración" Href="/configuracion">
+            <MatIcon Icon="settings"/>&nbsp;Configuración
+        </MatNavItem>
+        }
+
+    </MatNavMenu>
+
+</div>
+
+<style>
+    .mdc-nav-menu li{
+        width: 240px;
+        padding: 0px 3px;
+    }
+
+    .mdc-nav-menu .material-icons {
+        padding: 0 1rem 0 .25rem;
+    }
+    .mdc-nav-menu li a{
+        padding: 0px 3px;
+    }
+
+</style>
+
+@code {
+    [Parameter] public EventCallback MenuItemClick {get;set;}
+
+    public string msg = "test";
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private MatNavMenu navMenu;
+
+    private void ToggleNavMenu() {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private IEnumerable<int> OpcionesDisponibles {
+        get{
+            try
+            {
+                return sicemService.Usuario.OpcionSistemas.Select(item => item.Id);
+            }
+            catch(Exception){
+                return new int[]{};
+            }
+        }
+    }
+
+    private async Task MenuClick(int key) {
+        if (key != -1) {
+            await JSRuntime.InvokeVoidAsync("RemoverCSSClass", new string[] { ".itemMenu", "active" });
+            await JSRuntime.InvokeVoidAsync("AgregarCSSClass", new string[] { $".itemMenu[Key={key}]", "active" });
+        }
+        
+        try{
+            await MenuItemClick.InvokeAsync(null);
+        }catch(Exception){
+        }
+    }
+
+
+}

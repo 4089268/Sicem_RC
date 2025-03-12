@@ -1,0 +1,35 @@
+@page "/lecturas"
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Charts
+@using SICEM_Blazor.Lecturas.Data
+@using SICEM_Blazor.Lecturas.Models
+@inject IMatToaster Toaster
+@inject IJSRuntime JSRuntime
+@inject SicemService sicemService
+@inject LecturasService lecturasService  
+
+
+<div class="layout-page1">
+
+    <div class="title-page" style="grid-area:1/1/2/2;">CONSULTA DE LECTURAS</div>
+
+    <MatTabGroup @ref="tabGroup" Class="mx-1 mt-2 mb-1 p-1 border rounded bg-white" Style="grid-row:2/6; grid-column:1/2;">
+        <MatTab >
+            <LabelContent><span class="h5">Desempeño Lecturistas</span></LabelContent>
+            <ChildContent>
+                <DesempenioLecturistas />
+            </ChildContent>
+        </MatTab>
+        <MatTab>
+            <LabelContent><span class="h5">Resumen de Incidencias</span></LabelContent>
+            <ChildContent>
+                <IncidenciasLecturas />
+            </ChildContent>
+        </MatTab>
+    </MatTabGroup> 
+
+</div>
+
+@code{
+      MatTabGroup tabGroup;
+}

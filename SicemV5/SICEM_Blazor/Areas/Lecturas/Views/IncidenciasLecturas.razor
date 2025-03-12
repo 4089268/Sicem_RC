@@ -1,0 +1,86 @@
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Charts
+@using SICEM_Blazor.Lecturas.Data
+@using SICEM_Blazor.Lecturas.Models
+@inject IMatToaster Toaster
+@inject IJSRuntime JSRuntime
+@inject SicemService sicemService
+@inject LecturasService lecturasService  
+
+<div style="width: 100%; height: calc(100vh - 20rem); display: grid; grid-template-columns: 100%; grid-template-rows: 5rem 1fr 1fr; grid-gap: .4rem .4rem;">
+
+    <div class="border rounded bg-white px-2 d-flex align-items-center" style="grid-area:1/1/2/2;">
+        <SeleccionarFecha fecha1="@Fecha1" fecha2="@Fecha2" ProcesarParam="@Procesar" OcultarSector="true"/>
+    </div>
+
+    @* ****** DataGrid ****** *@
+    <div class="border rounded bg-white p-2 d-flex" style="grid-area:2/1/4/2;">
+        <SfGrid @ref="dataGrid" DataSource="@datosLecturas" TValue="Incidencia" AllowResizing="true" AllowSorting="true" AllowFiltering="false"
+                AllowExcelExport="true" Height="100%" Width="100%" EnableHover="true">
+            <GridColumns>
+                <GridColumn Field="@nameof(Incidencia.Cuenta)" HeaderText="Cuenta" TextAlign="TextAlign.Center" Width="115" Format="n0" />
+                <GridColumn Field="@nameof(Incidencia.Localizacion)" HeaderText="Localizacion" TextAlign="TextAlign.Left" Width="170" />
+                <GridColumn Field="@nameof(Incidencia.Usuario)" HeaderText="Usuario" TextAlign="TextAlign.Left" Width="170" />
+                <GridColumn Field="@nameof(Incidencia.Lecturista)" HeaderText="Lecturista" TextAlign="TextAlign.Left" Width="170" />
+                <GridColumn Field="@nameof(Incidencia.Lectura)" HeaderText="Lectura" TextAlign="TextAlign.Left" Width="120" />
+                <GridColumn Field="@nameof(Incidencia.Anomalia)" HeaderText="Anomalia" TextAlign="TextAlign.Left" Width="170" />
+                <GridColumn Field="@nameof(Incidencia.Descripcion)" HeaderText="Descripcion" TextAlign="TextAlign.Left" Width="210" />
+                <GridColumn Field="@nameof(Incidencia.Fecha)" HeaderText="Fecha" TextAlign="TextAlign.Left" Width="170" />
+            </GridColumns>
+        </SfGrid>
+    </div>
+
+    <BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
+
+</div>
+
+@code{
+
+    private SfGrid<Incidencia> dataGrid {get;set;}
+    private List<Incidencia> datosLecturas {get;set;}
+    private bool busyDialog = false;
+
+    private DateTime Fecha1, Fecha2;
+    private int Subsistema, Sector;
+    private IEnlace EnlaceSeleccionado;
+
+    //********* Funciones  *********
+    protected override void OnInitialized() {
+        this.Fecha1 = DateTime.Now;
+        this.Fecha2 = DateTime.Now;
+        this.Subsistema = 0;
+        this.Sector = 0;
+    }
+
+    public void Procesar(SeleccionarFechaEventArgs e) {
+        this.Fecha1 = e.Fecha1;
+        this.Fecha2 = e.Fecha2;
+        this.Subsistema = e.Subsistema;
+        this.Sector = e.Sector;
+
+        datosLecturas = new List<Incidencia>();
+        var enlaces = sicemService.ObtenerOficinasDelUsuario();
+        var oficinas = sicemService.ObtenerEnlaces().Where(item => enlaces.Select(i => i.Id).Contains(item.Id)).ToArray();
+
+        this.EnlaceSeleccionado = oficinas.FirstOrDefault();
+        
+        ProcesarConsulta(this.EnlaceSeleccionado);
+
+    }
+
+    private async void ProcesarConsulta(IEnlace oficina){
+        this.busyDialog = true;
+        await Task.Delay(100);
+    
+        var dateRange = new DateRange(Fecha1, Fecha2);
+        
+        this.datosLecturas = lecturasService.ObtenerIncidencias(dateRange, oficina).ToList();
+
+
+
+        await Task.Delay(100);
+        this.busyDialog = false;
+        StateHasChanged();
+    }
+
+}

@@ -1,0 +1,170 @@
+@namespace SICEM_Blazor.Pages.AnalisisInformacion
+@using SICEM_Blazor.Data.KML
+@using System.IO
+
+<VentanaSecundaria 
+    Titulo="@Titulo" 
+    Filas="@(new double[]{40, .60, .30})" 
+    Columnas="@(new double[]{.78, .21})" 
+    CerrarVentana="HandleCloseWindow" 
+    Draggable="false"
+>
+
+    <Content>
+
+        <div class="p-2" style="width:100%; height:100%; grid-area:1/1/2/3;">
+            <div class="button px-3 py-2 bg-success mr-4" @onclick="@(e => ExportarCamposVisible = true)" >
+                <i class="fa fa-download me-2"></i>
+                <span>Exportar @(MarkerDataSource.Count() > 1 ? "Ubicaciones" :"Ubicacion" )</span>
+            </div>
+        </div>
+
+        <div id="map-wraper" class="p-2" style="width:100%; height:100%; grid-area:2/1/4/2;">
+            <div id="map" style="height:100%;width:100%;"></div>
+        </div>
+
+        @if( ShowDetailsPanel ){
+            <div class="p-2 border rounded" style="width:100%; height:100%; grid-area:2/2/4/3;">
+
+                <div class="mb-2 d-flex align-items-center justify-content-around" style="3rem;">
+                    <input type="radio" value="regulares" class="btn-check" name="options" id="option1" autocomplete="off" @onchange="HandleRadioButtonChanged">
+                    <label class="btn" for="option1">Regulares</label>
+                    <input type="radio" value="recuperables" class="btn-check" name="options" id="option2" autocomplete="off" @onchange="HandleRadioButtonChanged">
+                    <label class="btn" for="option2">Recuperables</label>
+                    <input type="radio" value="morosos" class="btn-check" name="options" id="option3" autocomplete="off" @onchange="HandleRadioButtonChanged">
+                    <label class="btn" for="option3">Morosos</label>
+                </div>
+
+                <div class="d-flex flex-column w-100 p-1 align-items-center overflow-y-scroll" style="overflow-y: scroll; height: calc(100% - 3.5rem);">
+                @foreach (var markData in MarkerDataSourceItems)
+                {
+                    <div class="point-item w-100 mx-1 my-2 p-2 rounded" @onclick="@(e => HandleMarkdataListClick(markData))" style="background-color: @(GetColorByStatus(markData));">
+                        <div class="tit loc w-100"> @markData.Subtitulo </div>
+                        <div class="d-flex">
+                            <span class="tit w-50">Cuenta: @markData.Descripcion</span>
+                            <span class="loc w-50"> Meses Adeudo: @markData.MesesAdeudo </span>
+                        </div>
+                        <div class="d-flex">
+                            <span class="loc w-50"> @markData.Latitude.ToString() </span>
+                            <span class="loc w-50"> @markData.Longitude.ToString() </span>
+                        </div>
+                    </div>
+                }
+                </div>
+
+            </div>
+        }
+
+        <div id="data-panel" class="border rounded shadow collapse" style="width:100%; height:100%; grid-area:3/1/4/2;">
+            <MapDataPanel @ref="mapDataPanel" PointInfo="pointInfoSelected" />
+        </div>
+      
+        <div id="visorImg" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner" id="visorImg-list">
+                <div class="carousel-item active">
+                    <img src="..." class="d-block w-100" alt="...">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-target="#visorImg" data-slide="prev" style="border: none; background: #00000075;">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-target="#visorImg" data-slide="next" style="border: none; background: #00000075;">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </button>
+            <button id="btn-closeImg" type="button" class="btn-close fa fa-close" aria-label="Close"></button>
+        </div>
+
+    </Content>
+</VentanaSecundaria>
+
+@if(ExportarCamposVisible){
+    <MapaCamposExportarVtn  OnClosed="@GenerarKML"/>
+}
+
+<style>
+    #visorImg{
+        display:none;
+        position: relative;
+        top: 113px;
+        left: 75px;
+        z-index: 999;
+        width: 350px;
+        height: 350px;
+        position: fixed;
+        border: 2px solid #555;
+        box-shadow: #333 3px 3px 10px;
+        border-radius: .7rem;
+        background-image: url(img/loading2.gif);
+        background-color: white;
+        background-position: center;
+        background-repeat: no-repeat;
+        transition: width .5s, height .5s;
+        cursor: pointer;
+    }
+    #visorImg.agrandar{
+        width: 50vh;
+        height: 50vh;
+    }
+    #visorImg img{
+        width: 100%;
+        height: 100%;
+        border-radius: .7rem;
+    }
+
+    #visorImg .btn-close{
+        z-index: 666;
+        position: absolute;
+        top: 5px;
+        left: 2px;
+        background: #0000;
+        border: none;
+        font-size: 1.4rem;
+        color: #333;
+    }
+
+    #visorImg .carousel-item .carousel-caption:hover{
+        color: #111;
+        background: #f5f5f588;
+    }
+
+    #visorImg .infoCuenta{
+        display:none;
+    }
+
+    .point-item{
+        display: flex;
+        flex-flow: column;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 1rem;
+        box-shadow: #3333336b 0px 2px 4px;
+        margin-bottom: .5rem;
+        cursor: pointer;
+    }
+    .point-item .tit{
+        font-size: 1.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .point-item .loc{
+        font-size: .9rem;
+    }
+
+    
+    img.icon-red { 
+        filter: hue-rotate(135deg);
+    }
+
+    img.icon-orange { 
+        filter: hue-rotate(160deg);
+    }
+
+    img.icon-green { 
+        filter: hue-rotate(270deg);
+    }
+
+
+</style>

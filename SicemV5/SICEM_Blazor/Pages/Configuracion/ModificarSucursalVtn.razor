@@ -1,0 +1,70 @@
+@using SICEM_Blazor.Models.Entities.Arquos
+@inject SucursalesService sucursalesService
+@inject IMatToaster Toaster
+
+<VentanaSecundaria Titulo="@Titulo" Filas="@GridFilas" Columnas="@GridColumnas" CerrarVentana="@CerrarModal">
+    <Content>
+        <div class="px-4">
+            <div class="mb-3 form-group">
+                <label for="descripcion" class="form-label" style="font-size: 1.2rem;">Sucursal</label>
+                <input type="text" class="form-control" id="descripcion" @bind="Sucursal.Descripcion"  readonly="true" />
+            </div>
+            
+            @*
+            <div class="mb-3 form-group">
+                <label class="form-label" style="font-size: 1.2rem;" for="latitud">Latitud</label>
+                <input type="text" min="1" max="10" step="1" class="form-control mr-1" id="latitud" @bind="Sucursal.Latitud" />
+            </div>
+            <div class="mb-3 form-group">
+                <label class="form-label" style="font-size: 1.2rem;" for="longitud" >Longitud</label>
+                <input type="text" min="1" max="10" step="1" class="form-control mr-1" id="longitud" @bind="Sucursal.Longitud" />
+            </div>
+            <div class="mb-3 form-group form-check">
+                <input type="checkbox" class="form-check-input mr-2" id="inactivo" @bind="Sucursal.Inactivo" />
+                <label class="form-check-label pl-2" for="inactivo" style="font-size: 1.2rem;">Inactivo</label>
+            </div>
+            *@
+        </div>
+
+        <div class="d-flex align-items-center justify-content-center mt-5">
+            <button class="button py-2 w-100 mx-2" @onclick="HandleGuardarClick">
+                <span>Guardar</span>
+            </button>
+        </div>
+    </Content>
+</VentanaSecundaria>
+
+
+<BusyIndicator Busy="@loading" ContentText="Cargando datos...." />
+
+@code{
+    [Parameter] public EventCallback OnClosed {get; set;}
+    [Parameter] public CatSucursale Sucursal {get; set;}
+    [Parameter] public Int32 IdOficina {get; set;}
+    private string Titulo = "Modificar sucursal";
+    
+    private double[] GridFilas = new double[]{210, 70};
+    private double[] GridColumnas = new double[]{ 320 };
+
+    private bool loading = false;
+    
+    private async Task CerrarModal(){
+        await OnClosed.InvokeAsync(null);
+    }
+
+    private async Task HandleGuardarClick(){
+        this.loading = true;
+        await Task.Delay(200);
+        
+        try{
+            this.sucursalesService.ModificarSucursal( (long) IdOficina!, Sucursal);
+        }catch(Exception err){
+            Toaster.Add( "Error al actualizar la sucursal", MatToastType.Danger);
+            Toaster.Add( err.Message, MatToastType.Danger);
+        }
+        
+        this.loading = false;
+        await CerrarModal();
+    }
+
+}
