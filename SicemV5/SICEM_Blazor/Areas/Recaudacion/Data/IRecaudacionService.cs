@@ -6,8 +6,7 @@ using SICEM_Blazor.Recaudacion.Models;
 namespace SICEM_Blazor.Recaudacion.Data {
     public interface IRecaudacionService {
 
-        public IEnumerable<Recaudacion_Resumen> ObtenerResumenPorOficinas(IEnumerable<IEnlace> enlaces, DateTime desde, DateTime hasta, int sb, int sect, bool agregarTotal);
-        public Recaudacion_Resumen ObtenerResumen(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);
+        public ResumenOficina ObtenerResumen(IEnlace enlace, DateRange dateRange);
         public Recaudacion_Analitico ObtenerAnalisisIngresos(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);
         public IEnumerable<Recaudacion_Rezago> ObtenerRezago(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);
         public IEnumerable<Recaudacion_IngresosDias> ObtenerIngresosPorDias(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);

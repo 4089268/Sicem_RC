@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using SICEM_Blazor.Data;
+using SICEM_Blazor.Data.Contracts;
 using SICEM_Blazor.Services;
 using SICEM_Blazor.Recaudacion.Models;
 using SICEM_Blazor.Models;
@@ -25,91 +26,41 @@ namespace SICEM_Blazor.Recaudacion.Data {
             this.logger = l;
         }
 
-        public IEnumerable<Recaudacion_Resumen> ObtenerResumenPorOficinas(IEnumerable<IEnlace> enlaces, DateTime desde, DateTime hasta, int sb, int sect, bool agregarTotal = true){
-            var response = new List<Recaudacion_Resumen>();
-            foreach(var enlace in enlaces){
-                var tmpItem = new Recaudacion_Resumen();
-                tmpItem.Enlace = enlace;
-                try {
-                    using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
-                        xConnecton.Open();
-                        var xCommand = new SqlCommand();
-                        xCommand.Connection = xConnecton;
-                        xCommand.CommandText = string.Format("Exec [Sicem_QRoo].[Ingresos_01] @nAno = {0}, @nMes = {1}", desde.Year, desde.Month);
-                        using(var xReader = xCommand.ExecuteReader()) {
-                            if(xReader.Read()) {
-                                decimal tmpDec = 0m;
-                                int tmpInt = 0;
-                                tmpItem.SubTotal = decimal.TryParse(xReader["subtotal"].ToString(), out tmpDec)?tmpDec:0m;
-                                tmpItem.Iva = decimal.TryParse(xReader["iva"].ToString(), out tmpDec) ? tmpDec : 0m;
-                                tmpItem.Total = decimal.TryParse(xReader["total"].ToString(), out tmpDec) ? tmpDec : 0m;
-                                tmpItem.Cobrado = decimal.TryParse(xReader["cobrado"].ToString(), out tmpDec) ? tmpDec : 0m;
-                                tmpItem.UsuariosFact = int.TryParse(xReader["usu_fac"].ToString(), out tmpInt) ? tmpInt : 0;
-                                tmpItem.UsuariosCobrado = int.TryParse(xReader["usu_cob"].ToString(), out tmpInt) ? tmpInt : 0;
-                                tmpItem.PorCobrado = decimal.TryParse(xReader["porc"].ToString(), out tmpDec) ? tmpDec : 0m;
-                                tmpItem.RecibosPropios = int.TryParse(xReader["rec_fac"].ToString(), out tmpInt) ? tmpInt : 0;
-                                tmpItem.RecibosOtros = int.TryParse(xReader["rec_otros"].ToString(), out tmpInt) ? tmpInt : 0;
-                            }
+        public ResumenOficina ObtenerResumen(IEnlace enlace, DateRange dateRange)
+        {
+            var response = new ResumenOficina(enlace);
+            try
+            {
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())) {
+                    sqlConnection.Open();
+                    var sqlCommand = new SqlCommand("[Sicem].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    sqlCommand.Parameters.AddWithValue("@cAlias", "TOTALES");
+                    sqlCommand.Parameters.AddWithValue("@cFecha1", dateRange.Desde_ISO);
+                    sqlCommand.Parameters.AddWithValue("@cFecha2", dateRange.Hasta_ISO);
+                    sqlCommand.Parameters.AddWithValue("@xSb", dateRange.Subsistema);
+                    sqlCommand.Parameters.AddWithValue("@xSec", dateRange.Sector);
+                    
+                    using(var sqlDataReader = sqlCommand.ExecuteReader())
+                    {
+                        if(sqlDataReader.Read())
+                        {
+                            response = ResumenOficina.FromDataReader(enlace, sqlDataReader);
                         }
                     }
-                }catch(Exception err) {
-                    logger.LogError(err, $">> Error al obtener resumen recaudacion enlace:{enlace.Nombre}");
-                }
-                response.Add(tmpItem);
-            }
-            if(agregarTotal && response.Count > 1) {
-                var tmpItemTotal = new Recaudacion_Resumen();
-                tmpItemTotal.Enlace = new Ruta(){
-                    Id = 999,
-                    Oficina = "TOTAL"
-                };
-                tmpItemTotal.SubTotal = response.Sum(item => item.SubTotal);
-                tmpItemTotal.Iva = response.Sum(item => item.Iva);
-                tmpItemTotal.Total = response.Sum(item => item.Total);
-                tmpItemTotal.Cobrado = response.Sum(item => item.Cobrado);
-                tmpItemTotal.UsuariosFact = response.Sum(item => item.UsuariosFact);
-                tmpItemTotal.UsuariosCobrado = response.Sum(item => item.UsuariosCobrado);
-                tmpItemTotal.PorCobrado = response.Sum(item => item.PorCobrado);
-                tmpItemTotal.RecibosPropios = response.Sum(item => item.RecibosPropios);
-                tmpItemTotal.RecibosOtros = response.Sum(item => item.RecibosOtros);
-                response.Add(tmpItemTotal);
-            }
-            return response.ToArray();
-        }
-        public Recaudacion_Resumen ObtenerResumen(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect) {
-            var response = new Recaudacion_Resumen();
-            response.Enlace = enlace;
-            response.Estatus = 1;
-            try {
-                using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
-                    xConnecton.Open();
-                    var xCommand = new SqlCommand();
-                    xCommand.Connection = xConnecton;
-                    xCommand.CommandText = string.Format("Exec [Sicem_QRoo].[Ingresos_01] @nAno = {0}, @nMes = {1}, @nSb = {2}, @nSec = {3}", desde.Year, desde.Month, sb, sect);
-                    using(var xReader = xCommand.ExecuteReader()) {
-                        if(xReader.Read()) {
-                            decimal tmpDec = 0m;
-                            int tmpInt = 0;
-                            response.SubTotal = decimal.TryParse(xReader["subtotal"].ToString(), out tmpDec) ? tmpDec : 0m;
-                            response.Iva = decimal.TryParse(xReader["iva"].ToString(), out tmpDec) ? tmpDec : 0m;
-                            response.Total = decimal.TryParse(xReader["total"].ToString(), out tmpDec) ? tmpDec : 0m;
-                            response.Cobrado = decimal.TryParse(xReader["cobrado"].ToString(), out tmpDec) ? tmpDec : 0m;
-                            response.UsuariosFact = int.TryParse(xReader["usu_fac"].ToString(), out tmpInt) ? tmpInt : 0;
-                            response.UsuariosCobrado = int.TryParse(xReader["usu_cob"].ToString(), out tmpInt) ? tmpInt : 0;
-                            response.PorCobrado = decimal.TryParse(xReader["porc"].ToString(), out tmpDec) ? tmpDec : 0m;
-                            response.RecibosPropios = int.TryParse(xReader["rec_fac"].ToString(), out tmpInt) ? tmpInt : 0;
-                            response.RecibosOtros = int.TryParse(xReader["rec_otros"].ToString(), out tmpInt) ? tmpInt : 0;
-                        }
-                    }
-                    xConnecton.Close();
+                    sqlConnection.Close();
                 }
             }
-            catch(Exception err) {
-                logger.LogError(err, $" >> Error al obtener resumen recaudacion enlace:{enlace.Nombre}");
-                response.Estatus = 2;
+            catch(Exception err)
+            {
+                logger.LogError(err, "Error al obtener resumen recaudacion enlace '{enlace}': {message}", enlace.Nombre, err.Message);
+                response.Estatus = ResumenOficinaEstatus.Error;
             }
             return response;
         }
+
         public Recaudacion_Analitico ObtenerAnalisisIngresos(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect) {
             var respuesta = new Recaudacion_Analitico();
             try {
