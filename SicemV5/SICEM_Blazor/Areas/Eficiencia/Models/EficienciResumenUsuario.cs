@@ -4,7 +4,7 @@ using SICEM_Blazor.Data.Contracts;
 
 namespace SICEM_Blazor.Eficiencia.Models {
 
-    public class EficienciResumenUsuario : IResumOficina {
+    public class EficienciResumenUsuario : IResumenOficina {
     
         public IEnlace Enlace {get;set;}
         public int Af {get;set;}

@@ -6,7 +6,7 @@ using SICEM_Blazor.Data;
 using SICEM_Blazor.Data.Contracts;
 
 namespace SICEM_Blazor.ControlRezago.Models{
-    public class ResumenOficina : IResumOficina {
+    public class ResumenOficina : IResumenOficina {
         public ResumenOficinaEstatus Estatus { get; set;}
         public IEnlace Enlace {get;set;}
         public int Id {get => Enlace==null?999:Enlace.Id; }

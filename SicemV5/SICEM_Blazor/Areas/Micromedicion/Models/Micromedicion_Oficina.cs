@@ -6,7 +6,7 @@ using SICEM_Blazor.Data;
 using SICEM_Blazor.Data.Contracts;
 
 namespace SICEM_Blazor.Micromedicion.Models {
-    public class Micromedicion_Oficina: IResumOficina{
+    public class Micromedicion_Oficina: IResumenOficina{
         public ResumenOficinaEstatus Estatus { get; set; }
 
         public int Id {get => Enlace==null?999:Enlace.Id; }
