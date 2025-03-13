@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using Syncfusion.Blazor.Grids;
 using Syncfusion.Blazor.Charts;
 using Microsoft.AspNetCore.Components;
@@ -12,7 +13,6 @@ using SICEM_Blazor.Services;
 using SICEM_Blazor.Models;
 using SICEM_Blazor.Areas.Recaudacion.Views;
 using SICEM_Blazor.Data;
-using System.Linq;
 
 namespace SICEM_Blazor.Recaudacion.Views;
 
@@ -40,8 +40,8 @@ public partial class RecaudacionPage
     private List<ChartItem> datosGraficaIngresos = new();
     private List<ChartItem> datosGraficaUsuarios = new();
 
-    private Recaudacion_IngresosAnalitico VtnAnalitico;
-    private bool VtnAnalitico_visible = false;
+    private IngresosAnaliticoVtn VtnAnalitico;
+    private bool VtnAnaliticoVisible = false;
 
     private Recaudacion_IngresosRezago VtnRezago;
     private bool VtnRezago_visible = false;
@@ -207,27 +207,24 @@ public partial class RecaudacionPage
     }
 
     #region Funciones Ventanas Secundarias
-    private async Task Analitico_Click(ResumenOficina data)
+    private async Task AnaliticoClick(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-
-        // if (VtnAnalitico_visible) {
-        //     return;
-        // }
-        // this.busyDialog = true;
-        // await Task.Delay(200);
-        // var tmpdata = recaudacionService.ObtenerAnalisisIngresos(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        // if (tmpdata == null) {
-        //     Toaster.Add("Hubo un error al procesar la peticion, intentelo mas tarde.", MatToastType.Warning);
-        // }
-        // else {
-        //     VtnAnalitico_visible = true;
-        //     VtnAnalitico.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS ANALITICO";
-        //     await VtnAnalitico.Inicializar(data.Enlace, tmpdata);
-        // }
-        // await Task.Delay(200);
-        // this.busyDialog = false;
+        if (VtnAnaliticoVisible) {
+            return;
+        }
+        this.busyDialog = true;
+        await Task.Delay(200);
+        var tmpdata = RecaudacionService.ObtenerAnalisisIngresos(data.Enlace, new DateRange(f1, f2, subsistema, sector));
+        if (tmpdata == null) {
+            Toaster.Add("Hubo un error al procesar la peticion, intentelo mas tarde.", MatToastType.Warning);
+        }
+        else {
+            VtnAnaliticoVisible = true;
+            VtnAnalitico.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS ANALITICO";
+            await VtnAnalitico.Inicializar(data.Enlace, tmpdata);
+        }
+        await Task.Delay(200);
+        this.busyDialog = false;
     }
     
     private async Task Rezago_Click(ResumenOficina data)

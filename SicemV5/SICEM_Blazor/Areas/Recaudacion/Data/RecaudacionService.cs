@@ -61,19 +61,28 @@ namespace SICEM_Blazor.Recaudacion.Data {
             return response;
         }
 
-        public Recaudacion_Analitico ObtenerAnalisisIngresos(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect) {
+        public Recaudacion_Analitico ObtenerAnalisisIngresos(IEnlace enlace, DateRange dateRange)
+        {
             var respuesta = new Recaudacion_Analitico();
-            try {
+            try
+            {
                 
-                //*** Analitico 
-                using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
-                    xConnecton.Open();
-                    var xCommand = new SqlCommand();
-                    xCommand.Connection = xConnecton;
-                    xCommand.CommandText = string.Format("EXEC [SICEM].[Recaudacion] @cAlias = 'ANALITICO', @cFecha1 = '{0}', @cFecha2 = '{1}', @cSub = {2}, @cSector = {3}", desde.ToString("yyyyMMdd"), hasta.ToString("yyyyMMdd"), sb, sect);
+                // * Analitico
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
+                {
+                    sqlConnection.Open();
+                    var sqlCommand1 = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    sqlCommand1.Parameters.AddWithValue("@cAlias", "ANALITICO");
+                    sqlCommand1.Parameters.AddWithValue("@cFecha1", dateRange.Desde_ISO);
+                    sqlCommand1.Parameters.AddWithValue("@cFecha2", dateRange.Hasta_ISO);
+                    sqlCommand1.Parameters.AddWithValue("@xSb", dateRange.Subsistema);
+                    sqlCommand1.Parameters.AddWithValue("@xSec", dateRange.Sector);
 
                     var xDataSet = new DataSet();
-                    var xDataAdapter = new SqlDataAdapter(xCommand);
+                    var xDataAdapter = new SqlDataAdapter(sqlCommand1);
                     xDataAdapter.Fill(xDataSet);
 
                     //*** Analitico Mensual
@@ -207,18 +216,24 @@ namespace SICEM_Blazor.Recaudacion.Data {
                         tmpSemanal.Add(tmpItem);
                     }
                     respuesta.Analitico_Semanal = tmpSemanal.ToArray();
-                    xConnecton.Close();
+                    sqlConnection.Close();
                 }
 
-                //*** Analitico Rezago
-                using(var xConnection = new SqlConnection(enlace.GetConnectionString())) {
-                    xConnection.Open();
-                    var xCommand = new SqlCommand();
-                    xCommand.Connection = xConnection;
-                    xCommand.CommandText = string.Format("EXEC [SICEM].[Recaudacion] @cAlias = 'ANALITICO_REZAGO', @cFecha1 = '{0}', @cFecha2 = '{1}', @cSub = {2}, @cSector = {3}", desde.ToString("yyyyMMdd"), hasta.ToString("yyyyMMdd"), sb, sect);
+                // *** Analitico Rezago
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())) {
+                    sqlConnection.Open();
+                    var sqlCommand = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    sqlCommand.Parameters.AddWithValue("@cAlias", "ANALITICO_REZAGO");
+                    sqlCommand.Parameters.AddWithValue("@cFecha1", dateRange.Desde_ISO);
+                    sqlCommand.Parameters.AddWithValue("@cFecha2", dateRange.Hasta_ISO);
+                    sqlCommand.Parameters.AddWithValue("@xSb", dateRange.Subsistema);
+                    sqlCommand.Parameters.AddWithValue("@xSec", dateRange.Sector);
 
                     var xDataSet = new DataSet();
-                    var xDataAdapter = new SqlDataAdapter(xCommand);
+                    var xDataAdapter = new SqlDataAdapter(sqlCommand);
                     xDataAdapter.Fill(xDataSet);
 
                     //*** Mensual
@@ -352,7 +367,7 @@ namespace SICEM_Blazor.Recaudacion.Data {
                         tmpSemanal.Add(tmpItem);
                     }
                     respuesta.AnaliticoRez_Semanal = tmpSemanal.ToArray();
-                    xConnection.Close();
+                    sqlConnection.Close();
                 }
 
                 return respuesta;
@@ -362,6 +377,7 @@ namespace SICEM_Blazor.Recaudacion.Data {
                 return null;
             }
         }
+        
         public IEnumerable<Recaudacion_Rezago> ObtenerRezago(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect) {
             var respuesta = new List<Recaudacion_Rezago>();
             try {

@@ -66,10 +66,10 @@
                             var data = (context as ResumenOficina);
                             if (data.Id > 0 && data.Id < 90) {
                                 <div class="d-flex p-1">
-                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Analitico" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => Analitico_Click(data) )>
+                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Analitico" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => AnaliticoClick(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Rezago" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => Rezago_Click(data) )>
+                                    @* <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Rezago" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => Rezago_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Dias" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosDias_Click(data) )>
@@ -78,12 +78,12 @@
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Cajas" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosCajas_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
-                                    @* <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingreso por Conceptos" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosConceptos_Click(data) )>
+                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingreso por Conceptos" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosConceptos_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Tipo de Usuario" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosTipoUsuarios_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
-                                    </button> *@
+                                    </button>
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Localidades" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosPoPoblacion_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
@@ -96,6 +96,7 @@
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Conceptos y Tipos de Usuarios" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosPorConceptosTiposUsuarios(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
+                                     *@
                                 </div>
                             }
                         }
@@ -143,8 +144,8 @@
 
 @* ****** Dialogos y ventanas secundarias ****** *@
 <BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
-<Recaudacion_IngresosAnalitico @ref="VtnAnalitico" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="@VtnAnalitico_visible" CerrarModal="@( e => VtnAnalitico_visible = false )" />
-<Recaudacion_IngresosRezago @ref="VtnRezago" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="@VtnRezago_visible" CerrarModal="@(e => VtnRezago_visible = false)" />
+<IngresosAnaliticoVtn @ref="VtnAnalitico" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="@VtnAnaliticoVisible" CerrarModal="@( e => VtnAnaliticoVisible = false )" />
+
 <Recaudacion_IngresosxDias @ref="VtnDias" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="VtnDias_visible" CerrarModal="(e => VtnDias_visible = false)" />
 <Recaudacion_IngresosxCajas @ref="VtnCajas" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="VtnCajas_visible" CerrarModal="(e => VtnCajas_visible = false)" />
 <Recaudacion_IngresosConceptos @ref="VtnConceptos" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="VtnConceptos_visible" CerrarModal="(e => VtnConceptos_visible = false)" />
