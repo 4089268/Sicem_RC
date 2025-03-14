@@ -86,7 +86,7 @@ namespace SICEM_Blazor.Services {
                             respuesta.FechaLectura_Ant = reader.GetValue("_fecha_lectura_ant").ToString();
                             respuesta.DiametroToma = reader.GetValue("_diametro").ToString();
                             respuesta.FechaVencimiento = reader.GetValue("_fecha_vencimiento_act").ToString();
-                            respuesta.Correo = reader["recibo_mail"].ToString();
+                            respuesta.Correo = reader["email"].ToString();
                             respuesta.Tarifa = reader["_tipousuario"].ToString();
                             respuesta.CalculoAct = reader["_calculo_act"].ToString();
                             respuesta.ConsumoForzado = reader["consumo_forzado"].ToString();
@@ -119,11 +119,12 @@ namespace SICEM_Blazor.Services {
                             respuesta.Ciclo = reader["_MesFacturado"].ToString();
                             respuesta.ProximaTomaLectura = "";
                             respuesta.Zona = reader["_zona"].ToString();
-                            respuesta.LPSPagados = reader["lps_pagados"].ToString();
+                            // respuesta.LPSPagados = reader["lps_pagados"].ToString();
                             respuesta.Viviendas = int.TryParse(reader["viviendas"].ToString(), out int tmpV) ? tmpV : 0;
                             respuesta.Descto60 = reader["por_descto"].ToString();
                             respuesta.AltoConsumidor = reader.GetBoolean("es_altoconsumidor");
-                            respuesta.EnviarEstadoCuenta = reader.GetBoolean("recibo_mail");
+                            // respuesta.EnviarEstadoCuenta = reader.GetBoolean("recibo_mail");
+                            respuesta.EnviarEstadoCuenta = false;
                             respuesta.EsDraef = reader.GetBoolean("es_draef");
                             respuesta.TienePozo = reader.GetBoolean("tiene_pozo");
                             respuesta.EsMacromedidor = reader.GetBoolean("es_macromedidor");
