@@ -1,0 +1,64 @@
+@namespace SICEM_Blazor.Recaudacion.Views
+@using Syncfusion.Blazor.Grids
+@using SICEM_Blazor.Recaudacion.Data
+@using SICEM_Blazor.Recaudacion.Models
+@using SICEM_Blazor.Areas.Recaudacion.Views
+
+@if (MostrarVentana) {
+    <VentanaSecundaria Titulo="@Titulo" CerrarVentana="@Cerrar_Modal" Filas="@(new double[]{47,640})" Columnas="@(new double[]{1120})" Level="1">
+        <Content>
+
+            <div class="m-1 p-2 border rounded bg-white" style="grid-row: 1/2; grid-column: 1/2;">
+                <div class="w-100 d-flex align-items-center">
+                    <MatButton Class="mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">
+                        <i class="fa fa-file-excel-o me-2 mr-2" aria-hidden="true"></i>
+                        <span>Exportar Excel</span>
+                    </MatButton>
+                </div>
+            </div>
+
+            <div class="m-1 p-2 border rounded bg-white" style="grid-row: 2/3; grid-column: 1/2;">
+                <SfGrid @ref="DataGrid" DataSource="@DatosIngresos" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="auto" EnableHover="true">
+                    <GridColumns>
+                        <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="115">
+                            <Template>
+                                @{
+                                    var data = (context as IngresosDia);
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ver detalle" disabled @onclick="@( e => VerDetalleDias(data.Fecha))">
+                                            <i class="fa fa-th" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Detalle por Conceptos Y Tipos Usuarios" disabled @onclick="@(e => IngresosPorConceptosTiposUsuarios(data) )" >
+                                            <i class="fa fa-poll-h" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ingresos Por Cajas" disabled @onclick="@(e => IngresosPorCajas(data) )" >
+                                            <i class="fa fa-store" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ingresos Por Formas de Pago" disabled @onclick="@(e => IngresosPorFormasDePago(data) )" >
+                                            <i class="fa fa-money-bill" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(IngresosDia.FechaLetras)" HeaderText="Fecha" TextAlign="TextAlign.Left" Width="120" />
+                        <GridColumn Field="@nameof(IngresosDia.IngresoPropios)" HeaderText="Ingresos Propios" TextAlign="TextAlign.Right" Width="135" Format="c2" />
+                        <GridColumn Field="@nameof(IngresosDia.UsuariosProios)" HeaderText="Recibos Propios" TextAlign="TextAlign.Center" Width="115" Format="n0" />
+                        <GridColumn Field="@nameof(IngresosDia.IngresoOtros)" HeaderText="Ingresos Otros" TextAlign="TextAlign.Right" Width="135" Format="c2" />
+                        <GridColumn Field="@nameof(IngresosDia.UsuariosOtros)" HeaderText="Recibos Otros" TextAlign="TextAlign.Center" Width="115" Format="n0" />
+                        <GridColumn Field="@nameof(IngresosDia.TotalImpore)" HeaderText="Total Ingresos" TextAlign="TextAlign.Center" Width="135" Format="c2" />
+                        <GridColumn Field="@nameof(IngresosDia.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="135" Format="c2" />
+                        <GridColumn Field="@nameof(IngresosDia.TotalUsuarios)" HeaderText="Recibos Total" TextAlign="TextAlign.Center" Width="135" Format="n0" />
+                    </GridColumns>
+                </SfGrid>
+            </div>
+
+        </Content>
+    </VentanaSecundaria>
+
+    <BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
+    <Recaudacion_IngresosxDias_detalle @ref="vtn_diasDetalle" MostrarVentana=@ventanDetalle_visible CerrarModal="@(e => ventanDetalle_visible = false)" />
+    <Recaudacion_ConceptosyTiposUsuariosVtn @ref="VtnConceptosUsuarios" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" Visible="@VtnConceptosUsuarios_Visible" CerrarModal="@(e => VtnConceptosUsuarios_Visible = false)" />
+    <Recaudacion_FormasPago_View @ref="VtnFormasPago" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" MostrarVentana="VtnFormasPago_Visible" CerrarModal="@( e => VtnFormasPago_Visible = false)" />
+    <Recaudacion_IngresosxCajas @ref="VtnCajas" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" MostrarVentana="VtnCajas_visible" CerrarModal="(e => VtnCajas_visible = false)" />
+}

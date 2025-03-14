@@ -9,7 +9,7 @@ namespace SICEM_Blazor.Recaudacion.Data {
         public ResumenOficina ObtenerResumen(IEnlace enlace, DateRange dateRange);
         public Recaudacion_Analitico ObtenerAnalisisIngresos(IEnlace enlace, DateRange dateRange);
         public IEnumerable<Recaudacion_Rezago> ObtenerRezago(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);
-        public IEnumerable<Recaudacion_IngresosDias> ObtenerIngresosPorDias(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);
+        public IEnumerable<IngresosDia> ObtenerIngresosPorDias(IEnlace enlace, DateRange dateRange);
         public IEnumerable<Recaudacion_IngresosCajas> ObtenerIngresosPorCajas(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);
         public IEnumerable<IngresosxConceptos> ObtenerIngresosPorConceptos(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);
         public IEnumerable<IngresosTipoUsuario> ObtenerIngresosPorTipoUsuarios(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect);

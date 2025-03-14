@@ -23,75 +23,77 @@ namespace SICEM_Blazor.Services {
         }
 
         
-        public Descuentos_Resumen ObtenerDescuentosResumen(IEnlace enlace, DateTime fecha1, DateTime fecha2) {
-            var respuesta = new Descuentos_Resumen();
+        public Descuentos_Resumen ObtenerDescuentosResumen(IEnlace enlace, DateTime fecha1, DateTime fecha2)
+        {
+            throw new NotImplementedException();
+            // var respuesta = new Descuentos_Resumen();
 
-            try {
-                using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
-                    xConnecton.Open();
-                    using(var xCommand = new SqlCommand()) {
-                        xCommand.Connection = xConnecton;
-                        xCommand.CommandText = $"EXEC [SICEM].[Descuentos] 'RESUMEN','{fecha1.ToString("yyyyMMdd")}','{fecha2.ToString("yyyyMMdd")}'";
-                        var tmpRes = new List<Recaudacion_IngresosDias>();
-                        var tmpDataSet = new DataSet();
-                        new SqlDataAdapter(xCommand).Fill(tmpDataSet);
-                        //****** Resumen 
-                        var xRow = tmpDataSet.Tables[0].Rows[0];
-                        respuesta.Conc_Con_Iva = decimal.Parse(xRow["Conc_Con_Iva"].ToString());
-                        respuesta.Iva = decimal.Parse(xRow["Iva"].ToString());
-                        respuesta.Apli_Con_Iva = decimal.Parse(xRow["Aplicado_Con_Iva"].ToString());
-                        respuesta.Conc_Sin_Iva = decimal.Parse(xRow["Conc_Sin_Iva"].ToString());
-                        respuesta.Total = decimal.Parse(xRow["Total_Aplicado"].ToString());
-                        respuesta.Usuarios = int.Parse(xRow["Usuarios"].ToString());
+            // try {
+            //     using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
+            //         xConnecton.Open();
+            //         using(var xCommand = new SqlCommand()) {
+            //             xCommand.Connection = xConnecton;
+            //             xCommand.CommandText = $"EXEC [SICEM].[Descuentos] 'RESUMEN','{fecha1.ToString("yyyyMMdd")}','{fecha2.ToString("yyyyMMdd")}'";
+            //             var tmpRes = new List<IngresosDia>();
+            //             var tmpDataSet = new DataSet();
+            //             new SqlDataAdapter(xCommand).Fill(tmpDataSet);
+            //             //****** Resumen 
+            //             var xRow = tmpDataSet.Tables[0].Rows[0];
+            //             respuesta.Conc_Con_Iva = decimal.Parse(xRow["Conc_Con_Iva"].ToString());
+            //             respuesta.Iva = decimal.Parse(xRow["Iva"].ToString());
+            //             respuesta.Apli_Con_Iva = decimal.Parse(xRow["Aplicado_Con_Iva"].ToString());
+            //             respuesta.Conc_Sin_Iva = decimal.Parse(xRow["Conc_Sin_Iva"].ToString());
+            //             respuesta.Total = decimal.Parse(xRow["Total_Aplicado"].ToString());
+            //             respuesta.Usuarios = int.Parse(xRow["Usuarios"].ToString());
 
-                        var tmpList = new List<string>();
-                        tmpList.Add($"Agua;{decimal.Parse(xRow["Agua"].ToString())}");
-                        tmpList.Add($"Drenaje;{decimal.Parse(xRow["Dren"].ToString())}");
-                        tmpList.Add($"Saneamiento;{decimal.Parse(xRow["Sane"].ToString())}");
-                        tmpList.Add($"Rezago Agua;{decimal.Parse(xRow["Rez_Agua"].ToString())}");
-                        tmpList.Add($"Rezago Drenaje;{decimal.Parse(xRow["Rez_Dren"].ToString())}");
-                        tmpList.Add($"Rezago Saneamiento;{decimal.Parse(xRow["Rez_Sane"].ToString())}");
-                        tmpList.Add($"Recargos;{decimal.Parse(xRow["Recargos"].ToString())}");
-                        tmpList.Add($"Conexion;{decimal.Parse(xRow["Conexion"].ToString())}");
-                        tmpList.Add($"Reconexion;{decimal.Parse(xRow["Reconec"].ToString())}");
-                        tmpList.Add($"Otros;{decimal.Parse(xRow["Otros"].ToString())}");
-                        respuesta.Conceptos = tmpList.ToArray<string>();
+            //             var tmpList = new List<string>();
+            //             tmpList.Add($"Agua;{decimal.Parse(xRow["Agua"].ToString())}");
+            //             tmpList.Add($"Drenaje;{decimal.Parse(xRow["Dren"].ToString())}");
+            //             tmpList.Add($"Saneamiento;{decimal.Parse(xRow["Sane"].ToString())}");
+            //             tmpList.Add($"Rezago Agua;{decimal.Parse(xRow["Rez_Agua"].ToString())}");
+            //             tmpList.Add($"Rezago Drenaje;{decimal.Parse(xRow["Rez_Dren"].ToString())}");
+            //             tmpList.Add($"Rezago Saneamiento;{decimal.Parse(xRow["Rez_Sane"].ToString())}");
+            //             tmpList.Add($"Recargos;{decimal.Parse(xRow["Recargos"].ToString())}");
+            //             tmpList.Add($"Conexion;{decimal.Parse(xRow["Conexion"].ToString())}");
+            //             tmpList.Add($"Reconexion;{decimal.Parse(xRow["Reconec"].ToString())}");
+            //             tmpList.Add($"Otros;{decimal.Parse(xRow["Otros"].ToString())}");
+            //             respuesta.Conceptos = tmpList.ToArray<string>();
 
-                        //****** Agrupar por Tarifas
-                        var xList1 = new List<Descuentos_Resumen_Item>();
-                        foreach(DataRow xr in tmpDataSet.Tables[1].Rows) {
-                            xList1.Add(
-                                new Descuentos_Resumen_Item {
-                                    Id = int.Parse(xr["id_tarifa"].ToString()),
-                                    Descripcion = xr["descrip"].ToString(),
-                                    Total = decimal.Parse(xr["total"].ToString()),
-                                    NTotal = int.Parse(xr["c"].ToString())
-                                }
-                            );
-                        }
-                        respuesta.Tarifas = xList1.ToArray<Descuentos_Resumen_Item>();
+            //             //****** Agrupar por Tarifas
+            //             var xList1 = new List<Descuentos_Resumen_Item>();
+            //             foreach(DataRow xr in tmpDataSet.Tables[1].Rows) {
+            //                 xList1.Add(
+            //                     new Descuentos_Resumen_Item {
+            //                         Id = int.Parse(xr["id_tarifa"].ToString()),
+            //                         Descripcion = xr["descrip"].ToString(),
+            //                         Total = decimal.Parse(xr["total"].ToString()),
+            //                         NTotal = int.Parse(xr["c"].ToString())
+            //                     }
+            //                 );
+            //             }
+            //             respuesta.Tarifas = xList1.ToArray<Descuentos_Resumen_Item>();
 
-                        //****** Agrupar por Calculos
-                        var xList2 = new List<Descuentos_Resumen_Item>();
-                        foreach(DataRow xr in tmpDataSet.Tables[2].Rows) {
-                            xList2.Add(
-                                new Descuentos_Resumen_Item {
-                                    Id = int.Parse(xr["id_calculo"].ToString()),
-                                    Descripcion = xr["descripcion"].ToString(),
-                                    Total = decimal.Parse(xr["total"].ToString()),
-                                    NTotal = int.Parse(xr["c"].ToString())
-                                }
-                            );
-                        }
-                        respuesta.Calculos = xList2.ToArray<Descuentos_Resumen_Item>();
+            //             //****** Agrupar por Calculos
+            //             var xList2 = new List<Descuentos_Resumen_Item>();
+            //             foreach(DataRow xr in tmpDataSet.Tables[2].Rows) {
+            //                 xList2.Add(
+            //                     new Descuentos_Resumen_Item {
+            //                         Id = int.Parse(xr["id_calculo"].ToString()),
+            //                         Descripcion = xr["descripcion"].ToString(),
+            //                         Total = decimal.Parse(xr["total"].ToString()),
+            //                         NTotal = int.Parse(xr["c"].ToString())
+            //                     }
+            //                 );
+            //             }
+            //             respuesta.Calculos = xList2.ToArray<Descuentos_Resumen_Item>();
 
-                    }
-                }
-                return respuesta;
-            }catch(Exception err){
-                logger.LogError(err, $">> Erro al obtener el resumen de descuentos de {enlace.Nombre}");
-                return null;
-            }
+            //         }
+            //     }
+            //     return respuesta;
+            // }catch(Exception err){
+            //     logger.LogError(err, $">> Erro al obtener el resumen de descuentos de {enlace.Nombre}");
+            //     return null;
+            // }
         }
         public Descuentos_Totales ObtenerDescuentosOficina(IEnlace enlace, DateTime fecha1, DateTime fecha2, int sb, int sect) {
             var response = new Descuentos_Totales();

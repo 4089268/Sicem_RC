@@ -411,37 +411,41 @@ namespace SICEM_Blazor.Recaudacion.Data {
                 return null;
             }
         }
-        public IEnumerable<Recaudacion_IngresosDias> ObtenerIngresosPorDias(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect){
-            var respuesta = new List<Recaudacion_IngresosDias>();
-            try {
-                using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
-                    xConnecton.Open();
-                    var xCommand = new SqlCommand();
-                    xCommand.Connection = xConnecton;
-                    xCommand.CommandText = string.Format("Exec [Sicem_QRoo].[Ingresos_02] @nAno = {0}, @nMes = {1}, @nSb = {2}, @nSect = {3} ", desde.Year, desde.Month, sb, sect);
-                    using(var xReader = xCommand.ExecuteReader()) {
-                        while(xReader.Read()) {
-                            decimal tmpDecimal = 0m;
-                            int tmpInt = 0;
-                            var tmpResRow = new Recaudacion_IngresosDias {
-                                Fecha = xReader["fecha"].ToString(),
-                                Subtotal = decimal.TryParse(xReader["subtotal"].ToString(), out tmpDecimal)? tmpDecimal:0m,
-                                Iva = decimal.TryParse(xReader["iva"].ToString(), out tmpDecimal) ? tmpDecimal : 0m,
-                                Total = decimal.TryParse(xReader["total"].ToString(), out tmpDecimal) ? tmpDecimal : 0m,
-                                RecibosPropios = int.TryParse(xReader["rec_pro"].ToString(), out tmpInt)? tmpInt:0,
-                                RecibosOtros = int.TryParse(xReader["rec_ven"].ToString(), out tmpInt)? tmpInt:0,
-                                RecibosTotal = int.TryParse(xReader["recibos"].ToString(), out tmpInt) ? tmpInt : 0
-                            };
-                            respuesta.Add(tmpResRow);
+        
+        public IEnumerable<IngresosDia> ObtenerIngresosPorDias(IEnlace enlace, DateRange dateRange)
+        {
+            var respuesta = new List<IngresosDia>();
+            try
+            {
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
+                {
+                    sqlConnection.Open();
+                    var sqlCommand = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    sqlCommand.Parameters.AddWithValue("@cAlias", "TOTALES_X_DIA");
+                    sqlCommand.Parameters.AddWithValue("@cFecha1", dateRange.Desde_ISO);
+                    sqlCommand.Parameters.AddWithValue("@cFecha2", dateRange.Hasta_ISO);
+                    sqlCommand.Parameters.AddWithValue("@xSb", dateRange.Subsistema);
+                    sqlCommand.Parameters.AddWithValue("@xSec", dateRange.Sector);
+                    using(var reader = sqlCommand.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
+                            respuesta.Add(IngresosDia.FromDataReader(reader));
                         }
-                    }                
+                    }
                 }
-            }catch(Exception err) {
-                logger.LogError(err, $">> Error al obtener los ingresos por dia enlace:{enlace.Nombre}");
+            }
+            catch(Exception err)
+            {
+                logger.LogError(err, "Error al obtener los ingresos por dia enlace '{enlace}': {message}", enlace.Nombre, err.Message);
                 return null;
             }
             return respuesta.ToArray();
-        }  
+        }
+
         public IEnumerable<Recaudacion_IngresosCajas> ObtenerIngresosPorCajas(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect) {
             var respuesta = new List<Recaudacion_IngresosCajas>();
             try {
@@ -1015,81 +1019,6 @@ namespace SICEM_Blazor.Recaudacion.Data {
                 connection.Close();
             }
             return _result;
-        }
-
-
-        //***** Obsoletos       
-        public Recaudacion_Resumen_Response ObtenerRecaudacionResumen(int Id_Oficina, DateTime Fecha1, DateTime Fecha2, int Sub, int Sec) {
-            var respuesta = new Recaudacion_Resumen_Response();
-
-            var xEnlace = sicemService.ObtenerEnlaces().Where(item => item.Id == Id_Oficina).FirstOrDefault();
-            using(var xConnecton = new SqlConnection(xEnlace.StringConection)) {
-                xConnecton.Open();
-
-                //*** Cargar Totales
-                respuesta = new Recaudacion_Resumen_Response();
-                using(var xCommand = new SqlCommand()) {
-                    xCommand.Connection = xConnecton;
-                    xCommand.CommandText = string.Format("Exec [SICEM].[Recaudacion] @cAlias = 'TOTALES', @cFecha1 = '{0}', @cFecha2 = '{1}'", Fecha1.ToString("yyyyMMdd"), Fecha2.ToString("yyyyMMdd"));
-                    var tmpRes = new List<Recaudacion_IngresosDias>();
-                    using(var xReader = xCommand.ExecuteReader()) {
-                        if(xReader.Read()){
-                            int tmpInt = 0;
-                            decimal tmpDecimal = 0m;
-                            respuesta.Ingresos_propios = decimal.TryParse(xReader.GetValue("i1").ToString(), out tmpDecimal)?tmpDecimal:0m;
-                            respuesta.Ingresos_otros = decimal.TryParse(xReader.GetValue("i2").ToString(), out tmpDecimal)?tmpDecimal:0m;
-                            respuesta.Ingresos_Cobrados =  decimal.TryParse(xReader.GetValue("cobrado").ToString(), out tmpDecimal)?tmpDecimal:0m;
-                            respuesta.Ingresos_Total = decimal.TryParse(xReader.GetValue("importe").ToString(),out tmpDecimal)?tmpDecimal:0m;
-                            respuesta.Usuarios_propios = int.TryParse(xReader.GetValue("u1").ToString(), out tmpInt)?tmpInt:0;
-                            respuesta.Usuario_otros = int.TryParse(xReader.GetValue("u2").ToString(), out tmpInt) ? tmpInt:0;
-                            respuesta.Usuarios_Total = int.TryParse(xReader.GetValue("usuarios").ToString(), out tmpInt)?tmpInt:0;
-                        }
-                    }
-                }
-
-                //*** Cargar Ingresos Conceptos
-                using(var xCommand = new SqlCommand()) {
-                    List<Recaudacion_Resumen_Item> ingresosConceptos = new List<Recaudacion_Resumen_Item>();
-
-                    xCommand.Connection = xConnecton;
-                    xCommand.CommandText = string.Format("Exec [SICEM].[Recaudacion] @cAlias = 'RESUMEN_CONCEPTOS', @cFecha1 = '{0}', @cFecha2 = '{1}'", Fecha1.ToString("yyyyMMdd"), Fecha2.ToString("yyyyMMdd"));
-                    using(var xReader = xCommand.ExecuteReader()) {
-                        while(xReader.Read()) {
-                            var tmpResRow = new Recaudacion_Resumen_Item {
-                                Id_concepto = xReader.GetInt32("id_concepto"),
-                                Concepto = xReader.GetString("descripcion"),
-                                SubTotal = xReader.GetDecimal("subtotal"),
-                                Iva = xReader.GetDecimal("iva")
-                            };
-                            var tmpTotal = decimal.Parse(xReader["total"].ToString());
-                            if(tmpTotal <= 0){
-                                tmpTotal = tmpResRow.SubTotal + tmpResRow.Iva;
-                            }
-                            tmpResRow.Total = tmpTotal;
-                            ingresosConceptos.Add(tmpResRow);
-                        }
-                    }
-                    respuesta.Lista_Ingresos_Conceptos = ingresosConceptos;
-                }
-
-
-                //*** Cargar Resumen Tarifas
-                using(var xCommand = new SqlCommand()) {
-
-                    List<string> tmpList = new List<string>();
-
-                    xCommand.Connection = xConnecton;
-                    xCommand.CommandText = string.Format("Exec [SICEM].[Recaudacion] @cAlias = 'RESUMEN_TARIFAS', @cFecha1 = '{0}', @cFecha2 = '{1}'", Fecha1.ToString("yyyyMMdd"), Fecha2.ToString("yyyyMMdd"));
-                    using(var xReader = xCommand.ExecuteReader()) {
-                        while(xReader.Read()) {
-                            tmpList.Add(string.Format("{0};{1}", xReader.GetValue("descripcion"), decimal.Parse(xReader.GetValue("total").ToString())));
-                        }
-                    }
-                    respuesta.Tarifas = tmpList.ToArray<string>();
-                }
-
-            }
-            return respuesta;
         }
 
     }

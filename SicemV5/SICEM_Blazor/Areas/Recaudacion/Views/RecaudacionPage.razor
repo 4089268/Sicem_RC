@@ -72,9 +72,11 @@
                                     @* <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Rezago" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => Rezago_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
+                                    *@
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Dias" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosDias_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
+                                    @*
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Cajas" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosCajas_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
@@ -146,7 +148,7 @@
 <BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
 <IngresosAnaliticoVtn @ref="VtnAnalitico" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="@VtnAnaliticoVisible" CerrarModal="@( e => VtnAnaliticoVisible = false )" />
 
-<Recaudacion_IngresosxDias @ref="VtnDias" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="VtnDias_visible" CerrarModal="(e => VtnDias_visible = false)" />
+<IngresosxDiasVtn @ref="VtnDias" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="vtnDiasVisible" CerrarModal="(e => vtnDiasVisible = false)" />
 <Recaudacion_IngresosxCajas @ref="VtnCajas" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="VtnCajas_visible" CerrarModal="(e => VtnCajas_visible = false)" />
 <Recaudacion_IngresosConceptos @ref="VtnConceptos" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="VtnConceptos_visible" CerrarModal="(e => VtnConceptos_visible = false)" />
 <Recaudacion_IngresosTipoUsuario @ref="VtnTiposUsuarios" Fecha1="@f1" Fecha2="@f2" subsistema="@subsistema" sector="@sector" MostrarVentana="VtnTiposUsuarios_Visible" CerrarModal="(e => VtnTiposUsuarios_Visible = false)" />

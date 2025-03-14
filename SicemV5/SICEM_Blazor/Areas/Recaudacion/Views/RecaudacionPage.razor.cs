@@ -46,8 +46,8 @@ public partial class RecaudacionPage
     private Recaudacion_IngresosRezago VtnRezago;
     private bool VtnRezago_visible = false;
 
-    private Recaudacion_IngresosxDias VtnDias;
-    private bool VtnDias_visible = false;
+    private IngresosxDiasVtn VtnDias;
+    private bool vtnDiasVisible = false;
 
     private Recaudacion_IngresosxCajas VtnCajas;
     private bool VtnCajas_visible = false;
@@ -251,25 +251,25 @@ public partial class RecaudacionPage
 
     private async Task IngresosDias_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-
-        // if (VtnDias_visible) {
-        //     return;
-        // }
-        // this.busyDialog = true;
-        // await Task.Delay(200);
-        // var tmpData = recaudacionService.ObtenerIngresosPorDias(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        // if (tmpData == null) {
-        //     Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
-        // }
-        // else {
-        //     VtnDias_visible = true;
-        //     VtnDias.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS DIAS";
-        //     VtnDias.Inicializar(data.Enlace, tmpData);
-        // }
-        // await Task.Delay(200);
-        // this.busyDialog = false;
+        if(vtnDiasVisible)
+        {
+            return;
+        }
+        this.busyDialog = true;
+        await Task.Delay(200);
+        var tmpData = this.RecaudacionService.ObtenerIngresosPorDias(data.Enlace, new DateRange(this.f1, this.f2, this.subsistema, this.sector));
+        if (tmpData == null)
+        {
+            Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
+        }
+        else
+        {
+            vtnDiasVisible = true;
+            VtnDias.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS DIAS";
+            VtnDias.Inicializar(data.Enlace, tmpData);
+        }
+        await Task.Delay(200);
+        this.busyDialog = false;
     }
     
     private async Task IngresosCajas_Click(ResumenOficina data)
