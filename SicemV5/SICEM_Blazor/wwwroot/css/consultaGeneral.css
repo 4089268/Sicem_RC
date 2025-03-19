@@ -15,8 +15,9 @@
     }
     .panelBusqueda .sInput.btnBusqueda{
         width:170px;
+        margin-left: auto;
+        margin-right: .25rem;
     }
-
 
 
 .label-header {
@@ -60,7 +61,7 @@
 
 @media only screen and (max-width: 800px) {
     .panelBusqueda{
-        flex-flow: column;
+        
         align-items: flex-start;
         justify-content: stretch;
         gap:.5rem 0rem;
@@ -68,7 +69,6 @@
         .panelBusqueda .sInput.cbOficinas, .panelBusqueda .sInput.btnBusqueda, .panelBusqueda .sInput.tbCuenta{
             width:100%;
         }
-    
 
     .grid-root {
         display: flex;

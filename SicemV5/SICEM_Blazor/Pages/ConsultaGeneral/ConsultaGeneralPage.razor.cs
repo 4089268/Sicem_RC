@@ -183,7 +183,10 @@ public partial class ConsultaGeneralPage
         this.IdOficina = val;
         await Task.Delay(100);
     }
-
+    private async Task SearchAccountClick()
+    {
+        await Tb_Cuenta_KeyUp(new KeyboardEventArgs { Key = "Enter" });
+    }
 
     /******* Funciones Modales *******/
     private async Task MostrarBusquedaAvz() {

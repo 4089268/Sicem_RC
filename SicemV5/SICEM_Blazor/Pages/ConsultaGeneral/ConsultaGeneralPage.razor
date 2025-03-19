@@ -24,8 +24,13 @@
         <label class="ml-2 px-2 my-auto" for="tb_ncuenta">CUENTA:</label>
         <SfNumericTextBox ID="tb_ncuenta" @ref="tb_search" @bind-Value="@nCuenta" @onkeyup="@Tb_Cuenta_KeyUp"  TValue="long?" ShowSpinButton="false" Placeholder="Numero de Cuenta" Format="000000000" Width="100%" />
     </div>
+    <button class="btn btn-primary px-3 py-2" style="transform: translateX(-3.25rem);" @onclick="SearchAccountClick">
+        <i class="fa fa-search"/>
+    </button>
     
-    <MatButton Class="sInput btnBusqueda ml-2 ms-2 px-2 disableOnMobil" Raised="true" @onclick="@MostrarBusquedaAvz" TrailingIcon="search">Buscar Contratos</MatButton>
+    <MatButton Class="sInput btnBusqueda px-2 disableOnMobil" Raised="true" @onclick="@MostrarBusquedaAvz" Icon="search">
+        Buscar Contratos
+    </MatButton>
 </div>
 
 @********** Area Botones **********@

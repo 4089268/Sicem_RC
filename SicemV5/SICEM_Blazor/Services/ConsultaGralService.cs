@@ -22,7 +22,7 @@ namespace SICEM_Blazor.Services {
             var respuesta = new ConsultaGralResponse();
             Ruta xEnlace;
             
-            xEnlace = sicemService.ObtenerEnlaces(Id_Oficina).FirstOrDefault();                
+            xEnlace = sicemService.ObtenerEnlaces(Id_Oficina).FirstOrDefault();
             if(xEnlace == null){
                 Console.WriteLine("Error al conectarse con la oficina, intente más tarde.");
                 return null;
