@@ -123,11 +123,13 @@ namespace SICEM_Blazor.Pages.AnalisisInformacion {
             await Task.Delay(500);
             Cargando = false;
         }
+
         private void MostrarEnConsultaGeneral(CatPadron e){
             this.CuentaActual = e.Id_Cuenta.ToString();
             this.OficinaActual = e.Id_Oficina;
             DatosGenerales_visible = true;
         }
+
         private void MostrarUbicacion_Click(CatPadron e){
             var _newItem = new MapMark();
             _newItem.Latitude = (double)e.Latitude;
@@ -180,6 +182,7 @@ namespace SICEM_Blazor.Pages.AnalisisInformacion {
             NotificarDialogVisible = true;
             await Task.Delay(100);
         }
+
         private void ModalNotificacionOnClosed(){
             NotificarDialogVisible = false;
             UsuariosANotificar.Clear();

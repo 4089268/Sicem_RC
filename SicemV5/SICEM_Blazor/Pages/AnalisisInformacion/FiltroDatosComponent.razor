@@ -104,7 +104,7 @@
 
             <div class="item">
                 <label>Saldo</label>
-                <NsRangeNumeric Format="c2" @bind-OpcionSeleccionado="@FiltroBusqueda.Saldo_Opcion" @bind-Valor1="@FiltroBusqueda.Saldo_Valor1" @bind-Valor2="@FiltroBusqueda.Saldo_Valor2" />
+                <NsRangeNumeric Format="n2" @bind-OpcionSeleccionado="@FiltroBusqueda.Saldo_Opcion" @bind-Valor1="@FiltroBusqueda.Saldo_Valor1" @bind-Valor2="@FiltroBusqueda.Saldo_Valor2" />
             </div>
 
             @if(CatSetvicios != null){
@@ -211,14 +211,14 @@
                 </select>
             </div>
 
-            <div class="item">
+            @* <div class="item">
                 <label>Es Draef</label>
                 <select class="ns-input" @bind="FiltroBusqueda.EsDraef_Opcion">
                     <option value="0">Cualquiera</option>
                     <option value="1">Si</option>
                     <option value="2">No</option>
                 </select>
-            </div>
+            </div> *@
 
             <div class="item">
                 <label>Tiene Pozo</label>
