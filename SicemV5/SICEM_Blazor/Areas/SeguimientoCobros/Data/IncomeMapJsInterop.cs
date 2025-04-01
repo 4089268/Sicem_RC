@@ -18,8 +18,10 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
         /// </summary>
         private readonly Lazy<Task<IJSObjectReference>> moduleTask;
 
-        public IncomeMapJsInterop(IJSRuntime jSRuntime){
-            moduleTask = new Lazy<Task<IJSObjectReference>>(() => jSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/sicem/incomeMap.js").AsTask() );
+        public IncomeMapJsInterop(IJSRuntime jSRuntime)
+        {
+            // moduleTask = new Lazy<Task<IJSObjectReference>>(() => jSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/sicem/incomeMap.js").AsTask() );
+            moduleTask = new Lazy<Task<IJSObjectReference>>(() => jSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/sicem/seguimientoCobroMap.js").AsTask() );
         }
 
         /// <summary>
@@ -41,15 +43,15 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
         /// <param name="objRef"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        public async Task LoadPoints(object objRef, OfficePushpinMap[] points){
+        public async Task UpdateMarks(object objRef, OfficePushpinMap[] points){
             var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("loadPoints", objRef, points);
+            await module.InvokeVoidAsync("updateMarks", objRef, points);
         }
 
-        public async Task UpdatePoint(object objRef, OfficePushpinMap point){
-            var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("updatePoint", objRef, point);
-        }
+        // public async Task UpdatePoint(object objRef, OfficePushpinMap point){
+        //     var module = await moduleTask.Value;
+        //     await module.InvokeVoidAsync("updatePoint", objRef, point);
+        // }
 
         public async ValueTask DisposeAsync()
         {
@@ -60,4 +62,4 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
         }
     }
 
-}   
+}

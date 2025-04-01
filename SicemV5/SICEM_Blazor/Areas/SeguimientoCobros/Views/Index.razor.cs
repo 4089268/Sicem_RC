@@ -65,9 +65,10 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
         private bool isBusy = true, showDrawer= false;
         private Task<IEnumerable<OfficePushpinMap>> officePushpinesTask;
         private UpdateIncomeService updateIncomeService;
-        private MapMark centerPosition = new MapMark{
-            Latitude = 19.72,
-            Longitude = -88.20
+        private MapMark centerPosition = new MapMark
+        {
+            Latitude = 27.905077,
+            Longitude = -101.274589
         };
 
         #region Chart properties
@@ -81,36 +82,36 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
         /// </summary>
         private decimal previousTotal = 0;
 
-        #endregion        
+        #endregion
 
-        [JSInvokable("OnMapLoaded")]
+        [JSInvokable("MapLoaded")]
         public void OnMapLoaded(){
             //isMapLoaded = true;
             Console.WriteLine("Map loaded!!");
-        }
-        
-        [JSInvokable]
-        public void IncomeMapLoaded(){
-            Console.WriteLine("Income map loaded!!");
             //Toaster.Add( "Income map loaded", MatToastType.Info);
         }
-
-        [JSInvokable]
-        public async Task PushPinClick(int id){
-            this.EnlaceSeleccionado = offices.Where(item => item.Id == id).FirstOrDefault();
+        
+        [JSInvokable("PushpinClick")]
+        public async Task PushPinClick(int id)
+        {
+            Console.WriteLine($"Push with id '{id}' clicked");
             await Task.Delay(100);
-            ShowPanelInfo = true;
-            StateHasChanged();
 
-            if( IngresoCajasPanel != null){
-                await IngresoCajasPanel.LoadData();
-            }
+            // this.EnlaceSeleccionado = offices.Where(item => item.Id == id).FirstOrDefault();
+            // await Task.Delay(100);
+            // ShowPanelInfo = true;
+            // StateHasChanged();
+
+            // if( IngresoCajasPanel != null){
+            //     await IngresoCajasPanel.LoadData();
+            // }
         }
 
-        protected override void OnInitialized(){
+        protected override void OnInitialized()
+        {
             objRef = DotNetObjectReference.Create(this);
 
-            // get the offices of the user 
+            // get the offices of the user
             this.offices = this.SicemService.ObtenerOficinasDelUsuario().ToList();
 
             // start task of offices pushpins
@@ -118,44 +119,42 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
 
         }
 
-        protected override async Task OnAfterRenderAsync( bool firstRender) {
-
-            if(firstRender){
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if(firstRender)
+            {
                 await InitializeMapAsync();
-                StateHasChanged();
-                
-                await InitializedChart();
+                // await InitializedChart();
                 StateHasChanged();
             }
         }
 
 
-        public async Task InitializeMapAsync(){
+        public async Task InitializeMapAsync()
+        {
 
-            // load bing maps 
-            // await JSRuntime.InvokeVoidAsync("loadMap", BingMapsSettings.Value.Key, "initMap");
-
-            await IncomeMapJsInterop.InitializedAsync( this.objRef, "#map", centerPosition.Latitude, centerPosition.Longitude );
+            // load the map
+            await IncomeMapJsInterop.InitializedAsync(this.objRef, "map", centerPosition.Latitude, centerPosition.Longitude);
             
             this.isBusy = false;
 
             // get the offices initial pushpins
             this.IncomeData = (await officePushpinesTask).ToList();
 
-            // * draw the points (TEST)
-            await IncomeMapJsInterop.LoadPoints( this.objRef, this.IncomeData.ToArray());
+            // * draw the points (TESTING)
+            await IncomeMapJsInterop.UpdateMarks(this.objRef, this.IncomeData.ToArray());
             
-            // set the pushpin for each elemen 
-            foreach( var officePushpin in this.IncomeData ){
-                RefreIncomesData(officePushpin);
-            }
+            // set the pushpin for each elemen
+            // foreach(var officePushpin in this.IncomeData)
+            // {
+            //     RefreIncomesData(officePushpin);
+            // }
 
-            // start service of income update
-            updateIncomeService = new UpdateIncomeService( IncomeOfficeService );
-            updateIncomeService.Start( this.offices,  RefreIncomesData );
+            // TODO: start service of income update
+            // updateIncomeService = new UpdateIncomeService(IncomeOfficeService);
+            // updateIncomeService.Start( this.offices, RefreIncomesData );
 
             this.showDrawer = true;
-
         }
 
 
@@ -168,13 +167,17 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
 
             // Initialized the tasks
             var _officesMap = new List<OfficePushpinMap>();
-            foreach( var item in this.offices){
-                var task = Task.Run( ()=>{
-                    try {
+            foreach(var item in this.offices)
+            {
+                var task = Task.Run(() =>
+                {
+                    try
+                    {
                         var data = this.IncomeOfficeService.GetPushpinOfOffice(item);
                         _officesMap.Add(data);
                     }
-                    catch (Exception err) {
+                    catch (Exception err)
+                    {
                         Toaster.Add($"Error al obtenerla recaudacion de la oficina {item.Nombre}", MatToastType.Danger);
                         Console.WriteLine($"Error oficina {item.Nombre}: {err.Message} {err.StackTrace}" );
                     }
@@ -191,33 +194,35 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
         /// <summary>
         /// Actualiza el datagrid y las graficas
         /// </summary>
-        private void RefreIncomesData( OfficePushpinMap officePushpinMap){
-            try {
-
-                // actualizar mapa
-                var t = Task.Run( async () => await IncomeMapJsInterop.UpdatePoint( this.objRef, officePushpinMap) );
+        private void RefreIncomesData(OfficePushpinMap officePushpinMap)
+        {
+            try
+            {
+                // // actualizar mapa
+                // * var t = Task.Run( async () => await IncomeMapJsInterop.UpdatePoint( this.objRef, officePushpinMap) );
                 
-                // update datagrid record
-                var refdata = IncomeData.Where(item => item.Id == officePushpinMap.Id ).FirstOrDefault();
-                if(refdata != null ){
+                // * update datagrid record
+                var refdata = IncomeData.Where(item => item.Id == officePushpinMap.Id).FirstOrDefault();
+                if(refdata != null)
+                {
                     refdata.Bills = officePushpinMap.Bills;
                     refdata.Income = officePushpinMap.Income;
                 }
                 dataGrid.Refresh();
 
 
-                // verify if is a changed in the data
-                var _total = IncomeData.Where( item => item.Id < 999).Sum( item => item.Income);
+                // * verify if is a changed in the data
+                var _total = IncomeData.Where(item => item.Id < 999).Sum( item => item.Income);
 
-                // Use InvokeAsync to ensure StateHasChanged is called on the main thread
-                InvokeAsync( async()=>{
-
+                // * Use InvokeAsync to ensure StateHasChanged is called on the main thread
+                InvokeAsync( async() =>
+                {
                     // attempt to update the chart
-                    if( _total != previousTotal){
+                    if( _total != previousTotal)
+                    {
                         previousTotal = _total;
                         await UpdateChartData(IncomeData);
                     }
-
                     StateHasChanged();
                 });
 
@@ -229,26 +234,31 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
                 //    myChart.Refresh(false);
                 //}
 
-                t.Wait();
+                // t.Wait();
 
-            }catch(Exception err){
+            }
+            catch(Exception err)
+            {
                 Console.WriteLine(err.Message);
                 Console.WriteLine(err.StackTrace);
             }
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             try {
                 this.updateIncomeService.Dispose();
             }catch(Exception){}
         }
 
-        public void ClosePanelInfo(){
+        public void ClosePanelInfo()
+        {
             ShowPanelInfo = false;
             StateHasChanged();
         }
 
-        public async Task OnGridSelectionChanged(RowSelectEventArgs<OfficePushpinMap> args){
+        public async Task OnGridSelectionChanged(RowSelectEventArgs<OfficePushpinMap> args)
+        {
             if( args.Data.Id < 999){
                 this.EnlaceSeleccionado = offices.Where(item => item.Id == args.Data.Id).FirstOrDefault();
                 await Task.Delay(100);
@@ -261,10 +271,10 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
         }
 
         #region Chart methods
-        public async Task InitializedChart(){
+        public async Task InitializedChart()
+        {
             backgroundColors = new[]{ "#c0392b", "#f6b53f", "#6faab0", "#229954", "#223199", "#3EC6B6", "#e96188" };
 
-            
             double[] _data = new double[ offices.Count ];
             Array.Fill(_data, 0);
             foreach (var income in IncomeData)
@@ -275,7 +285,6 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
             // initi previous total
             previousTotal = IncomeData.Where( item => item.Id < 999).Sum( item => item.Income);
 
-            
             string[] _labels = new string[ offices.Count ];
             foreach(var office in offices){
                 _labels[office.Id - 1] = office.Nombre;
@@ -303,26 +312,29 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
             pieChartOptions.Plugins.Title.Display = true;
 
             // initi chart
-            if( pieChart is not null){
+            if(pieChart is not null)
+            {
                 await pieChart.InitializeAsync(chartData, pieChartOptions);
             }
-            
         }
 
-        public async Task UpdateChartData(IEnumerable<OfficePushpinMap> officePushpinMaps){
-            
-            if( pieChart is null || chartData is null || chartData.Datasets is null){
+        public async Task UpdateChartData(IEnumerable<OfficePushpinMap> officePushpinMaps)
+        {
+            if( pieChart is null || chartData is null || chartData.Datasets is null)
+            {
                 return;
             }
 
             // prepared data
             double[] _data = new double[ officePushpinMaps.Count() ];
-            foreach( var incomeData in officePushpinMaps ){
+            foreach(var incomeData in officePushpinMaps)
+            {
                 _data[ incomeData.Id - 1 ] = Convert.ToDouble(incomeData.Income);
             }
 
             // prepared datasets
-            var datasets = new List<IChartDataset>(){
+            var datasets = new List<IChartDataset>()
+            {
                 new PieChartDataset() {
                     Label = "Recaudacion " + DateTime.Now.ToShortTimeString(),
                     Data = _data.ToList(),
@@ -333,7 +345,6 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
             chartData.Datasets = datasets;
             
             await pieChart.UpdateAsync(chartData, pieChartOptions);
-
         }
 
         #endregion

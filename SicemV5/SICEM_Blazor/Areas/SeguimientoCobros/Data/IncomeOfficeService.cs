@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Aspose.Pdf.Operators;
 using SICEM_Blazor.Data;
 using SICEM_Blazor.SeguimientoCobros.Models;
 using SICEM_Blazor.Models;
-using SICEM_Blazor.Models.Entities.Arquos;
-using System.Threading;
-using System.Threading.Tasks;
-using Syncfusion.Blazor.Kanban.Internal;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+
 
 namespace SICEM_Blazor.SeguimientoCobros.Data {
 
@@ -26,44 +26,49 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
         }
 
 
-        public OfficePushpinMap GetPushpinOfOffice(IEnlace enlace){
-            try{
+        /// <summary>
+        /// return the coordinates of the office
+        /// </summary>
+        /// <param name="enlace"></param>
+        /// <returns></returns>
+        /// <exception cref="TimeoutException"></exception>
+        public OfficePushpinMap GetPushpinOfOffice(IEnlace enlace)
+        {
+            try
+            {
+                var officesPushpin = new OfficePushpinMap(enlace.Id, enlace.Nombre);
 
-                var officesPushpin = new OfficePushpinMap( enlace.Id, enlace.Nombre);
+                // * get the location of the office
+                using(var sqlConnection = new SqlConnection(this.sicemContext.Database.GetConnectionString()))
+                {
+                    sqlConnection.Open();
+                    var command = new SqlCommand("Select latitude, longitude From [dbo].[RutasLocation] where id_ruta = @rutaId", sqlConnection);
+                    command.Parameters.AddWithValue("@rutaId", enlace.Id);
+                    using var reader = command.ExecuteReader();
+                    if(reader.Read())
+                    {
+                        officesPushpin.Lat = Convert.ToDouble(reader["latitude"]);
+                        officesPushpin.Lon = Convert.ToDouble(reader["longitude"]);
+                    }
+                    sqlConnection.Close();
+                }
 
-                // * Prepared time limit for 5 seconds
-                using var cancellationTokenSource = new CancellationTokenSource( lifeTimeCancelation );
-
-                // * Return all the data
-                var task = Task.Run<CatSucursale>( () =>{
-                    using var arquosDbContext = new ArquosContext(enlace.GetConnectionString());
-                    return arquosDbContext.CatSucursales.Where( item=> item.IdSucursal == 1).First();
-                });
-
-                task.Wait( cancellationTokenSource.Token );
-                
-                var sucursalMatriz = task.Result;
-                
-                // if( (sucursalMatriz.Latitud ?? 0) != 0 &&  (sucursalMatriz.Longitud ?? 0 ) != 0){
-                //     officesPushpin.Lat = sucursalMatriz.Latitud ?? 0;
-                //     officesPushpin.Lon = sucursalMatriz.Longitud ?? 0;
+                // TODO: Get the income office
+                // try
+                // {
+                //     var data = this.GetIncomes(enlace);
+                //     officesPushpin.Bills = data.Where( item=> item.Id < 900).Sum( item => item.Bills);
+                //     officesPushpin.Income = data.Where( item=> item.Id < 900).Sum( item => item.Income);
+                // }
+                // catch(Exception err)
+                // {
+                //     this.logger.LogError(err, "Error al obtner los datos");
                 // }
 
-                officesPushpin.Lat = 0;
-                officesPushpin.Lon = 0;
-
-
-                // Get the income office
-                try{
-                    var data = this.GetIncomes(enlace);
-                    officesPushpin.Bills = data.Where( item=> item.Id < 900).Sum( item => item.Bills);
-                    officesPushpin.Income = data.Where( item=> item.Id < 900).Sum( item => item.Income);
-                }catch(Exception err){
-                    this.logger.LogError(err, "Error al obtner los datos");
-                }
                 return officesPushpin;
             }
-            catch(OperationCanceledException){
+            catch(OperationCanceledException)
+            {
                 throw new TimeoutException("Operation timed out after 6 seconds.");
             }
 
