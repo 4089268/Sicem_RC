@@ -9,6 +9,7 @@ namespace SICEM_Blazor.Models
         public Ruta()
         {
             ModsOficinas = new HashSet<ModsOficina>();
+            RutasLocations = new HashSet<RutasLocation>();
         }
 
         public int Id { get; set; }
@@ -26,6 +27,7 @@ namespace SICEM_Blazor.Models
         public string Alias { get; set; }
 
         public virtual ICollection<ModsOficina> ModsOficinas { get; set; }
+        public virtual ICollection<RutasLocation> RutasLocations { get; set; }
 
         #region Implementación de IEnlace
         public string StringConection {

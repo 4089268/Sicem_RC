@@ -23,6 +23,7 @@ namespace SICEM_Blazor.Models
         public virtual DbSet<OprOpcione> OprOpciones { get; set; }
         public virtual DbSet<OprSesione> OprSesiones { get; set; }
         public virtual DbSet<Ruta> Rutas { get; set; }
+        public virtual DbSet<RutasLocation> RutasLocations { get; set; }
         public virtual DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -238,6 +239,32 @@ namespace SICEM_Blazor.Models
                 entity.Property(e => e.Usuario)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<RutasLocation>(entity =>
+            {
+                entity.ToTable("RutasLocation");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.IdRuta).HasColumnName("id_ruta");
+
+                entity.Property(e => e.Latitude)
+                    .IsRequired()
+                    .HasMaxLength(24)
+                    .IsUnicode(false)
+                    .HasColumnName("latitude");
+
+                entity.Property(e => e.Longitude)
+                    .IsRequired()
+                    .HasMaxLength(24)
+                    .IsUnicode(false)
+                    .HasColumnName("longitude");
+
+                entity.HasOne(d => d.IdRutaNavigation)
+                    .WithMany(p => p.RutasLocations)
+                    .HasForeignKey(d => d.IdRuta)
+                    .HasConstraintName("FK_RutaLocation_Ruta");
             });
 
             modelBuilder.Entity<Usuario>(entity =>
