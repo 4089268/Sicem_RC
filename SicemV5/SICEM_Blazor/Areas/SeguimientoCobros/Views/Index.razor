@@ -9,21 +9,16 @@
 
     @if(showDrawer)
     {
-        <div id="panel-wrapper" class="d-flex p-2 justify-content-end">
+        <div id="panel-wrapper">
             <div class="panel">
-                <div style="height:70%; width:100%;">
-                    <BlazorBootstrap.PieChart @ref="pieChart" Width="500" />
-                </div>
-                <div style="height:30%; width:100%;">
-                    <SfGrid @ref="dataGrid" DataSource="@IncomeDataGrid" TValue="OfficePushpinMap" Height="100%" Width="100%" EnableHover="true">
-                        <GridEvents RowSelected="OnGridSelectionChanged" TValue="OfficePushpinMap" />
-                        <GridColumns>
-                            <GridColumn Field="@nameof(OfficePushpinMap.Office)" HeaderText="Sucursal" TextAlign="TextAlign.Left" />
-                            <GridColumn Field="@nameof(OfficePushpinMap.Bills)" HeaderText="Recibos" TextAlign="TextAlign.Right" Format="n0" Width="70" />
-                            <GridColumn Field="@nameof(OfficePushpinMap.Income)" HeaderText="Ingresos" TextAlign="TextAlign.Right" Format="c2" Width="110" />
-                        </GridColumns>
-                    </SfGrid>
-                </div>
+                <SfGrid @ref="dataGrid" DataSource="@IncomeDataGrid" TValue="OfficePushpinMap" Height="100%" Width="100%" EnableHover="true">
+                    <GridEvents RowSelected="OnGridSelectionChanged" TValue="OfficePushpinMap" />
+                    <GridColumns>
+                        <GridColumn Field="@nameof(OfficePushpinMap.Office)" HeaderText="Sucursal" TextAlign="TextAlign.Left" />
+                        <GridColumn Field="@nameof(OfficePushpinMap.Bills)" HeaderText="Recibos" TextAlign="TextAlign.Right" Format="n0" Width="70" />
+                        <GridColumn Field="@nameof(OfficePushpinMap.Income)" HeaderText="Ingresos" TextAlign="TextAlign.Right" Format="c2" Width="110" />
+                    </GridColumns>
+                </SfGrid>
             </div>
         </div>
     }
@@ -59,21 +54,23 @@
 
     #panel-wrapper
     {
-        height: min(80vh, 700px);
+        height: 225px;
+        Width: 550px;
         position: fixed;
         right: 0;
-        bottom: 10px;
+        bottom: 0;
         z-index: 67;
+        display: flex;
+        justify-content: flex-end;
     }
 
     #panel-wrapper .panel
     {
         background: white;
-        padding: 1rem;
+        padding: .25rem;
         margin: 1rem 1.5rem;
         border: 1px solid #ddd;
-        border-radius: 2rem 0rem 0rem 2rem;
-        width: 40rem;
+        border-radius: .25rem;
     }
 
 
