@@ -16,10 +16,17 @@ namespace SICEM_Blazor.Data {
 
         public IEnumerable<Factura> ObtenerFacturas(int ano, int mes, int sb, int sec){
             var result = new List<Factura>();
-            using( var conexion = new SqlConnection(enlace.GetConnectionString() )){
+            using(var conexion = new SqlConnection(enlace.GetConnectionString())){
                 conexion.Open();
-                var _query = $"Exec [SICEM_QROO].[Facturacion_04] @nAno = {ano}, @nMes = {mes}, @nSb = {sb}, @nSec = {sec}";
-                var _command = new SqlCommand(_query, conexion);
+                var _command = new SqlCommand("[SICEM].[Facturacion_04]", conexion)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                _command.Parameters.Add(new SqlParameter("@nAno", ano));
+                _command.Parameters.Add(new SqlParameter("@nMes", mes));
+                _command.Parameters.Add(new SqlParameter("@nSb", mes));
+                _command.Parameters.Add(new SqlParameter("@nSec", sec));
+
                 _command.CommandTimeout = (int) TimeSpan.FromSeconds(120).TotalSeconds;
                 using(var reader = _command.ExecuteReader()){
                     while(reader.Read()){
@@ -37,8 +44,14 @@ namespace SICEM_Blazor.Data {
             try{
                 using( var conexion = new SqlConnection(enlace.GetConnectionString() )){
                     conexion.Open();
-                    var _query = $"Exec [SICEM_QROO].[Facturacion_03] @nAno = {ano}, @nSb = {sb}, @nSec = {sec}";
-                    var _command = new SqlCommand(_query, conexion);
+                    var _command = new SqlCommand("[SICEM].[Facturacion_03]", conexion)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    _command.Parameters.Add(new SqlParameter("@nAno", ano));
+                    _command.Parameters.Add(new SqlParameter("@nSb", sb));
+                    _command.Parameters.Add(new SqlParameter("@nSec", sec));
+
                     using(SqlDataReader reader = _command.ExecuteReader() ){
                         if(reader.Read()){
                             var tmpInt = 0;

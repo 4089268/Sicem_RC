@@ -157,11 +157,11 @@ namespace SICEM_Blazor.Services {
             return respuesta.ToArray();
         }
 
-
         public IEnumerable<FacturacionAnual> ObtenerFacturacionAnual(IEnlace enlace, int ano, int sb, int sec){
             var _arquos = new ArquosRepositorie(enlace);
             return _arquos.ObtenerFacturacionAnual(ano, sb, sec).ToList();
         }
+        
         public IEnumerable<Factura> ObtenerFacturas(IEnlace oficina, int ano, int mes, int sb, int sec){
             try
             {
