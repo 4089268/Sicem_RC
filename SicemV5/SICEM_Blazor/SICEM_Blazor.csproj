@@ -23,7 +23,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="SharpKml.Core" Version="5.2.0" />
+    <PackageReference Include="SixLabors.Fonts" Version="2.1.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
     <PackageReference Include="Syncfusion.Blazor" Version="19.2.0.44" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.2" />
@@ -36,6 +38,13 @@
   <ItemGroup>
     <Folder Include="Models\Entities\Arquos\" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="Resources\Templates\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 
   <PropertyGroup>
     <NoWarn>10012;RZ10012;BL0007</NoWarn>

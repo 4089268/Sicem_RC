@@ -1,11 +1,8 @@
+@namespace SICEM_Blazor.Shared.Dialogs
 @using Syncfusion.Blazor.Maps
 @using SICEM_Blazor.Data.KML
 @using System.Text.RegularExpressions
 @using SICEM_Blazor.Models
-@inject IJSRuntime JSRuntime
-@inject IHttpClientFactory httpClientFactory
-@inject SicemService sicemService
-
 
 <VentanaSecundaria Titulo="@Titulo" Filas="@FilasTemplate" Columnas="@ColumnasTemplate" CerrarVentana="CerrarVentana_Click">
     <Content>
@@ -16,7 +13,7 @@
                 AllowExcelExport="true" Height="100%" Width="100%" EnableHover="true">
                 <GridEvents RowSelected="OnDataGrid_SelectionChanged" TValue="NotificacionTemplate"></GridEvents>
                 <GridColumns>
-                     <GridColumn Field=@nameof(NotificacionTemplate.Titulo) HeaderText="Templates" TextAlign="TextAlign.Left" Width="140">
+                    <GridColumn Field=@nameof(NotificacionTemplate.Titulo) HeaderText="Templates" TextAlign="TextAlign.Left" Width="140">
                         <Template>
                             @{
                                 var data = (context as NotificacionTemplate);
@@ -30,7 +27,7 @@
         </div>
 
         <div id="panel-message" class="carousel slide d-flex" data-ride="carousel">
-            <SfTextBox Multiline=true Placeholder="Mensaje a notificar" @bind-Value="@textoMensaje"></SfTextBox>
+            <SfTextBox Multiline=true Placeholder="Mensaje a notificar" @bind-Value="@TextoMensaje"></SfTextBox>
         </div>
 
         <div id="panel-dest" class="carousel slide" data-ride="carousel">
@@ -62,182 +59,3 @@
 </VentanaSecundaria>
 
 <BusyIndicator Busy="cargando" ContentText="Cargando datos..." />
-
-@if(mostrarPre){
-    <div class="busy-control" >
-        <div class="busy-content justify-content-start" style="width:34rem; height:14rem;">
-            <div class="d-flex align-items-end justify-content-end w-100">
-                <i class="fa fa-close" @onclick="@(e => mostrarPre = false)"></i>
-            </div>
-            <div class="w-100 h-100">
-                @MesnajePrevisualizado
-            </div>
-        </div>
-    </div>
-}
-
-<style>
-
-    #lista-templates{
-        width:100%;
-        height:100%;
-        grid-area:1/1/4/2;
-    }
-    #textarea-message
-    {
-        height: 100%;
-        width: 100%;
-    }
-
-    #panel-message
-    {
-        width:100%;
-        height:100%;
-        grid-area:1/2/2/3;
-    }
-    #panel-message textarea{
-        height: 100%;
-        width: 100%;
-        resize: none;
-    }
-
-    #panel-dest
-    {
-        width:100%;
-        height:100%;
-        grid-area:1/3/2/4;
-    }
-
-    #panel-dest .e-rowcell{
-        font-size: 10px !important;
-    }
-
-</style>
-
-
-@code {
-    [Parameter] public EventCallback OnClosed {get;set;}
-    [Parameter] public string Titulo {get;set;} = "Notificacion Usuarios";
-    [Parameter] public IEnumerable<CatPadron> PadronUsuarios { get; set; } = new List<CatPadron>();
-    private double[] FilasTemplate = new double[]{400, 40};
-    private double[] ColumnasTemplate = new double[]{300, 400, 350};
-    private bool cargando = false, mostrarPre = false;
-    private List<NotificacionTemplate> DatosGrid {get;set;}
-    private NotificacionTemplate TemplateSeleccionado {get;set;}
-    private string textoMensaje {
-        get {
-            if( TemplateSeleccionado == null){
-                TemplateSeleccionado = new NotificacionTemplate(){
-                    Titulo = "Notificacion de envio",
-                    Texto = "Mensaje de prueba",
-                    FCreacion = DateTime.Now,
-                    UltimaMod = DateTime.Now
-                };
-            }
-            return TemplateSeleccionado.Texto;
-        }
-        set{
-            if( TemplateSeleccionado == null){
-                TemplateSeleccionado = new NotificacionTemplate(){
-                    Titulo = "Notificacion de envio",
-                    Texto = "Mensaje de prueba",
-                    FCreacion = DateTime.Now,
-                    UltimaMod = DateTime.Now
-                };
-            }
-            TemplateSeleccionado.Texto = value;
-        }
-    }
-    private System.Reflection.PropertyInfo[] propertiesCatPadron = typeof(CatPadron).GetProperties();
-    private List<CatPadron> PadronUsuarios_ConTelefono {
-        get {
-            return PadronUsuarios.Where(item =>  !String.IsNullOrEmpty(item.Telefono1)).ToList();
-        }
-    }
-    private CatPadron DestinatarioSeleccionado {get;set;}
-    private string MesnajePrevisualizado {get; set;} = "";
-
-
-
-    protected override async Task OnInitializedAsync() {
-        await CargarTemplates();
-    }
-    protected override void OnAfterRender(bool firstRender) {
-        if (firstRender) {
-            Console.WriteLine("first render!");
-            var _usuariosConTelefono = PadronUsuarios.Where(item =>  !String.IsNullOrEmpty(item.Telefono1)).ToArray();
-            var _usuariosSinTelefono = PadronUsuarios.Where(item =>  String.IsNullOrEmpty(item.Telefono1)).ToArray();
-            Console.WriteLine($"Total Usuarios:{PadronUsuarios.Count()} Usuarios con telefono: {_usuariosConTelefono.Count()}  Usuarios sin telefono:{_usuariosSinTelefono.Count()}");
-        }
-    }
-
-    private async Task CerrarVentana_Click(){
-        await OnClosed.InvokeAsync();
-    }
-
-    private async Task EnviarMensaje(){
-
-        cargando = true;
-        await Task.Delay(100);
-
-        var client = httpClientFactory.CreateClient("notificacionApi");
-        foreach(var usuario in PadronUsuarios_ConTelefono){
-            var tmpTelefono = "521" + usuario.Telefono1.Trim();
-            var bodyJson = Newtonsoft.Json.JsonConvert.SerializeObject( new BodyNotification(){
-                phone = tmpTelefono,
-                message = ProcesarMensaje(this.TemplateSeleccionado.Texto, usuario)
-            });
-            var content = new StringContent(bodyJson, null, "application/json");
-            var response = await client.PostAsync("", content);
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
-        }
-
-        await Task.Delay(100);
-        cargando = false;
-
-        await OnClosed.InvokeAsync();
-    }
-
-    private string ProcesarMensaje(string mensaje, CatPadron usuario){
-        var mensajeResult = mensaje;
-        foreach(var prop in propertiesCatPadron){
-            var propName = prop.Name;
-            try{
-                mensajeResult = Regex.Replace(mensajeResult, @"\$\{\b" + propName + @"\b\}", prop.GetValue(usuario).ToString());
-            }catch(Exception){}
-        }
-        return mensajeResult;
-    }
-    private void OnDataGrid_SelectionChanged(RowSelectEventArgs<NotificacionTemplate> e){
-        TemplateSeleccionado = e.Data;
-    }    
-    private async Task CargarTemplates(){
-        this.cargando = true;
-        await Task.Delay(100);
-
-        TemplateSeleccionado = null;
-        this.DatosGrid = sicemService.ObtenerTemplateNotificaciones().ToList();
-
-        await Task.Delay(100);
-        this.cargando = false;
-    }
-
-    private void OnDestinatarioSeleccionado(RowSelectEventArgs<CatPadron> e){
-        this.DestinatarioSeleccionado = e.Data;
-    }
-
-    private void PrevisualizarTexto_Click(){
-        if(DestinatarioSeleccionado == null){
-            return;
-        }
-        this.MesnajePrevisualizado = ProcesarMensaje(TemplateSeleccionado.Texto, DestinatarioSeleccionado);
-        mostrarPre = true;
-    }
-
-
-    class BodyNotification {
-        public string phone {get;set;}
-        public string message {get;set;}
-    }
-
-}

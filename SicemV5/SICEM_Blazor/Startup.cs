@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using SICEM_Blazor.Pages.AnalisisInformacion;
 using SICEM_Blazor.SeguimientoCobros.Data;
+using SICEM_Blazor.Services.Whatsapp;
 
 namespace SICEM_Blazor {
     public class Startup {
@@ -93,6 +94,7 @@ namespace SICEM_Blazor {
             services.AddScoped<AnalisisInfoMapJsInterop>();
             services.AddScoped<MapJsInterop>();
             services.AddSicemIncomeOfficeServices();
+            services.AddWhatsappService(Configuration);
             services.AddHttpClient("notificacionApi", client => {
                 client.BaseAddress = new Uri("http://nerus.sytes.net:3001/lead");
             });
