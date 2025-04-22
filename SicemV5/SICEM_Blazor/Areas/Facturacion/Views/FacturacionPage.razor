@@ -61,17 +61,6 @@
                         }
                     </Template>
                 </GridColumn>
-                <GridColumn HeaderText="Hotelero" TextAlign="TextAlign.Center" Width="110">
-                    <Template>
-                        @{
-                            var data = (context as Facturacion_Oficina);
-                            <div class="fact-item">
-                                <div class="usu">@data.Hotelero_Usu.ToString("n0")</div>
-                                <div class="fac">@data.Hotelero_Fact.ToString("c2")</div>
-                            </div>
-                        }
-                    </Template>
-                </GridColumn>
                 <GridColumn HeaderText="Comercial" TextAlign="TextAlign.Center" Width="110">
                     <Template>
                         @{
@@ -108,8 +97,6 @@
 
                 <GridColumn Field="@nameof(Facturacion_Oficina.Domestico_Usu)" HeaderText="Usu Domestico" TextAlign="TextAlign.Center" Width="115" Format="n0" Visible="false"/>
                 <GridColumn Field="@nameof(Facturacion_Oficina.Domestico_Fact)" HeaderText="Fact Domestico" TextAlign="TextAlign.Right" Width="115" Format="c2" Visible="false"/>
-                <GridColumn Field="@nameof(Facturacion_Oficina.Hotelero_Usu)" HeaderText="Usu Hotelero" TextAlign="TextAlign.Center" Width="115" Format="n0" Visible="false"/>
-                <GridColumn Field="@nameof(Facturacion_Oficina.Hotelero_Fact)" HeaderText="Fact Hotelero" TextAlign="TextAlign.Right" Width="115" Format="c2" Visible="false"/>
                 <GridColumn Field="@nameof(Facturacion_Oficina.Comercial_Usu)" HeaderText="Usu Comercial" TextAlign="TextAlign.Center" Width="115" Format="n0" Visible="false"/>
                 <GridColumn Field="@nameof(Facturacion_Oficina.Comercial_Fact)" HeaderText="Fact Comercial" TextAlign="TextAlign.Right" Width="115" Format="c2" Visible="false"/>
                 <GridColumn Field="@nameof(Facturacion_Oficina.Industrial_Usu)" HeaderText="Usu Industrial" TextAlign="TextAlign.Center" Width="115" Format="n0" Visible="false"/>
@@ -156,11 +143,6 @@
                 <ChartLegendSettings Position="LegendPosition.Right" />
                 <ChartSeriesCollection>
                     <ChartSeries DataSource="@datosGrafica" Name="Domestico" XName="Descripcion" YName="Valor1" Type="ChartSeriesType.StackingBar">
-                        <ChartMarker>
-                            <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
-                        </ChartMarker>
-                    </ChartSeries>
-                    <ChartSeries DataSource="@datosGrafica" Name="Hotelero" XName="Descripcion" YName="Valor2" Type="ChartSeriesType.StackingBar">
                         <ChartMarker>
                             <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
                         </ChartMarker>
@@ -299,8 +281,6 @@
                 itemList.Estatus = result.Estatus;
                 itemList.Domestico_Fact = result.Domestico_Fact;
                 itemList.Domestico_Usu = result.Domestico_Usu;
-                itemList.Hotelero_Fact = result.Hotelero_Fact;
-                itemList.Hotelero_Usu = result.Hotelero_Usu;
                 itemList.Comercial_Fact = result.Comercial_Fact;
                 itemList.Comercial_Usu = result.Comercial_Usu;
                 itemList.Industrial_Fact = result.Industrial_Fact;
@@ -322,7 +302,6 @@
             var itemGraf = this.datosGrafica.Where(item => item.Id == oficina.Id).FirstOrDefault();
             if(itemGraf != null){
                 itemGraf.Valor1 = result.Domestico_Fact;
-                itemGraf.Valor2 = result.Hotelero_Fact;
                 itemGraf.Valor3 = result.Comercial_Fact;
                 itemGraf.Valor4 = result.Industrial_Fact;
                 itemGraf.Valor5 = result.ServGener_Fact;
@@ -336,8 +315,6 @@
             var _tmpDatos = this.datosFacturacion.Where(item => item.Id_Oficina > 0 && item.Id_Oficina < 999).ToList();
             filaTotal.Domestico_Fact = _tmpDatos.Sum( item => item.Domestico_Fact);
             filaTotal.Domestico_Usu = _tmpDatos.Sum( item => item.Domestico_Usu);
-            filaTotal.Hotelero_Fact = _tmpDatos.Sum( item => item.Hotelero_Fact);
-            filaTotal.Hotelero_Usu = _tmpDatos.Sum( item => item.Hotelero_Usu);
             filaTotal.Comercial_Fact = _tmpDatos.Sum( item => item.Comercial_Fact);
             filaTotal.Comercial_Usu = _tmpDatos.Sum( item => item.Comercial_Usu);
             filaTotal.Industrial_Fact = _tmpDatos.Sum( item => item.Industrial_Fact);

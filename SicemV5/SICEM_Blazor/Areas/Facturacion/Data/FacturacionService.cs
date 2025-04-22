@@ -29,16 +29,22 @@ namespace SICEM_Blazor.Services {
             try {
                 using(var _conexion = new SqlConnection(enlace.GetConnectionString() )){
                     _conexion.Open();
-                    var _query = string.Format("Execute [SICEM_QROO].[Facturacion_01] @nAno = {0}, @nMes = {1}, @nSb = {2}, @nSect = {3}", anio, mes, sb, sec);
-                    var _command = new SqlCommand(_query, _conexion);
+                    var _query = string.Format("Execute [SICEM].[Facturacion_01] @nAno = {0}, @nMes = {1}, @nSb = {2}, @nSect = {3}", anio, mes, sb, sec);
+                    var _command = new SqlCommand("[SICEM].[Facturacion_01]", _conexion)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    _command.Parameters.AddWithValue("@nAno", anio);
+                    _command.Parameters.AddWithValue("@nMes", mes);
+                    _command.Parameters.AddWithValue("@nSb", sb);
+                    _command.Parameters.AddWithValue("@nSect", sec);
+
                     using(SqlDataReader _reader = _command.ExecuteReader() ){
                         if(_reader.Read()){
                             var tmpInt = 0;
                             var tmpDec = 0m;
                             result.Domestico_Usu = int.TryParse(_reader["usu_domestico"].ToString(), out tmpInt)?tmpInt:0;
                             result.Domestico_Fact = decimal.TryParse(_reader["fac_domestico"].ToString(), out tmpDec)?tmpDec:0m;
-                            result.Hotelero_Usu = int.TryParse(_reader["Usu_Hotelera"].ToString(), out tmpInt)?tmpInt:0;
-                            result.Hotelero_Fact = decimal.TryParse(_reader["fac_hotelera"].ToString(), out tmpDec)?tmpDec:0m;
                             result.Comercial_Usu = int.TryParse(_reader["usu_comercial"].ToString(), out tmpInt)?tmpInt:0;
                             result.Comercial_Fact = decimal.TryParse(_reader["fac_comercial"].ToString(), out tmpDec)?tmpDec:0m;
                             result.Industrial_Usu = int.TryParse(_reader["usu_industrial"].ToString(), out tmpInt)?tmpInt:0;
@@ -90,7 +96,7 @@ namespace SICEM_Blazor.Services {
                                 newItem.Comercial_Total = decimal.TryParse(_reader.GetValue("tot_comercial").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.Industrial_Sub = decimal.TryParse(_reader.GetValue("sub_industrial").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.Industrial_Iva = decimal.TryParse(_reader.GetValue("iva_industrial").ToString(), out tmpDec)?tmpDec:0m;
-                                newItem.Industrial_Total = decimal.TryParse(_reader.GetValue("tot_industrial").ToString(), out tmpDec)?tmpDec:0m;                                
+                                newItem.Industrial_Total = decimal.TryParse(_reader.GetValue("tot_industrial").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.ServGen_Sub = decimal.TryParse(_reader.GetValue("sub_servGen").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.ServGen_Iva = decimal.TryParse(_reader.GetValue("iva_servGen").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.ServGen_Total = decimal.TryParse(_reader.GetValue("tot_servGen").ToString(), out tmpDec)?tmpDec:0m;
@@ -111,7 +117,7 @@ namespace SICEM_Blazor.Services {
         }
 
         public Facturacion_Usuarios[] ObtenerFacturacionUsuarios(IEnlace enlace, int anio, int mes, int sb, int sec) {
-            var respuesta = new List<Facturacion_Usuarios>();            
+            var respuesta = new List<Facturacion_Usuarios>();
             using(var xConnecton = new SqlConnection(enlace.GetConnectionString() )) {
                 xConnecton.Open();
                 using(var xCommand = new SqlCommand()) {

@@ -13,9 +13,6 @@ namespace SICEM_Blazor.Facturacion.Models{
         public int Domestico_Usu {get;set;}
         public decimal Domestico_Fact {get;set;}
 
-        public int Hotelero_Usu {get;set;}
-        public decimal Hotelero_Fact {get;set;}
-
         public int Comercial_Usu {get;set;}
         public decimal Comercial_Fact {get;set;}
 
@@ -38,8 +35,6 @@ namespace SICEM_Blazor.Facturacion.Models{
             Oficina = "";
             Domestico_Usu = 0;
             Domestico_Fact = 0m;
-            Hotelero_Usu = 0;
-            Hotelero_Fact = 0m;
             Comercial_Usu = 0;
             Comercial_Fact = 0m;
             Industrial_Usu = 0;
