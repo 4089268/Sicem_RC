@@ -16,9 +16,12 @@
         </MatNavItem>
         }
 
+        @if(OpcionesDisponibles.Contains(18))
+        {
         <MatNavItem Title="Seguimiento Cobros" Href="/seguimiento_cobros">
             <MatIcon Icon="settings_input_antenna"/>&nbsp;Seguimiento Cobros
         </MatNavItem>
+        }
 
         <MatDivider></MatDivider>
 
@@ -27,10 +30,6 @@
             <MatIcon Icon="local_atm"/>&nbsp;Recaudación
         </MatNavItem>
         }
-
-        <MatNavItem Title="Litros Segundos" Href="/litros-segundos">
-            <MatIcon Icon="opacity"/>&nbsp;Litros Segundo
-        </MatNavItem>
 
         @if(OpcionesDisponibles.Contains(2)){
         <MatNavItem Title="Descuentos" Href="/descuentos">
@@ -123,11 +122,13 @@
         </MatNavSubMenu>
 
         }
-
+        
+        @if(OpcionesDisponibles.Contains(20))
+        {
         <MatNavItem Title="Lecturas" Href="/lecturas">
             <MatIcon Icon="gps_fixed"/>&nbsp;Lecturas
         </MatNavItem>
-        
+        }
 
         <MatDivider></MatDivider>
 
