@@ -199,7 +199,6 @@ namespace SICEM_Blazor.Controllers {
         [HttpGet]
         [Route("/api/Download/{guid}")]
         public IActionResult DescargarArchivo(string guid){
-            Console.WriteLine(">>" + guid);
             var _tmpFolder = configuration.GetValue<string>("TempFolder");
             var _dirInfo = new DirectoryInfo($"{_tmpFolder}{guid}");
 
@@ -223,7 +222,6 @@ namespace SICEM_Blazor.Controllers {
 
             var fileBytes = System.IO.File.ReadAllBytes(_firstFile.FullName);
             return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            
         }
     }
 }

@@ -114,9 +114,9 @@ namespace SICEM_Blazor.Pages.AnalisisInformacion {
             var _exportador = new ExportarExcel<CatPadron>(DatosGrid, new Uri(_tmpFolder) );
             var _archivo = _exportador.GenerarExcel();
 
-            if(!String.IsNullOrEmpty(_archivo)){
-                var _endPointDownload = Configuration.GetSection("AppSettings").GetValue<string>("Direccion_Api");
-                var _targetUrl = $"{_endPointDownload}/download/{_archivo}";
+            if(!String.IsNullOrEmpty(_archivo))
+            {
+                var _targetUrl = $"/api/download/{_archivo}";
                 await JSRuntime.InvokeVoidAsync("OpenNewTabUrl", _targetUrl);
             }
             
