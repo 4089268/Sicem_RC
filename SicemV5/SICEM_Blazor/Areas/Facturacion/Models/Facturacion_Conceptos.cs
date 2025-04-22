@@ -13,10 +13,6 @@
         public decimal Domestico_Iva{ get; set; }
         public decimal Domestico_Total{ get; set; }
 
-        public decimal Hotelero_Sub{ get; set; }
-        public decimal Hotelero_Iva{ get; set; }
-        public decimal Hotelero_Total{ get; set; }
-
         public decimal Comercial_Sub{ get; set; }
         public decimal Comercial_Iva{ get; set; }
         public decimal Comercial_Total{ get; set; }
@@ -42,9 +38,6 @@
             Domestico_Sub = 0;
             Domestico_Iva = 0;
             Domestico_Total = 0;
-            Hotelero_Sub = 0;
-            Hotelero_Iva = 0;
-            Hotelero_Total = 0;
             Comercial_Sub = 0;
             Comercial_Iva = 0;
             Comercial_Total = 0;

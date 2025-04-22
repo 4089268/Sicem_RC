@@ -29,7 +29,6 @@ namespace SICEM_Blazor.Services {
             try {
                 using(var _conexion = new SqlConnection(enlace.GetConnectionString() )){
                     _conexion.Open();
-                    var _query = string.Format("Execute [SICEM].[Facturacion_01] @nAno = {0}, @nMes = {1}, @nSb = {2}, @nSect = {3}", anio, mes, sb, sec);
                     var _command = new SqlCommand("[SICEM].[Facturacion_01]", _conexion)
                     {
                         CommandType = CommandType.StoredProcedure
@@ -72,9 +71,14 @@ namespace SICEM_Blazor.Services {
             try{
                 using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
                     xConnecton.Open();
-                    using(var xCommand = new SqlCommand()) {
-                        xCommand.Connection = xConnecton;
-                        xCommand.CommandText =  string.Format("Execute [SICEM_QROO].[Facturacion_02] @nAno = {0}, @nMes = {1}, @idLocalidad = {2}, @nSub = {3}, @nSec = {4}", anio, mes, idLocalidad, sb, sec);
+                    using(var xCommand = new SqlCommand("[Sicem].[Facturacion_02]", xConnecton)) {
+                        xCommand.CommandType = CommandType.StoredProcedure;
+                        xCommand.Parameters.AddWithValue("@nAno", anio);
+                        xCommand.Parameters.AddWithValue("@nMes", mes);
+                        xCommand.Parameters.AddWithValue("@idLocalidad", idLocalidad);
+                        xCommand.Parameters.AddWithValue("@nSub", sb);
+                        xCommand.Parameters.AddWithValue("@nSec", sec);
+
                         using(SqlDataReader _reader = xCommand.ExecuteReader()) {
                             while(_reader.Read()) {
                                 var newItem = new Facturacion_Conceptos();
@@ -88,9 +92,6 @@ namespace SICEM_Blazor.Services {
                                 newItem.Domestico_Sub = decimal.TryParse(_reader.GetValue("sub_domestico").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.Domestico_Iva = decimal.TryParse(_reader.GetValue("iva_domestico").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.Domestico_Total = decimal.TryParse(_reader.GetValue("tot_domestico").ToString(), out tmpDec)?tmpDec:0m;
-                                newItem.Hotelero_Sub = decimal.TryParse(_reader.GetValue("sub_hotelero").ToString(), out tmpDec)?tmpDec:0m;
-                                newItem.Hotelero_Iva = decimal.TryParse(_reader.GetValue("iva_hotelero").ToString(), out tmpDec)?tmpDec:0m;
-                                newItem.Hotelero_Total = decimal.TryParse(_reader.GetValue("tot_hotelero").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.Comercial_Sub = decimal.TryParse(_reader.GetValue("sub_comercial").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.Comercial_Iva = decimal.TryParse(_reader.GetValue("iva_comercial").ToString(), out tmpDec)?tmpDec:0m;
                                 newItem.Comercial_Total = decimal.TryParse(_reader.GetValue("tot_comercial").ToString(), out tmpDec)?tmpDec:0m;

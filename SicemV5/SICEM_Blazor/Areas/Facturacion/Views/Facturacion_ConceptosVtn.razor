@@ -31,10 +31,6 @@
                         <GridColumn Field="@nameof(Facturacion_Conceptos.Domestico_Iva)" Visible="false" HeaderText="Domestico IVA" TextAlign="TextAlign.Right" Width="90" Format="c2" />
                         <GridColumn Field="@nameof(Facturacion_Conceptos.Domestico_Total)" Visible="false" HeaderText="Domestico Total" TextAlign="TextAlign.Right" Width="110" Format="c2" />
                         
-                        <GridColumn Field="@nameof(Facturacion_Conceptos.Hotelero_Sub)" Visible="false" HeaderText="Hotelero Sub." TextAlign="TextAlign.Right" Width="100" Format="c2" />
-                        <GridColumn Field="@nameof(Facturacion_Conceptos.Hotelero_Iva)" Visible="false" HeaderText="Hotelerol IVA" TextAlign="TextAlign.Right" Width="90" Format="c2" />
-                        <GridColumn Field="@nameof(Facturacion_Conceptos.Hotelero_Total)" Visible="false" HeaderText="Hotelero Total" TextAlign="TextAlign.Right" Width="110" Format="c2" />
-
                         <GridColumn Field="@nameof(Facturacion_Conceptos.Comercial_Sub)" Visible="false" HeaderText="Comercial Sub." TextAlign="TextAlign.Right" Width="100" Format="c2" />
                         <GridColumn Field="@nameof(Facturacion_Conceptos.Comercial_Iva)" Visible="false" HeaderText="Comercial IVA" TextAlign="TextAlign.Right" Width="90" Format="c2" />
                         <GridColumn Field="@nameof(Facturacion_Conceptos.Comercial_Total)" Visible="false" HeaderText="Comercial Total" TextAlign="TextAlign.Right" Width="110" Format="c2" />
@@ -91,22 +87,6 @@
                                         <div class="item colorT1">@(data.Id_Concepto > 996?data.Domestico_Sub.ToString("n0"):data.Domestico_Sub.ToString("c2"))</div>
                                         <div class="item colorT1">@(data.Id_Concepto > 996?data.Domestico_Iva.ToString("n0"):data.Domestico_Iva.ToString("c2"))</div>
                                         <div class="item colorT1">@(data.Id_Concepto > 996?data.Domestico_Total.ToString("n0"):data.Domestico_Total.ToString("c2"))</div>
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-
-                        <GridColumn HeaderText="Hotelero" TextAlign="TextAlign.Center" Width="210">
-                            <HeaderTemplate>
-                                <div class="colorT2" style="grid-area: 1/1/2/4;">HOTELERO</div>
-                            </HeaderTemplate>
-                            <Template>
-                                @{
-                                    var data = (context as Facturacion_Conceptos);
-                                    <div class="customCol">
-                                        <div class="item colorT2">@(data.Id_Concepto > 996?data.Hotelero_Sub.ToString("n0"):data.Hotelero_Sub.ToString("c2"))</div>
-                                        <div class="item colorT2">@(data.Id_Concepto > 996?data.Hotelero_Iva.ToString("n0"):data.Hotelero_Iva.ToString("c2"))</div>
-                                        <div class="item colorT2">@(data.Id_Concepto > 996?data.Hotelero_Total.ToString("n0"):data.Hotelero_Total.ToString("c2"))</div>
                                     </div>
                                 }
                             </Template>
