@@ -20,15 +20,12 @@ namespace SICEM_Blazor.Facturacion.Models {
         public int Usuarios {get;set;}
         public int M3Consumidos {get;set;}
         public int M3Facturados {get;set;}
-        public bool EsRural {get;set;}
-        public int Habitantes {get;set;}
-
+        
         public decimal TotalPropios {
             get {
                 return Agua + Drenaje + Saneamiento;
             }
         }
-
 
         public static FacturacionLocalidad FromDataReader(SqlDataReader reader){
             var result = new FacturacionLocalidad();
@@ -46,22 +43,8 @@ namespace SICEM_Blazor.Facturacion.Models {
             result.M3Consumidos = ConvertUtils.ParseInteger(reader["m3_consumidos"].ToString());
             result.M3Facturados = ConvertUtils.ParseInteger(reader["m3_facturados"].ToString());
 
-            try {
-                result.EsRural = Convert.ToBoolean( reader["es_rural"]);
-            }
-            catch (System.Exception) {
-                result.EsRural = false;
-            }    
-
-            try {
-                result.Habitantes = Convert.ToInt32( reader["habitantes"] );
-            }
-            catch (System.Exception) {
-                result.Habitantes = -1;
-            }    
-            
             return result;
-        }							
+        }
     }
     
 }

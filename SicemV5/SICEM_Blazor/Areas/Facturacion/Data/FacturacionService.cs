@@ -111,8 +111,10 @@ namespace SICEM_Blazor.Services {
                     xConnecton.Close();
                 }
                 return respuesta;
-            }catch(Exception err){
-                Console.WriteLine($">> Error al obtener la facturacion por conceptos de la oficina {enlace.Nombre}\n\tError:{err.Message}\n\tStacktrace:{err.StackTrace}");
+            }
+            catch(Exception err)
+            {
+                this.logger.LogError(err, "Error al obtener la facturacion por conceptos de la oficina {officeName}: {message}", enlace.Nombre, err.Message);
                 return null;
             }
         }
@@ -153,7 +155,7 @@ namespace SICEM_Blazor.Services {
                         }
                     }
                 }
-            }            
+            }
             return respuesta.ToArray();
         }
 
@@ -181,9 +183,16 @@ namespace SICEM_Blazor.Services {
             try{
                 using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())){
                     sqlConnection.Open();
-                    var _query = string.Format("exec sicem.facturacion 'FACTURACION_LOCALIDADES', {0}, {1}, {2}, {3}", sb, sec, anio, mes);
-                    var _command = new SqlCommand(_query, sqlConnection);
-                    _command.CommandTimeout = (int)TimeSpan.FromMinutes(15).TotalSeconds;
+                    var _command = new SqlCommand("[Sicem].[facturacion]", sqlConnection){
+                        CommandType = CommandType.StoredProcedure,
+                        CommandTimeout = (int)TimeSpan.FromMinutes(15).TotalSeconds
+                    };
+                    _command.Parameters.AddWithValue("@cAlias", "FACTURACION_LOCALIDADES");
+                    _command.Parameters.AddWithValue("@nSub", sb);
+                    _command.Parameters.AddWithValue("@nSec", sec);
+                    _command.Parameters.AddWithValue("@nAf", anio);
+                    _command.Parameters.AddWithValue("@nMf", mes);
+
                     using( var reader = _command.ExecuteReader()){
                         while(reader.Read()){
                             result.Add( FacturacionLocalidad.FromDataReader(reader));
@@ -194,7 +203,7 @@ namespace SICEM_Blazor.Services {
                 return result;
 
             }catch(Exception err){
-                logger.LogError(err, $"Error al obtener la facturacion por localidades de {enlace.Nombre}");
+                logger.LogError(err, "Error al obtener la facturacion por localidades de {enlace}: {message}", enlace.Nombre, err.Message);
                 return new List<FacturacionLocalidad>();
             }
         }
@@ -204,8 +213,18 @@ namespace SICEM_Blazor.Services {
             try{
                 using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())){
                     sqlConnection.Open();
-                    var _query = string.Format("exec sicem.facturacion 'FACTURACION_LOCALIDADES_COLONIAS', {0}, {1}, {2}, {3}, @nLocalidad = {4}", sb, sec, anio, mes, idLocalidad);
-                    var _command = new SqlCommand(_query, sqlConnection);
+                    var _command = new SqlCommand("[Sicem].[Facturacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure,
+                        CommandTimeout = (int)TimeSpan.FromMinutes(15).TotalSeconds
+                    };
+                    _command.Parameters.AddWithValue("@cAlias", "FACTURACION_LOCALIDADES_COLONIAS");
+                    _command.Parameters.AddWithValue("@nSub", sb);
+                    _command.Parameters.AddWithValue("@nSec", sec);
+                    _command.Parameters.AddWithValue("@nAf", anio);
+                    _command.Parameters.AddWithValue("@nMf", mes);
+                    _command.Parameters.AddWithValue("@nLocalidad", idLocalidad);
+
                     _command.CommandTimeout = (int)TimeSpan.FromMinutes(15).TotalSeconds;
                     using( var reader = _command.ExecuteReader()){
                         while(reader.Read()){
@@ -217,8 +236,8 @@ namespace SICEM_Blazor.Services {
                 return result;
 
             }catch(Exception err){
-                logger.LogError(err, $"Error al obtener la facturacion por localidades de {enlace.Nombre}");
-                return new List<FacturacionColonia>();
+                logger.LogError(err, "Error al obtener la facturacion por localidades de {enlace}: {message}", enlace.Nombre, err.Message);
+                return [];
             }
         }
     
