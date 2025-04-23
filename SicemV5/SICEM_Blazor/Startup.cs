@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 using Syncfusion.Blazor;
 using MatBlazor;
 using SICEM_Blazor.Models;
@@ -19,11 +21,10 @@ using SICEM_Blazor.Data.Filtros;
 using SICEM_Blazor.Recaudacion.Data;
 using SICEM_Blazor.Eficiencia.Data;
 using SICEM_Blazor.Helpers;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Options;
 using SICEM_Blazor.Pages.AnalisisInformacion;
 using SICEM_Blazor.SeguimientoCobros.Data;
 using SICEM_Blazor.Services.Whatsapp;
+using SICEM_Blazor.Ordenes.Data;
 
 namespace SICEM_Blazor {
     public class Startup {
@@ -84,7 +85,7 @@ namespace SICEM_Blazor {
             services.AddScoped<DescuentosService>();
             services.AddScoped<IEficienciaService, EficienciaService>();
             services.AddScoped<FacturacionService>();
-            services.AddScoped<OrdenesService>(s => new OrdenesService(Configuration, s.GetService<SicemService>()));
+            services.AddScoped<OrdenesService>();
             services.AddScoped<PadronService>();
             services.AddSingleton<SICEM_Blazor.Lecturas.Data.LecturasService>();
             services.AddScoped<ConceptosService>();

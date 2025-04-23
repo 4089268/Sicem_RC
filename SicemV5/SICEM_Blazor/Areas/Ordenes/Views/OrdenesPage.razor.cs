@@ -1,150 +1,37 @@
-@page "/Ordenes"
-@using System.Text
-@using Syncfusion.Blazor.Buttons
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Charts
-@using Syncfusion.Blazor.Popups
-@using Syncfusion.Blazor.Navigations
-
-@inject NavigationManager navigationManager
-@inject IMatToaster Toaster
-@inject OrdenesService ordenesService
-@inject SicemService sicemService
-
-<div class="layout-page1">
-    <div class="title-page" style="grid-area:1/1/2/2;">ORDENES DE TRABAJO</div>
-
-    <div class="border rounded bg-white px-2 d-flex align-items-center" style="grid-area:2/1/3/2;">
-        <SeleccionarFecha ProcesarParam="@Procesar" />
-    </div>
-
-    @* ****** Acciones ****** *@
-    <div class="border rounded bg-white p-2 d-flex align-items-center"  style="grid-area:3/1/4/2;">
-        <MatButton Class="mx-2" style="min-width: 130px;" Raised="true" @onclick="ExportarExcel_Click">Exportar Excel</MatButton>
-        <MatButton Class="mx-2" style="min-width: 130px;" Raised="true" Disabled="true">Generar Reporte</MatButton>
-    </div>
-
-    @* ****** DataGrid ****** *@
-    <div class="border rounded bg-white p-2 d-flex" style="grid-area:4/1/5/2;">
-        <SfGrid @ref="DataGrid" DataSource="@DatosGrid" TValue="Ordenes_Oficina" AllowResizing="true" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true"
-                AllowPdfExport="true" Height="99%" Width="100%" EnableHover="true">
-            <GridColumns>
-                <GridColumn Width="40" >
-                    <Template>
-                        @{
-                            var data = (context as Ordenes_Oficina);
-                            if (data.IdOficina > 0 && data.IdOficina < 999) {
-                                @switch (data.Estatus) {
-
-                                    case 1:
-                                        <i class="fas fa-check-circle" style="color:green; font-size:1.5rem;"></i>
-                                        break;
-
-                                    case 2:
-                                        <i class="fas fa-exclamation-circle" style="color:red; font-size:1.5rem;"></i>
-                                        break;
-
-                                    default:
-                                        <div class="spinner-border p-2" role="status"> </div>
-                                        break;
-                                }
-                            }
-                        }
-                    </Template>
-                </GridColumn>
-                <GridColumn Field="@nameof(Ordenes_Oficina.Oficina)" HeaderText="Oficina" TextAlign="TextAlign.Left" Width="140" />
-                <GridColumn Field="@nameof(Ordenes_Oficina.Pendi)" HeaderText="Ordenes Pendientes" TextAlign="TextAlign.Center" Width="125" Format="n0" />
-                <GridColumn Field="@nameof(Ordenes_Oficina.Eneje)" HeaderText="Ordenes en Ejecucion" TextAlign="TextAlign.Center" Width="125" Format="n0" />
-                <GridColumn Field="@nameof(Ordenes_Oficina.Reali)" HeaderText="Ordenes Realizada" TextAlign="TextAlign.Center" Width="125" Format="n0" />
-                <GridColumn Field="@nameof(Ordenes_Oficina.Cance)" HeaderText="Ordenes Canceladas" TextAlign="TextAlign.Center" Width="125" Format="n0" />
-                <GridColumn Field="@nameof(Ordenes_Oficina.Eje)" HeaderText="Ordenes Ejecutadas" TextAlign="TextAlign.Center" Width="125" Format="n0" />
-                <GridColumn Field="@nameof(Ordenes_Oficina.No_eje)" HeaderText="Ordenes No Ejecutadas" TextAlign="TextAlign.Center" Width="125" Format="n0" />
-                <GridColumn Field="@nameof(Ordenes_Oficina.Total)" HeaderText="Total Ordenes" TextAlign="TextAlign.Center" Width="125" Format="n0" />
-                <GridColumn HeaderText="Acciones" TextAlign="TextAlign.Left" Width="140">
-                    <Template>
-                        @{
-                            var data = (context as Ordenes_Oficina);
-                            if (data.IdOficina > 0 && data.IdOficina < 999) {
-                                <div class="d-flex p-1">
-                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ordenes por Colonia" disabled="@(data.Estatus != 1)" @onclick=@( e => Mostrar_Vtn_Colonias(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ordenes por Trabajos" disabled="@(data.Estatus != 1)" @onclick=@( e => Mostrar_Vtn_Trabajos(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>   
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ordenes por Realizacion" disabled="@(data.Estatus != 1)" @onclick="( e => Mostrar_Vtn_Realizacion(data))">
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ordenes por Captura" disabled="@(data.Estatus != 1)" @onclick="( e => Mostrar_Vtn_Capturacion(data))">
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            }
-                        }
-                    </Template>
-                </GridColumn>
-            </GridColumns>
-        </SfGrid>
-    </div>
-
-    <!--- ****** Graficas ****** -->
-    <div class="d-flex" style="grid-area:5/1/6/2;">
-        <SfChart @ref="GraficaUsuarios" Height="100%" Width="100%" Title="ORDENES DE TRABAJO">
-            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
-            <ChartPrimaryYAxis Visible="false" LabelFormat="n0" />
-            <ChartTooltipSettings Enable="true" Header="Ordenes" Format="<b>${series.name}</b> : ${point.y}" Shared="true"></ChartTooltipSettings>
-            <ChartLegendSettings Visible="true" Position="LegendPosition.Right"></ChartLegendSettings>
-            <ChartSeriesCollection>
-
-                <ChartSeries DataSource="@DatosGrafica" Name="Pendientes" XName="Descripcion" YName="Valor1" Type="ChartSeriesType.StackingBar">
-                    <ChartMarker>
-                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
-                    </ChartMarker>
-                </ChartSeries>
-
-                <ChartSeries DataSource="@DatosGrafica" Name="En Ejecucion" XName="Descripcion" YName="Valor2" Type="ChartSeriesType.StackingBar">
-                    <ChartMarker>
-                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
-                    </ChartMarker>
-                </ChartSeries>
-
-                <ChartSeries DataSource="@DatosGrafica" Name="Realizadas" XName="Descripcion" YName="Valor3" Type="ChartSeriesType.StackingBar">
-                    <ChartMarker>
-                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
-                    </ChartMarker>
-                </ChartSeries>
-
-                <ChartSeries DataSource="@DatosGrafica" Name="Canceladas" XName="Descripcion" YName="Valor4" Type="ChartSeriesType.StackingBar">
-                    <ChartMarker>
-                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Outer" />
-                    </ChartMarker>
-                </ChartSeries>
-
-            </ChartSeriesCollection>
-        </SfChart>
-    </div>
-</div>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using MatBlazor;
+using SICEM_Blazor.Ordenes.Models;
+using SICEM_Blazor.Ordenes.Data;
+using SICEM_Blazor.Areas.Ordenes.Views;
+using SICEM_Blazor.Services;
+using Syncfusion.Blazor.Grids;
+using Syncfusion.Blazor.Charts;
+using SICEM_Blazor.Models;
+using SICEM_Blazor.Data;
 
 
-<style type="text/css">
-    .txt-usuarios {
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-</style>
+namespace SICEM_Blazor.Ordenes.Views;
 
+public partial class OrdenesPage : ComponentBase {
 
-@* ****** Dialogos y ventanas secundarias ****** *@
-<Ordenes_DetalleVtn @ref="vtn_detalle" Visible="@vtn_detalle_visible" CerrarModal="@(()=> vtn_detalle_visible = false)" Fecha1="@f1" Fecha2="@f2" Subsistema="@Subsistema" Sector="@Sector" Filtro_Estatus="false" />
-<Ordenes_ColoniasVtn @ref="vtn_colonias" Visible="@vtn_colonias_visible" CerrarModal="@(()=> vtn_colonias_visible = false)" Fecha1="@f1" Fecha2="@f2" Subsistema="@Subsistema" Sector="@Sector" />
-<Ordenes_TrabajosVtn @ref="vtn_trabajos" Visible="@vtn_trabajos_visible" CerrarModal="@(()=> vtn_trabajos_visible = false)" Fecha1="@f1" Fecha2="@f2" Subsistema="@Subsistema" Sector="@Sector" />
-<Ordenes_RealizacionVtn @ref="vtn_realizacion" Visible="@vtn_realizacion_visible" CerrarModal="@(()=> vtn_realizacion_visible = false)" Fecha1="@f1" Fecha2="@f2" Subsistema="@Subsistema" Sector="@Sector" />
-<Ordenes_CapturacionVtn @ref="vtn_capturacion" Visible="@vtn_capturacion_visible" CerrarModal="@(()=> vtn_capturacion_visible = false)" Fecha1="@f1" Fecha2="@f2" Subsistema="@Subsistema" Sector="@Sector" />
+    [Inject]
+    public NavigationManager navigationManager {get;set;}
+    
+    [Inject]
+    public IMatToaster Toaster {get;set;}
+    
+    [Inject]
 
-<BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
+    public OrdenesService ordenesService {get;set;}
+    
+    [Inject]
+    public SicemService sicemService {get; set;}
 
-
-@code{
     private SfGrid<Ordenes_Oficina> DataGrid { get; set; }
     private SfChart GraficaUsuarios { get; set; }
 
@@ -154,15 +41,14 @@
     private DateTime f1, f2;
     private int Subsistema, Sector;
 
-    Ordenes_DetalleVtn vtn_detalle;
-    Ordenes_ColoniasVtn vtn_colonias;
-    Ordenes_TrabajosVtn vtn_trabajos;
-    Ordenes_RealizacionVtn vtn_realizacion;
-    Ordenes_CapturacionVtn vtn_capturacion;
+    private Ordenes_DetalleVtn vtn_detalle;
+    private Ordenes_ColoniasVtn vtn_colonias;
+    private Ordenes_TrabajosVtn vtn_trabajos;
+    private Ordenes_RealizacionVtn vtn_realizacion;
+    private Ordenes_CapturacionVtn vtn_capturacion;
+
     private bool vtn_detalle_visible = false, vtn_colonias_visible = false, vtn_trabajos_visible = false, vtn_realizacion_visible = false, vtn_capturacion_visible = false;
 
-
-    //********* Funciones  *********
     protected override void OnInitialized() {
 
         // Validar si se cuenta con la opcion

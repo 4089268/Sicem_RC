@@ -5,9 +5,11 @@
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.DropDowns
+@using SICEM_Blazor.Ordenes.Models
+@using SICEM_Blazor.Ordenes.Data
 @inject IJSRuntime JSRuntime
 @inject IMatToaster Toaster
-@inject OrdenesService ordenesService 
+@inject OrdenesService ordenesService
 
 @if (Visible) {
     <VentanaSecundaria Titulo="@Titulo" CerrarVentana="@CerrarModal" Filas="@(new double[]{ 50, 580 })" Columnas="@(new double[]{ 1100 })">

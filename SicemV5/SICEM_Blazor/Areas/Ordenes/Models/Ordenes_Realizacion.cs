@@ -1,7 +1,7 @@
 using System;
 
-namespace SICEM_Blazor.Models{
-    public class Ordenes_Realizacion{        
+namespace SICEM_Blazor.Ordenes.Models {
+    public class Ordenes_Realizacion {
         public int Id {get;set;}
         public string Descripcion{get;set;}
         public int  Ejecutadas {get;set;}
@@ -9,7 +9,7 @@ namespace SICEM_Blazor.Models{
         public int  Eje_0_3 {get;set;}
         public int  Eje_4_6 {get;set;}
         public int  Eje_7_9 {get;set;}
-        public int  Eje_10 {get;set;}        
-        public int  Total {get;set;}        
+        public int  Eje_10 {get;set;}
+        public int  Total {get;set;}
     }
 }

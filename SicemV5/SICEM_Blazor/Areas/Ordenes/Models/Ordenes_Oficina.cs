@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace SICEM_Blazor.Models{
+namespace SICEM_Blazor.Ordenes.Models {
     public class Ordenes_Oficina {
         public int Estatus { get; set; }
         public int IdOficina { get; set; }

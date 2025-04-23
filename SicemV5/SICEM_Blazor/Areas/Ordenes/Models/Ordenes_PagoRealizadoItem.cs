@@ -1,6 +1,8 @@
 using System;
 using System.Data.SqlClient;
 
+namespace SICEM_Blazor.Ordenes.Models;
+
 public class Ordenes_PagoRealizadoItem {
     public string Orden {get;set;}
     public long Cuenta {get;set;}
@@ -19,6 +21,4 @@ public class Ordenes_PagoRealizadoItem {
         item.Dias = int.Parse(reader["dias"].ToString());
         return item;
     }
-
-
 }

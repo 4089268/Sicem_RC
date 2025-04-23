@@ -1,7 +1,7 @@
 using System;
 
-namespace SICEM_Blazor.Models{
-    public class Ordenes_Capturacion{        
+namespace SICEM_Blazor.Ordenes.Models {
+    public class Ordenes_Capturacion{
         public string Id {get;set;}
         public string Descripcion{get;set;}
         public int  Pendientes {get;set;}
@@ -9,7 +9,7 @@ namespace SICEM_Blazor.Models{
         public int  Realizadas {get;set;}
         public int  Canceladas {get;set;}
         public int  Ejecutadas {get;set;}
-        public int  No_Ejecutadas {get;set;}        
-        public int  Total {get;set;}  
+        public int  No_Ejecutadas {get;set;}
+        public int  Total {get;set;}
     }
 }

@@ -1,7 +1,7 @@
 using System;
 
-namespace SICEM_Blazor.Models {
-    public class Ordenes_Detalle{        
+namespace SICEM_Blazor.Ordenes.Models {
+    public class Ordenes_Detalle{
         public string Orden {get;set;}
         public long Cuenta {get;set;}
         public string Nombre {get;set;}

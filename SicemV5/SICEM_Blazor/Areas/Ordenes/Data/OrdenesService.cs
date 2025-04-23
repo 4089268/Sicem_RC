@@ -5,16 +5,22 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using SICEM_Blazor.Models;
+using Microsoft.Extensions.Logging;
 using SICEM_Blazor.Data;
+using SICEM_Blazor.Services;
+using SICEM_Blazor.Ordenes.Models;
+using SICEM_Blazor.Models;
 
-namespace SICEM_Blazor.Services {
+namespace SICEM_Blazor.Ordenes.Data {
     public class OrdenesService {
+        private readonly ILogger<OrdenesService> logger;
         private readonly IConfiguration appSettings;
         private readonly SicemService sicemService;
-        public OrdenesService(IConfiguration c, SicemService s) {
+
+        public OrdenesService(IConfiguration c, SicemService s, ILogger<OrdenesService> l) {
             this.appSettings = c;
             this.sicemService = s;
+            this.logger = l;
         }
 
         public Ordenes_Resumen ObtenerOrdenesResumen(int Id_Oficina, string Fecha1, string Fecha2, int Sb, int Sect) {
@@ -326,8 +332,10 @@ namespace SICEM_Blazor.Services {
             return respuesta;
         }
 
+
         //****** Funciones Estaticas ******
-        public static string GenerarFiltro_Detalle( int isEstatus = 0, int ejecutada = -1, int colonia = -1, int trabajo = -1, int realizo = -1, string capturo = ""){
+        public static string GenerarFiltro_Detalle( int isEstatus = 0, int ejecutada = -1, int colonia = -1, int trabajo = -1, int realizo = -1, string capturo = "")
+        {
             var xmlFiltro = new System.Text.StringBuilder();
             xmlFiltro.Append("<filtro>");
             xmlFiltro.Append($"<id_estatus>{isEstatus}</id_estatus>");
