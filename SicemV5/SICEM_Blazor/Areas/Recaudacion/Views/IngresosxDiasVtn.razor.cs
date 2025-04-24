@@ -109,17 +109,23 @@ public partial class IngresosxDiasVtn
         Fecha2 = _date;
         this.StateHasChanged();
 
-        var _datos = RecaudacionService.ObtenerRecaudacionPorConceptosYTipoUsuario(Enlace, _date, _date, this.Subsistema, this.Sector).ToList();
-        if( _datos == null){
-            Toaster.Add("Error al tratar de obtener los ingresos por conceptos", MatToastType.Danger);
-        }else{
-            if(_datos.Count() <= 0){
-                Toaster.Add("No hay datos disponibles para este periodo", MatToastType.Info);
+        try
+        {
+            var _datos = RecaudacionService.ObtenerRecaudacionPorConceptosYTipoUsuario(Enlace, _date, _date, this.Subsistema, this.Sector).ToList();
+            if( _datos == null){
+                Toaster.Add("Error al tratar de obtener los ingresos por conceptos", MatToastType.Danger);
             }else{
-                VtnConceptosUsuarios_Visible = true;
-                await Task.Delay(100);
-                VtnConceptosUsuarios.Inicializar(Enlace, _datos);
+                if(_datos.Count() <= 0){
+                    Toaster.Add("No hay datos disponibles para este periodo", MatToastType.Info);
+                }else{
+                    VtnConceptosUsuarios_Visible = true;
+                    await Task.Delay(100);
+                    VtnConceptosUsuarios.Inicializar(Enlace, _datos);
+                }
             }
+        }catch(Exception)
+        {
+            Toaster.Add("Error al tratar de obtener los ingresos por conceptos", MatToastType.Danger);
         }
 
         await Task.Delay(100);

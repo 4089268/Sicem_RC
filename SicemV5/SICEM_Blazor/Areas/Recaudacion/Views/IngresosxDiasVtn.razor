@@ -25,16 +25,16 @@
                                 @{
                                     var data = (context as IngresosDia);
                                     <div class="d-flex justify-content-between">
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ver detalle" disabled @onclick="@( e => VerDetalleDias(data.Fecha))">
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ver detalle" @onclick="@( e => VerDetalleDias(data.Fecha))">
                                             <i class="fa fa-th" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Detalle por Conceptos Y Tipos Usuarios" disabled @onclick="@(e => IngresosPorConceptosTiposUsuarios(data) )" >
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Detalle por Conceptos Y Tipos Usuarios" @onclick="@(e => IngresosPorConceptosTiposUsuarios(data) )" >
                                             <i class="fa fa-poll-h" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ingresos Por Cajas" disabled @onclick="@(e => IngresosPorCajas(data) )" >
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ingresos Por Cajas" @onclick="@(e => IngresosPorCajas(data) )" >
                                             <i class="fa fa-store" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ingresos Por Formas de Pago" disabled @onclick="@(e => IngresosPorFormasDePago(data) )" >
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Ingresos Por Formas de Pago" @onclick="@(e => IngresosPorFormasDePago(data) )" >
                                             <i class="fa fa-money-bill" aria-hidden="true"></i>
                                         </button>
                                     </div>

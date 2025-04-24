@@ -67,38 +67,40 @@
                             if (data.Id > 0 && data.Id < 90) {
                                 <div class="d-flex p-1">
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Analitico" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => AnaliticoClick(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                        <i class="fa fa-chart-line" aria-hidden="true"></i>
                                     </button>
-                                    @* <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Rezago" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => Rezago_Click(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                    
+                                    <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Rezago" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => Rezago_Click(data) )>
+                                        <i class="fa fa-hand-holding-usd" aria-hidden="true"></i>
                                     </button>
-                                    *@
+
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Dias" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosDias_Click(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                        <i class="fa fa-calendar-day" aria-hidden="true"></i>
                                     </button>
-                                    @*
+                                    
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Cajas" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosCajas_Click(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                        <i class="fa fa-cash-register" aria-hidden="true"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingreso por Conceptos" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosConceptos_Click(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                        <i class="fa fa-tag" aria-hidden="true"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Tipo de Usuario" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosTipoUsuarios_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Localidades" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosPoPoblacion_Click(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                        <i class="fa fa-building" aria-hidden="true"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Top Ingresos Altos" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosAltos_Click(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                        <i class="fa fa-bar-chart" aria-hidden="true"></i>
                                     </button>
+                                    
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Formas de Pago" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosFormasdePago_Click(data) )>
                                         <i class="fa fa-bookmark" aria-hidden="true"></i>
                                     </button>
+                                    
                                     <button type="button" class="btn btn-primary btn-sm mx-1" data-toggle="tooltip" data-placement="top" title="Ingresos por Conceptos y Tipos de Usuarios" disabled="@(data.Estatus != ResumenOficinaEstatus.Completado )" @onclick=@( e => IngresosPorConceptosTiposUsuarios(data) )>
-                                        <i class="fa fa-bookmark" aria-hidden="true"></i>
+                                        <i class="fa fa-people-arrows" aria-hidden="true"></i>
                                     </button>
-                                     *@
                                 </div>
                             }
                         }

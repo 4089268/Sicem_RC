@@ -230,7 +230,8 @@ public partial class RecaudacionPage
     private async Task Rezago_Click(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
+        
         // if (VtnRezago_visible) {
         //     return;
         // }
@@ -275,7 +276,7 @@ public partial class RecaudacionPage
     private async Task IngresosCajas_Click(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
 
         // if (VtnCajas_visible) {
         //     return;
@@ -303,7 +304,8 @@ public partial class RecaudacionPage
     private async Task IngresosConceptos_Click(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
+
         // if (VtnConceptos_visible) {
         //     return;
         // }
@@ -331,7 +333,7 @@ public partial class RecaudacionPage
     private async Task IngresosTipoUsuarios_Click(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
 
         // this.busyDialog = true;
         // await Task.Delay(100);
@@ -358,7 +360,8 @@ public partial class RecaudacionPage
     private async Task IngresosPoPoblacion_Click(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
+
         // this.busyDialog = true;
         // await Task.Delay(100);
         // if (!VtnPoblaciones_Visible) {
@@ -384,7 +387,8 @@ public partial class RecaudacionPage
     private async Task IngresosAltos_Click(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
+
         // if (VtnPagosMayores_Visible) {
         //     return;
         // }
@@ -395,7 +399,8 @@ public partial class RecaudacionPage
     private async Task IngresosFormasdePago_Click(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
+
         // if (VtnFormasPago_Visible) {
         //     return;
         // }
@@ -429,7 +434,8 @@ public partial class RecaudacionPage
     private async Task IngresosPorConceptosTiposUsuarios(ResumenOficina data)
     {
         await Task.CompletedTask;
-        throw new NotImplementedException();
+        Toaster.Add("No implementado.", MatToastType.Warning);
+
         // this.busyDialog = true;
         // await Task.Delay(100);
 
