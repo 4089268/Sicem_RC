@@ -5,14 +5,30 @@
 
 
 <div id="imglogo" class="b d-flex justify-content-center align-items-center" style="height:75vh; opacity:0; padding-top:6rem;">
-    <img class="logoIndex" src="/img/logo-simas.png" />
+    @* <img class="logoIndex" src="/img/logo-simas.png" /> *@
 </div>
 
 <style>
     body {
-        background-image: url("./img/textures/texture.png");
+        /* background-image: url("./img/textures/texture.png"); */
+        background-image: url("./img/fondo2.jpg");
         background-position: center;
-        background-repeat: repeat;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        position: relative;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(250, 250, 250, .45);
+        pointer-events: none;
+        z-index: 0;
     }
     .logoIndex{
         width: 75%;
