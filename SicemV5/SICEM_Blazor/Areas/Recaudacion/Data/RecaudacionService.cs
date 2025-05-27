@@ -389,7 +389,7 @@ namespace SICEM_Blazor.Recaudacion.Data {
                     using(var xReader = xCommand.ExecuteReader()) {
                         while(xReader.Read()) {
                             var tmpResRow = new Recaudacion_Rezago {
-                                Mes = xReader.GetFieldValue<string>("mes"),
+                                Mes = xReader["mes"].ToString(),
                                 Usuarios = int.Parse(xReader.GetValue("usuarios").ToString()),
                                 Rez_agua = xReader.GetFieldValue<decimal>("rez_agua"),
                                 Rez_dren = xReader.GetFieldValue<decimal>("rez_dren"),

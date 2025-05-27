@@ -229,25 +229,23 @@ public partial class RecaudacionPage
     
     private async Task Rezago_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
-        
-        // if (VtnRezago_visible) {
-        //     return;
-        // }
-        // this.busyDialog = true;
-        // await Task.Delay(200);
-        // var tmpData = recaudacionService.ObtenerRezago(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        // if (tmpData == null) {
-        //     Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
-        // }
-        // else {
-        //     VtnRezago_visible = true;
-        //     VtnRezago.Titulo = $"{data.Enlace.Nombre.ToUpper()} - ANALISIS DE REZAGO";
-        //     await VtnRezago.Inicializar(data.Enlace, tmpData);
-        // }
-        // await Task.Delay(200);
-        // this.busyDialog = false;
+        if (VtnRezago_visible) {
+            return;
+        }
+        this.busyDialog = true;
+        await Task.Delay(200);
+        var tmpData = RecaudacionService.ObtenerRezago(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
+        if (tmpData == null) {
+            Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
+        }
+        else {
+            VtnRezago_visible = true;
+            // VtnRezago.Titulo = $"{data.Enlace.Nombre.ToUpper()} - ANALISIS DE REZAGO";
+            VtnRezago.Titulo = $"ANALISIS DE REZAGO";
+            await VtnRezago.Inicializar(data.Enlace, tmpData);
+        }
+        await Task.Delay(200);
+        this.busyDialog = false;
     }
 
     private async Task IngresosDias_Click(ResumenOficina data)
@@ -275,194 +273,173 @@ public partial class RecaudacionPage
     
     private async Task IngresosCajas_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
-
-        // if (VtnCajas_visible) {
-        //     return;
-        // }
-        // this.busyDialog = true;
-        // await Task.Delay(200);
-        // var tmpData = recaudacionService.ObtenerIngresosPorCajas(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        // if (tmpData == null) {
-        //     Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
-        // }
-        // else {
-        //     if (tmpData.Count() > 0) {
-        //         VtnCajas_visible = true;
-        //         VtnCajas.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS POR CAJAS";
-        //         VtnCajas.Inicializar(data.Enlace, tmpData);
-        //     }
-        //     else {
-        //         Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
-        //     }
-        // }
-        // await Task.Delay(200);
-        // this.busyDialog = false;
+        if (VtnCajas_visible) {
+            return;
+        }
+        this.busyDialog = true;
+        await Task.Delay(200);
+        var tmpData = RecaudacionService.ObtenerIngresosPorCajas(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
+        if (tmpData == null) {
+            Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
+        }
+        else {
+            if (tmpData.Count() > 0) {
+                VtnCajas_visible = true;
+                VtnCajas.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS POR CAJAS";
+                VtnCajas.Inicializar(data.Enlace, tmpData);
+            }
+            else {
+                Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
+            }
+        }
+        await Task.Delay(200);
+        this.busyDialog = false;
     }
     
     private async Task IngresosConceptos_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
+        if (VtnConceptos_visible) {
+            return;
+        }
+        this.busyDialog = true;
+        await Task.Delay(100);
 
-        // if (VtnConceptos_visible) {
-        //     return;
-        // }
-        // this.busyDialog = true;
-        // await Task.Delay(100);
-
-        // var tmpData = recaudacionService.ObtenerIngresosPorConceptos(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        // if (tmpData == null) {
-        //     Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
-        // }
-        // else {
-        //     if (tmpData.Count() > 0) {
-        //         VtnConceptos_visible = true;
-        //         VtnConceptos.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS POR CONCEPTOS";
-        //         VtnConceptos.Inicializar(data.Enlace, tmpData);
-        //     }
-        //     else {
-        //         Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
-        //     }
-        // }
-        // await Task.Delay(100);
-        // this.busyDialog = false;
+        var tmpData = RecaudacionService.ObtenerIngresosPorConceptos(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
+        if (tmpData == null) {
+            Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
+        }
+        else {
+            if (tmpData.Count() > 0) {
+                VtnConceptos_visible = true;
+                VtnConceptos.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS POR CONCEPTOS";
+                VtnConceptos.Inicializar(data.Enlace, tmpData);
+            }
+            else {
+                Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
+            }
+        }
+        await Task.Delay(100);
+        this.busyDialog = false;
     }
     
     private async Task IngresosTipoUsuarios_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
-
-        // this.busyDialog = true;
-        // await Task.Delay(100);
-        // if (!VtnTiposUsuarios_Visible) {
-        //     var tmpData = recaudacionService.ObtenerIngresosPorTipoUsuarios(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        //     if (tmpData == null) {
-        //         Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
-        //     }
-        //     else {
-        //         if (tmpData.Count() > 0) {
-        //             VtnTiposUsuarios_Visible = true;
-        //             VtnTiposUsuarios.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS TIPO DE USUARIO";
-        //             VtnTiposUsuarios.Inicializar(data.Enlace, tmpData);
-        //         }
-        //         else {
-        //             Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
-        //         }
-        //     }
-        // }
-        // await Task.Delay(100);
-        // this.busyDialog = false;
+        this.busyDialog = true;
+        await Task.Delay(100);
+        if (!VtnTiposUsuarios_Visible) {
+            var tmpData = RecaudacionService.ObtenerIngresosPorTipoUsuarios(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
+            if (tmpData == null) {
+                Toaster.Add("Hubo un error al procesar la petición, inténtelo mas tarde.", MatToastType.Warning);
+            }
+            else {
+                if (tmpData.Count() > 0) {
+                    VtnTiposUsuarios_Visible = true;
+                    VtnTiposUsuarios.Titulo = $"{data.Enlace.Nombre.ToUpper()} - INGRESOS TIPO DE USUARIO";
+                    VtnTiposUsuarios.Inicializar(data.Enlace, tmpData);
+                }
+                else {
+                    Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
+                }
+            }
+        }
+        await Task.Delay(100);
+        this.busyDialog = false;
     }
     
     private async Task IngresosPoPoblacion_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
-
-        // this.busyDialog = true;
-        // await Task.Delay(100);
-        // if (!VtnPoblaciones_Visible) {
-        //     var tmpData = recaudacionService.ObtenerRecaudacionLocalidades(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        //     if (tmpData == null) {
-        //         Toaster.Add("Hubo un error al procesar la peticion, intentelo mas tarde.", MatToastType.Warning);
-        //     }
-        //     else {
-        //         if (tmpData.Count() > 0) {
-        //             VtnPoblaciones_Visible = true;
-        //             VtnPoblaciones.Titulo = $"{data.Enlace.Nombre} - INGRESOS POR POBLACIONES";
-        //             VtnPoblaciones.Inicializar(tmpData, data.Enlace);
-        //         }
-        //         else {
-        //             Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
-        //         }
-        //     }
-        // }
-        // await Task.Delay(100);
-        // this.busyDialog = false;
+        this.busyDialog = true;
+        await Task.Delay(100);
+        if (!VtnPoblaciones_Visible) {
+            var tmpData = RecaudacionService.ObtenerRecaudacionLocalidades(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
+            if (tmpData == null) {
+                Toaster.Add("Hubo un error al procesar la peticion, intentelo mas tarde.", MatToastType.Warning);
+            }
+            else {
+                if (tmpData.Count() > 0) {
+                    VtnPoblaciones_Visible = true;
+                    VtnPoblaciones.Titulo = $"{data.Enlace.Nombre} - INGRESOS POR POBLACIONES";
+                    VtnPoblaciones.Inicializar(tmpData, data.Enlace);
+                }
+                else {
+                    Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
+                }
+            }
+        }
+        await Task.Delay(100);
+        this.busyDialog = false;
     }
     
     private async Task IngresosAltos_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
-
-        // if (VtnPagosMayores_Visible) {
-        //     return;
-        // }
-        // VtnPagosMayores_Visible = true;
-        // await VtnPagosMayores.Inicializar(data.Enlace);
+        if (VtnPagosMayores_Visible) {
+            return;
+        }
+        VtnPagosMayores_Visible = true;
+        await VtnPagosMayores.Inicializar(data.Enlace);
     }
     
     private async Task IngresosFormasdePago_Click(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
+        if (VtnFormasPago_Visible) {
+            return;
+        }
 
-        // if (VtnFormasPago_Visible) {
-        //     return;
-        // }
+        this.busyDialog = true;
+        await Task.Delay(100);
 
-        // this.busyDialog = true;
-        // await Task.Delay(100);
+        var _result = RecaudacionService.ObtenerIngresosPorFormasPago(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
+        if (_result == null) {
+            //**** Mostrar mensaje error
+            Toaster.Add("Erro al procesar la consulta, intente mas tarde.", type: MatToastType.Danger);
+        }
+        else {
+            if (_result.Count() <= 0) {
+                //**** Mostrar mensaje no hay datos
+                Toaster.Add("No hay datos disponibles.", type: MatToastType.Info);
+            }
+            else {
+                //**** Mostrar ventana secundaria
+                this.VtnFormasPago_Visible = true;
+                VtnFormasPago.Titulo = $"{data.Enlace.Nombre} - INGRESOS POR FORMAS DE PAGO";
+                this.VtnFormasPago.Inicializar(data.Enlace, _result);
+            }
+        }
 
-        // var _result = recaudacionService.ObtenerIngresosPorFormasPago(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-        // if (_result == null) {
-        //     //**** Mostrar mensaje error
-        //     Toaster.Add("Erro al procesar la consulta, intente mas tarde.", type: MatToastType.Danger);
-        // }
-        // else {
-        //     if (_result.Count() <= 0) {
-        //         //**** Mostrar mensaje no hay datos
-        //         Toaster.Add("No hay datos disponibles.", type: MatToastType.Info);
-        //     }
-        //     else {
-        //         //**** Mostrar ventana secundaria
-        //         this.VtnFormasPago_Visible = true;
-        //         VtnFormasPago.Titulo = $"{data.Enlace.Nombre} - INGRESOS POR FORMAS DE PAGO";
-        //         this.VtnFormasPago.Inicializar(data.Enlace, _result);
-        //     }
-        // }
-
-        // await Task.Delay(100);
-        // this.busyDialog = false;
-        // return;
+        await Task.Delay(100);
+        this.busyDialog = false;
+        return;
     }
 
     private async Task IngresosPorConceptosTiposUsuarios(ResumenOficina data)
     {
-        await Task.CompletedTask;
-        Toaster.Add("No implementado.", MatToastType.Warning);
+        this.busyDialog = true;
+        await Task.Delay(100);
 
-        // this.busyDialog = true;
-        // await Task.Delay(100);
-
-        // var _datos = recaudacionService.ObtenerIngresosPorConceptosTipoUsuarios(data.Enlace, this.f1, this.f2, this.subsistema, this.sector, 0).ToList();
-        // if( _datos == null){
-        //     Toaster.Add("Error al tratar de obtener los ingresos por conceptos", MatToastType.Danger);
-        // }else{
-        //     if(_datos.Count() <= 0){
-        //         Toaster.Add("No hay datos disponibles para este periodo", MatToastType.Info);
-        //     }else{
+        var _datos = RecaudacionService.ObtenerIngresosPorConceptosTipoUsuarios(data.Enlace, this.f1, this.f2, this.subsistema, this.sector, 0).ToList();
+        if( _datos == null){
+            Toaster.Add("Error al tratar de obtener los ingresos por conceptos", MatToastType.Danger);
+        }else{
+            if(_datos.Count() <= 0){
+                Toaster.Add("No hay datos disponibles para este periodo", MatToastType.Info);
+            }else{
                 
-        //         // Generar catalogo de localidades
-        //         var catLocalidades = new Dictionary<int,string>();
-        //         var _localidades = sicemService.ObtenerCatalogoLocalidades(data.Enlace.Id).Where(i => i.Id_Poblacion > 0).ToList();
-        //         catLocalidades.Add(0, "TODOS");
-        //         foreach( var loc in _localidades){
-        //             catLocalidades.Add(loc.Id_Poblacion, loc.Descripcion.ToUpper().Trim());
-        //         }
+                // Generar catalogo de localidades
+                var catLocalidades = new Dictionary<int,string>();
+                var _localidades = SicemService1.ObtenerCatalogoLocalidades(data.Enlace.Id).Where(i => i.Id_Poblacion > 0).ToList();
+                catLocalidades.Add(0, "TODOS");
+                foreach( var loc in _localidades){
+                    catLocalidades.Add(loc.Id_Poblacion, loc.Descripcion.ToUpper().Trim());
+                }
                 
-        //         // Inicializar ventana secundaria
-        //         VtnRConceptos_Visible = true;
-        //         VtnRConceptos.Inicializar(data.Enlace, _datos, catLocalidades);
-        //     }
-        // }
+                // Inicializar ventana secundaria
+                VtnRConceptos_Visible = true;
+                VtnRConceptos.Inicializar(data.Enlace, _datos, catLocalidades);
+            }
+        }
 
-        // await Task.Delay(100);
-        // this.busyDialog = false;
+        await Task.Delay(100);
+        this.busyDialog = false;
     }
     #endregion
 }
