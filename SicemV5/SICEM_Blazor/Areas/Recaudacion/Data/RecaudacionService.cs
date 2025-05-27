@@ -404,6 +404,23 @@ namespace SICEM_Blazor.Recaudacion.Data {
                         }
                     }
                 }
+
+                // Add Fila total
+
+                var total = new Recaudacion_Rezago {
+                    Mes = " TOTAL",
+                    Usuarios = respuesta.Sum( item => item.Usuarios),
+                    Rez_agua = respuesta.Sum( item => item.Rez_agua),
+                    Rez_dren = respuesta.Sum( item => item.Rez_dren),
+                    Rez_sane = respuesta.Sum( item => item.Rez_sane),
+                    Rez_otros = respuesta.Sum( item => item.Rez_otros),
+                    Rez_recargos = respuesta.Sum( item => item.Rez_recargos),
+                    Subtotal = respuesta.Sum( item => item.Subtotal),
+                    Iva = respuesta.Sum( item => item.Iva),
+                    Total = respuesta.Sum( item => item.Total)
+                };
+                respuesta.Add(total);
+
                 return respuesta.ToArray();
             }
             catch(Exception err){
@@ -448,12 +465,21 @@ namespace SICEM_Blazor.Recaudacion.Data {
 
         public IEnumerable<Recaudacion_IngresosCajas> ObtenerIngresosPorCajas(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect) {
             var respuesta = new List<Recaudacion_IngresosCajas>();
+            logger.LogInformation("Obteniendo ingresos por cajas: desde={desde}, hasta={hasta}, sb={sb}, sect={sect}, enlace={enlace}", desde, hasta, sb, sect, enlace.Nombre);
             try {
                 using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
                     xConnecton.Open();
-                    var xCommand = new SqlCommand();
-                    xCommand.Connection = xConnecton;
-                    xCommand.CommandText = string.Format("Exec [Sicem_QRoo].[Ingresos_04] @xfec1 = '{0}', @xfec2 = '{1}', @xSb = {2}, @xSec = {3}", desde.ToString("yyyyMMdd"), desde.ToString("yyyyMMdd"), sb, sect);
+
+                    var xCommand = new SqlCommand("[SICEM].[Recaudacion]", xConnecton)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    xCommand.Parameters.AddWithValue("@cAlias", "POR_CAJA");
+                    xCommand.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyyMMdd"));
+                    xCommand.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyyMMdd"));
+                    xCommand.Parameters.AddWithValue("@xSb", sb);
+                    xCommand.Parameters.AddWithValue("@xSec", sect);
+                    
                     using(var xReader = xCommand.ExecuteReader()) {
                         while(xReader.Read()) {
                             var tmpInt = 0;
@@ -461,11 +487,11 @@ namespace SICEM_Blazor.Recaudacion.Data {
                             var tmpResRow = new Recaudacion_IngresosCajas {
                                 Id_Sucursal = int.Parse(xReader.GetValue("id_sucursal").ToString()),
                                 Caja = xReader.GetFieldValue<string>("caja"),
-                                Facturado = decimal.TryParse(xReader.GetValue("facturado").ToString(), out tmpDecimal)?tmpDecimal:0m,
+                                Facturado = 0m,
                                 Cobrado = decimal.TryParse(xReader.GetValue("cobrado").ToString(), out tmpDecimal)?tmpDecimal:0m,
                                 Recibos = int.TryParse(xReader.GetValue("recibos").ToString(), out tmpInt)?tmpInt:0,
                                 CveCaja = xReader.GetValue("cve_caja").ToString(),
-                                Sucursal = xReader.GetValue("sucursal").ToString()
+                                Sucursal = "" // xReader.GetValue("sucursal").ToString()
                             };
                             respuesta.Add(tmpResRow);
                         }
@@ -478,7 +504,46 @@ namespace SICEM_Blazor.Recaudacion.Data {
             return respuesta.ToArray();
         }
         public IEnumerable<IngresosxConceptos> ObtenerIngresosPorConceptos(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect){
-            throw new NotImplementedException("Funcione reemplazada por ObtenerIngresosPorConceptosTipoUsuarios");
+            var result = new List<IngresosxConceptos>();
+            try {
+
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())){
+                    sqlConnection.Open();
+                    // var _query = $"[Sicem_QRoo].[Ingresos_03] @xfec1 = '{desde.ToString("yyyyMMdd")}', @xfec2 = '{hasta.ToString("yyyyMMdd")}', @idLocalidad = {idLocalidad}";
+                    var _commad = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    _commad.Parameters.AddWithValue("@cAlias", "RESUMEN_CONCEPTOS");
+                    _commad.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyMMdd"));
+                    _commad.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyMMdd"));
+                    _commad.Parameters.AddWithValue("@xSb", sb);
+                    _commad.Parameters.AddWithValue("@xSec", sect);
+
+                    using(var reader = _commad.ExecuteReader()){
+                        while(reader.Read())
+                        {
+                            var item = new IngresosxConceptos
+                            {
+                                Id_Concepto = ConvertUtils.ParseInteger(reader["id_concepto"].ToString()),
+                                Descripcion = reader["descripcion"].ToString(),
+                                Subtotal = ConvertUtils.ParseDecimal(reader["subtotal"].ToString()),
+                                IVA = ConvertUtils.ParseDecimal(reader["iva"].ToString()),
+                                Total = ConvertUtils.ParseDecimal(reader["total"].ToString()),
+                                Usuarios = ConvertUtils.ParseInteger(reader["usuarios"].ToString()),
+                            };
+
+                            result.Add(item);
+                        }
+                    }
+                    sqlConnection.Close();
+                }
+                return result;
+            }catch(Exception err)
+            {
+                logger.LogError(err, "Error al tratar de obtener los ingresos de la oficina: " + enlace.Nombre);
+                return new IngresosxConceptos[]{};
+            }
         }
         public IEnumerable<Ingresos_Conceptos> ObtenerIngresosPorConceptosTipoUsuarios(IEnlace enlace, DateTime desde, DateTime hasta, int sb , int sect, int idLocalidad = 0){
             var result = new List<Ingresos_Conceptos>();
@@ -486,11 +551,45 @@ namespace SICEM_Blazor.Recaudacion.Data {
 
                 using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())){
                     sqlConnection.Open();
-                    var _query = $"[Sicem_QRoo].[Ingresos_03] @xfec1 = '{desde.ToString("yyyyMMdd")}', @xfec2 = '{hasta.ToString("yyyyMMdd")}', @idLocalidad = {idLocalidad}";
-                    var _commad = new SqlCommand(_query, sqlConnection);
+                    // var _query = $"[Sicem_QRoo].[Ingresos_03] @xfec1 = '{desde.ToString("yyyyMMdd")}', @xfec2 = '{hasta.ToString("yyyyMMdd")}', @idLocalidad = {idLocalidad}";
+                    var _commad = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    _commad.Parameters.AddWithValue("@cAlias", "RESUMEN_CONCEPTO");
+                    _commad.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyMMdd"));
+                    _commad.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyMMdd"));
+                    _commad.Parameters.AddWithValue("@xSb", sb);
+                    _commad.Parameters.AddWithValue("@xSec", sect);
+
                     using(var reader = _commad.ExecuteReader()){
-                        while(reader.Read()){
-                            result.Add(Ingresos_Conceptos.FromSqlDataReader(reader));
+                        while(reader.Read())
+                        {
+                            var item = new Ingresos_Conceptos
+                            {
+                                Id_Concepto = ConvertUtils.ParseInteger(reader["id_concepto"].ToString()),
+                                Concepto = reader["descripcion"].ToString(),
+                                Domestico_Sub = 0m,
+                                Domestico_Iva = 0m,
+                                Domestico_Total = 0m,
+                                Hotelero_Sub = 0m,
+                                Hotelero_Iva = 0m,
+                                Hotelero_Total = 0m,
+                                Comercial_Sub = 0m,
+                                Comercial_Iva = 0m,
+                                Comercial_Total = 0m,
+                                Industrial_Sub = 0m,
+                                Industrial_Iva = 0m,
+                                Industrial_Total = 0m,
+                                ServGen_Sub = 0m,
+                                ServGen_Iva = 0m,
+                                ServGen_Total = 0m,
+                                Subtotal = ConvertUtils.ParseInteger(reader["subtotal"].ToString()),
+                                Iva = ConvertUtils.ParseInteger(reader["iva"].ToString()),
+                                Total = ConvertUtils.ParseInteger(reader["total"].ToString()),
+                            };
+
+                            // result.Add(Ingresos_Conceptos.FromSqlDataReader(reader));
                         }
                     }
                     sqlConnection.Close();

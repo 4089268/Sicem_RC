@@ -26,7 +26,7 @@
                 <SfGrid @ref="DataGrid" DataSource="@IngresosCajas_filtrados" AllowSorting="true" AllowFiltering="false" AllowExcelExport="true" AllowPdfExport="true" Height="100%" Width="auto" EnableHover="true">
                     <GridColumns>
                         <GridColumn Field="@nameof(Recaudacion_IngresosCajas.Caja)" HeaderText="Caja" TextAlign="TextAlign.Left" Width="260" />
-                        <GridColumn Field="@nameof(Recaudacion_IngresosCajas.Facturado)" HeaderText="Ingresos Facturados" TextAlign="TextAlign.Right" Width="150" Format="c2" />
+                        @* <GridColumn Field="@nameof(Recaudacion_IngresosCajas.Facturado)" HeaderText="Ingresos Facturados" TextAlign="TextAlign.Right" Width="150" Format="c2" /> *@
                         <GridColumn Field="@nameof(Recaudacion_IngresosCajas.Cobrado)" HeaderText="Ingresos Cobrados" TextAlign="TextAlign.Right" Width="140" Format="c2" />
                         <GridColumn Field="@nameof(Recaudacion_IngresosCajas.Recibos)" HeaderText="Recibos" TextAlign="TextAlign.Center" Width="140" Format="n0" />
                     </GridColumns>
