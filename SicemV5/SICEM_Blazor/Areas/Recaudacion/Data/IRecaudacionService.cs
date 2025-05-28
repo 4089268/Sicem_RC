@@ -22,7 +22,7 @@ namespace SICEM_Blazor.Recaudacion.Data {
         public IEnumerable<RecaudacionIngresosxPoblaciones> ObtenerRecaudacionLocalidades(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sec);
         public IEnumerable<RecaudacionIngresosxColonias> ObtenerRecaudacionColonias(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sec, int idLocalidad);
         public IEnumerable<Recaudacion_IngresosDetalleConceptos> ObtenerIngresosConceptosPorLocalidadColonia(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect, int idLocalidad, int idColonia);
-        public IEnumerable<Ingresos_Conceptos> ObtenerIngresosPorConceptosTipoUsuarios(IEnlace enlace, DateTime desde , DateTime hasta, int sb , int sect, int idLocalidad);
+        public IEnumerable<IngresoConceptoTarifa> ObtenerIngresosPorConceptosTipoUsuarios(IEnlace enlace, DateTime desde , DateTime hasta, int sb , int sect, int idLocalidad);
 
     }
 

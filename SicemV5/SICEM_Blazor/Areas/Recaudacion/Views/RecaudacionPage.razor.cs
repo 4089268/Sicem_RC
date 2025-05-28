@@ -67,7 +67,7 @@ public partial class RecaudacionPage
     private Recaudacion_FormasPago_View VtnFormasPago;
     private bool VtnFormasPago_Visible = false;
 
-    private Recaudacion_ConceptosVtn VtnRConceptos;
+    private RecaudacionConceptosTarifaVtn VtnRConceptos;
     private bool VtnRConceptos_Visible = false;
 
 
@@ -417,18 +417,24 @@ public partial class RecaudacionPage
         await Task.Delay(100);
 
         var _datos = RecaudacionService.ObtenerIngresosPorConceptosTipoUsuarios(data.Enlace, this.f1, this.f2, this.subsistema, this.sector, 0).ToList();
-        if( _datos == null){
+        if(_datos == null)
+        {
             Toaster.Add("Error al tratar de obtener los ingresos por conceptos", MatToastType.Danger);
-        }else{
-            if(_datos.Count() <= 0){
+        }
+        else
+        {
+            if(_datos.Count() <= 0)
+            {
                 Toaster.Add("No hay datos disponibles para este periodo", MatToastType.Info);
-            }else{
-                
+            }
+            else
+            {
                 // Generar catalogo de localidades
                 var catLocalidades = new Dictionary<int,string>();
                 var _localidades = SicemService1.ObtenerCatalogoLocalidades(data.Enlace.Id).Where(i => i.Id_Poblacion > 0).ToList();
                 catLocalidades.Add(0, "TODOS");
-                foreach( var loc in _localidades){
+                foreach( var loc in _localidades)
+                {
                     catLocalidades.Add(loc.Id_Poblacion, loc.Descripcion.ToUpper().Trim());
                 }
                 

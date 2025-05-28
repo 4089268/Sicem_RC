@@ -10,11 +10,11 @@ using SICEM_Blazor.Data;
 using SICEM_Blazor.Data.Contracts;
 using SICEM_Blazor.Services;
 using SICEM_Blazor.Recaudacion.Models;
-using SICEM_Blazor.Models;
 
 namespace SICEM_Blazor.Recaudacion.Data {
 
-    public class RecaudacionService : IRecaudacionService {
+    public class RecaudacionService : IRecaudacionService
+    {
 
         private readonly IConfiguration appSettings;
         private readonly SicemService sicemService;
@@ -505,99 +505,72 @@ namespace SICEM_Blazor.Recaudacion.Data {
         }
         public IEnumerable<IngresosxConceptos> ObtenerIngresosPorConceptos(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect){
             var result = new List<IngresosxConceptos>();
-            try {
-
-                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())){
+            try
+            {
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
+                {
                     sqlConnection.Open();
-                    // var _query = $"[Sicem_QRoo].[Ingresos_03] @xfec1 = '{desde.ToString("yyyyMMdd")}', @xfec2 = '{hasta.ToString("yyyyMMdd")}', @idLocalidad = {idLocalidad}";
-                    var _commad = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    var sqlCommand = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
                     {
                         CommandType = CommandType.StoredProcedure
                     };
-                    _commad.Parameters.AddWithValue("@cAlias", "RESUMEN_CONCEPTOS");
-                    _commad.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyMMdd"));
-                    _commad.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyMMdd"));
-                    _commad.Parameters.AddWithValue("@xSb", sb);
-                    _commad.Parameters.AddWithValue("@xSec", sect);
+                    sqlCommand.Parameters.AddWithValue("@cAlias", "RESUMEN_CONCEPTOS");
+                    sqlCommand.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyMMdd"));
+                    sqlCommand.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyMMdd"));
+                    sqlCommand.Parameters.AddWithValue("@xSb", sb);
+                    sqlCommand.Parameters.AddWithValue("@xSec", sect);
 
-                    using(var reader = _commad.ExecuteReader()){
+                    using(var reader = sqlCommand.ExecuteReader())
+                    {
                         while(reader.Read())
                         {
-                            var item = new IngresosxConceptos
-                            {
-                                Id_Concepto = ConvertUtils.ParseInteger(reader["id_concepto"].ToString()),
-                                Descripcion = reader["descripcion"].ToString(),
-                                Subtotal = ConvertUtils.ParseDecimal(reader["subtotal"].ToString()),
-                                IVA = ConvertUtils.ParseDecimal(reader["iva"].ToString()),
-                                Total = ConvertUtils.ParseDecimal(reader["total"].ToString()),
-                                Usuarios = ConvertUtils.ParseInteger(reader["usuarios"].ToString()),
-                            };
-
-                            result.Add(item);
+                            result.Add( IngresosxConceptos.FromDataReader(reader));
                         }
                     }
                     sqlConnection.Close();
                 }
                 return result;
-            }catch(Exception err)
+            }
+            catch(Exception err)
             {
-                logger.LogError(err, "Error al tratar de obtener los ingresos de la oficina: " + enlace.Nombre);
-                return new IngresosxConceptos[]{};
+                logger.LogError(err, "Error al tratar de obtener los ingresos por conceptos de la oficina {oficina}: {message}", enlace.Nombre, enlace.Nombre);
+                return Array.Empty<IngresosxConceptos>();
             }
         }
-        public IEnumerable<Ingresos_Conceptos> ObtenerIngresosPorConceptosTipoUsuarios(IEnlace enlace, DateTime desde, DateTime hasta, int sb , int sect, int idLocalidad = 0){
-            var result = new List<Ingresos_Conceptos>();
-            try {
-
-                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())){
+        public IEnumerable<IngresoConceptoTarifa> ObtenerIngresosPorConceptosTipoUsuarios(IEnlace enlace, DateTime desde, DateTime hasta, int sb , int sect, int idLocalidad = 0)
+        {
+            var result = new List<IngresoConceptoTarifa>();
+            logger.LogInformation("Obteniendo ingresos por conceptos y tarifas: desde={desde}, hasta={hasta}, oficina={enlace}", desde.ToString("yyyy-MM-dd"), hasta.ToString("yyyy-MM-dd"), enlace.Nombre);
+            try
+            {
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
+                {
                     sqlConnection.Open();
-                    // var _query = $"[Sicem_QRoo].[Ingresos_03] @xfec1 = '{desde.ToString("yyyyMMdd")}', @xfec2 = '{hasta.ToString("yyyyMMdd")}', @idLocalidad = {idLocalidad}";
                     var _commad = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
                     {
                         CommandType = CommandType.StoredProcedure
                     };
-                    _commad.Parameters.AddWithValue("@cAlias", "RESUMEN_CONCEPTO");
+                    _commad.Parameters.AddWithValue("@cAlias", "RESUMEN_CONCEPTOS_TARIFAS");
                     _commad.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyMMdd"));
                     _commad.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyMMdd"));
                     _commad.Parameters.AddWithValue("@xSb", sb);
                     _commad.Parameters.AddWithValue("@xSec", sect);
 
-                    using(var reader = _commad.ExecuteReader()){
+                    using(var reader = _commad.ExecuteReader())
+                    {
                         while(reader.Read())
                         {
-                            var item = new Ingresos_Conceptos
-                            {
-                                Id_Concepto = ConvertUtils.ParseInteger(reader["id_concepto"].ToString()),
-                                Concepto = reader["descripcion"].ToString(),
-                                Domestico_Sub = 0m,
-                                Domestico_Iva = 0m,
-                                Domestico_Total = 0m,
-                                Hotelero_Sub = 0m,
-                                Hotelero_Iva = 0m,
-                                Hotelero_Total = 0m,
-                                Comercial_Sub = 0m,
-                                Comercial_Iva = 0m,
-                                Comercial_Total = 0m,
-                                Industrial_Sub = 0m,
-                                Industrial_Iva = 0m,
-                                Industrial_Total = 0m,
-                                ServGen_Sub = 0m,
-                                ServGen_Iva = 0m,
-                                ServGen_Total = 0m,
-                                Subtotal = ConvertUtils.ParseInteger(reader["subtotal"].ToString()),
-                                Iva = ConvertUtils.ParseInteger(reader["iva"].ToString()),
-                                Total = ConvertUtils.ParseInteger(reader["total"].ToString()),
-                            };
-
-                            // result.Add(Ingresos_Conceptos.FromSqlDataReader(reader));
+                            result.Add(IngresoConceptoTarifa.FromDataReader(enlace, reader));
                         }
                     }
                     sqlConnection.Close();
                 }
                 return result;
-            }catch(Exception err){
-                logger.LogError(err, "Error al tratar de obtener los ingresos de la oficina: " + enlace.Nombre);
-                return new Ingresos_Conceptos[]{};
+            }
+            catch(Exception err)
+            {
+                logger.LogError(err, "Error al tratar de obtener los ingresos por conceptos y tarifas oficina {oficina}: {message} ", enlace.Nombre, err.Message);
+                return Array.Empty<IngresoConceptoTarifa>();
             }
         }
         public IEnumerable<IngresosTipoUsuario> ObtenerIngresosPorTipoUsuarios(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect){

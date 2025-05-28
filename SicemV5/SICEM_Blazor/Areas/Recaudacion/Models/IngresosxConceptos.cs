@@ -1,31 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data;
 using System.Text;
+using SICEM_Blazor.Data;
 
-namespace SICEM_Blazor.Recaudacion.Models {
-    public class IngresosxConceptos {
+namespace SICEM_Blazor.Recaudacion.Models
+{
+    public class IngresosxConceptos
+    {
         public int Id_Concepto { get; set; }
         public string Descripcion { get; set; }
-        public decimal Tot1 { get; set; }
-        public decimal IVA1 { get; set; }
-        public int Usu1 { get; set; }
-        public decimal Tot2 { get; set; }
-        public decimal IVA2 { get; set; }
-        public int Usu2 { get; set; }
-        public decimal Tot3 { get; set; }
-        public decimal IVA3 { get; set; }
-        public int Usu3 { get; set; }
-        public decimal Tot4 { get; set; }
-        public decimal IVA4 { get; set; }
-        public int Usu4 { get; set; }
-        public decimal IVA5 { get; set; }
-        public decimal Tot5 { get; set; }
-        public int Usu5 { get; set; }
         public decimal Subtotal { get; set; }
         public decimal IVA { get; set; }
         public decimal Total { get; set; }
         public int Usuarios { get; set; }
-        public int Id_TipoUsuario { get; set; }
 
+        public static IngresosxConceptos FromDataReader(IDataReader reader)
+        {
+            var item = new IngresosxConceptos
+            {
+                Id_Concepto = ConvertUtils.ParseInteger(reader["id_concepto"].ToString()),
+                Descripcion = reader["descripcion"].ToString(),
+                Subtotal = ConvertUtils.ParseDecimal(reader["subtotal"].ToString()),
+                IVA = ConvertUtils.ParseDecimal(reader["iva"].ToString()),
+                Total = ConvertUtils.ParseDecimal(reader["total"].ToString()),
+                Usuarios = ConvertUtils.ParseInteger(reader["usuarios"].ToString()),
+            };
+            return item;
+        }
     }
 }
