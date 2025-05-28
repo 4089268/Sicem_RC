@@ -505,6 +505,7 @@ namespace SICEM_Blazor.Recaudacion.Data {
         }
         public IEnumerable<IngresosxConceptos> ObtenerIngresosPorConceptos(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect){
             var result = new List<IngresosxConceptos>();
+            logger.LogInformation("Obteniendo ingresos por conceptos: desde={desde}, hasta={hasta}, oficina={enlace}", desde.ToString("yyyy-MM-dd"), hasta.ToString("yyyy-MM-dd"), enlace.Nombre);
             try
             {
                 using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
@@ -1005,16 +1006,29 @@ namespace SICEM_Blazor.Recaudacion.Data {
             }
         }
 
-        public IEnumerable<RecaudacionIngresosxPoblaciones> ObtenerRecaudacionLocalidades(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sec){
+        public IEnumerable<RecaudacionIngresosxPoblaciones> ObtenerRecaudacionLocalidades(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sec)
+        {
             var result = new List<RecaudacionIngresosxPoblaciones>();
-            try{
-                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString())){
+            logger.LogInformation("Obteniendo recaudación por localidades: desde={desde}, hasta={hasta}, oficina={enlace}", desde.ToString("yyyy-MM-dd"), hasta.ToString("yyyy-MM-dd"), enlace.Nombre);
+            try
+            {
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
+                {
                     sqlConnection.Open();
-                    var _query =$"Exec [Sicem_QRoo].[Ingresos_05] @xAlias = 'LOCALIDADES', @xfec1 = '{desde.ToString("yyyyMMdd")}', @xfec2 ={hasta.ToString("yyyyMMdd")}, @xSb = {sb}, @xSec = {sec}";
-                    var _command = new SqlCommand(_query, sqlConnection);
-                    _command.CommandTimeout = (int)TimeSpan.FromMinutes(15).TotalSeconds;
-                    using( var reader = _command.ExecuteReader()){
-                        while(reader.Read()){
+                    var sqlCommand = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure,
+                        CommandTimeout = (int) TimeSpan.FromMinutes(15).TotalSeconds
+                    };
+                    sqlCommand.Parameters.AddWithValue("@cAlias", "POR_POBLACION" );
+                    sqlCommand.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyyMMdd") );
+                    sqlCommand.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyyMMdd"));
+                    sqlCommand.Parameters.AddWithValue("@xSb", sb );
+                    sqlCommand.Parameters.AddWithValue("@xSec", sec );
+                    using( var reader = sqlCommand.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
                             result.Add( RecaudacionIngresosxPoblaciones.FromDataReader(reader));
                         }
                     }
@@ -1022,9 +1036,11 @@ namespace SICEM_Blazor.Recaudacion.Data {
                 }
                 return result;
 
-            }catch(Exception err){
-                logger.LogError(err, $"Error al obtener la facturacion por localidades de {enlace.Nombre}");
-                return new List<RecaudacionIngresosxPoblaciones>();
+            }
+            catch(Exception err)
+            {
+                logger.LogError(err, "Error al obtener la recaudacion por localidades de {enlace}: {message}", enlace.Nombre, err.Message);
+                return Array.Empty<RecaudacionIngresosxPoblaciones>();
             }
         }
 

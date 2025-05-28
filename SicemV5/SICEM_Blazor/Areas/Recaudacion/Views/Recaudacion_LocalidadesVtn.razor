@@ -7,6 +7,7 @@
     <VentanaSecundaria Titulo="@Titulo" Columnas="@ColumnasTemplate" Filas="@FilasTemplate" CerrarVentana="@CerrarModal">
         <Content>
 
+            @*
             <div class="border rounded p-2 mb-2 bg-white">
                 <MatTabBar @bind-ActiveIndex="@tabIndex" >
                     <MatTabLabel Class="fa-2x">Todos</MatTabLabel>
@@ -14,6 +15,7 @@
                     <MatTabLabel Class="fa-2x">Rural</MatTabLabel>
                 </MatTabBar>
             </div>
+            *@
 
             <div class="d-flex align-items-center border rounded p-2 mb-2 bg-white">
                 <div class="button bg-success px-3 py-2" @onclick="OnExportExcel_Click" >
@@ -25,6 +27,7 @@
             <div class="border rounded p-2 mb-2 bg-white">
                 <SfGrid @ref="DataGrid" DataSource="@DatosGrid" AllowExcelExport="true" AllowResizing="true" Width="100%" Height="100%">
                     <GridColumns>
+                        @*
                         <GridColumn HeaderText="" TextAlign="TextAlign.Left" Width="40">
                             <Template>
                                 @{
@@ -40,12 +43,10 @@
                                 }
                             </Template>
                         </GridColumn>
-                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Habitantes)" HeaderText="Habitantes" TextAlign="TextAlign.Center" Width="100" Format="n0" />
-                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Localidad)" HeaderText="Localidad" TextAlign="TextAlign.Left" Width="260" />
-                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Facturado)" HeaderText="Ingresos Facturados" TextAlign="TextAlign.Right" Width="150" Format="c2" />
-                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Cobrado)" HeaderText="Ingresos Cobrados" TextAlign="TextAlign.Right" Width="140" Format="c2" />
-                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Recibos)" HeaderText="Recibos" TextAlign="TextAlign.Center" Width="140" Format="n0" />
-                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.EsRural)" HeaderText="Es Rural" TextAlign="TextAlign.Center" Width="140" DisplayAsCheckBox="true" />
+                        *@
+                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Localidad)"  HeaderText="Localidad" TextAlign="TextAlign.Left" Width="260" />
+                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Cobrado)"    HeaderText="Ingresos Cobrados" TextAlign="TextAlign.Right" Width="140" Format="c2" />
+                        <GridColumn Field="@nameof(RecaudacionIngresosxPoblaciones.Recibos)"    HeaderText="Recibos" TextAlign="TextAlign.Center" Width="140" Format="n0" />
                     </GridColumns>
                 </SfGrid>
             </div>
@@ -55,74 +56,60 @@
 
     <Recaudacion_ColoniasVtn @ref="RecaudacionColoniasVtn" Enlace="@Enlace" Desde="@Desde" Hasta="@Hasta" Subsistema="@Subsistema" Sector="@Sector" Visible="@RecaudacionColonias_visible" OnClose="@( e => RecaudacionColonias_visible = false)" Titulo="@($"{Enlace.Nombre} - Recaudacion Por Colonias")"/>
     <Recaudacion_IngresosxDias_detalle_conceptos @ref="ConceptosLocalidadesVtn" MostrarVentana="@ConceptosLocalidades_visible" CerrarModal="@(e => ConceptosLocalidades_visible = false)" />
-   
+
 }
 <BusyIndicator Busy="@busyDialog" ContentText="Cargando datos..." />
 
-@code {
-    [Parameter] public EventCallback OnClose {get;set;}
-    [Parameter] public bool Visible {get;set;}
-    [Parameter] public DateTime Desde {get;set;}
-    [Parameter] public DateTime Hasta {get;set;}
-    [Parameter] public int Subsistema {get;set;}
-    [Parameter] public int Sector {get;set;}
+@code
+{
+    [Parameter]
+    public EventCallback OnClose {get;set;}
+    
+    [Parameter]
+    public bool Visible {get;set;}
+    
+    [Parameter]
+    public DateTime Desde {get;set;}
+    
+    [Parameter]
+    public DateTime Hasta {get;set;}
+    
+    [Parameter]
+    public int Subsistema {get;set;}
+    
+    [Parameter]
+    public int Sector {get;set;}
+    
     public IEnlace Enlace {get;set;}
     public string Titulo {get;set;} = "Recaudacion Por Localidades";
 
     private SfGrid<RecaudacionIngresosxPoblaciones> DataGrid {get;set;}
-    private List<RecaudacionIngresosxPoblaciones> _datosGrid {get;set;}
-    private List<RecaudacionIngresosxPoblaciones> DatosGrid {
-        get {
-            List<RecaudacionIngresosxPoblaciones> data = this._datosGrid;
-            switch(tabIndex){
-                case 1:
-                    data = _datosGrid.Where( item => item.EsRural == false && item.Id_localidad < 999 ).ToList();
-                    data.Add(new RecaudacionIngresosxPoblaciones(){
-                        Id_localidad = 999,
-                        Localidad = "TOTAL",
-                        Facturado = data.Sum( item => item.Facturado),
-                        Cobrado = data.Sum( item => item.Cobrado),
-                        Recibos = data.Sum( item => item.Recibos),
-                        Habitantes = data.Sum( item => item.Habitantes)
-                    });
-                    break;
+    private List<RecaudacionIngresosxPoblaciones> DatosGrid {get;set;}
 
-                case 2:
-                    data = _datosGrid.Where( item => item.EsRural == true && item.Id_localidad < 999 ).ToList();
-                    data.Add(new RecaudacionIngresosxPoblaciones(){
-                        Id_localidad = 999,
-                        Localidad = "TOTAL",
-                        Facturado = data.Sum( item => item.Facturado),
-                        Cobrado = data.Sum( item => item.Cobrado),
-                        Recibos = data.Sum( item => item.Recibos),
-                        Habitantes = data.Sum( item => item.Habitantes)
-                    });
-                    break;
-            }
-            return data.ToList();
-        }
-        set => this._datosGrid = value;
-    }
+    private double[] ColumnasTemplate = new double[]{780};
+    private double[] FilasTemplate = new double[]{ 50, 620};
 
-    private double[] ColumnasTemplate = new double[]{ .9};
-    private double[] FilasTemplate = new double[]{ 64, 50, .75,};
-
-    private bool busyDialog  = false, RecaudacionColonias_visible = false, ConceptosLocalidades_visible = false;
+    private bool busyDialog = false, RecaudacionColonias_visible = false, ConceptosLocalidades_visible = false;
     private Recaudacion_ColoniasVtn RecaudacionColoniasVtn {get;set;}
     private Recaudacion_IngresosxDias_detalle_conceptos ConceptosLocalidadesVtn;
 
     private int tabIndex = 0;
 
-    public void Inicializar(IEnumerable<RecaudacionIngresosxPoblaciones> datos, IEnlace enlace){
+    public void Inicializar(IEnumerable<RecaudacionIngresosxPoblaciones> datos, IEnlace enlace)
+        {
         this.Enlace = enlace;
         this.DatosGrid = datos.ToList();
 
         Titulo=$"{Enlace.Nombre} - Recaudacion Por Localidades";
     }
-    private async Task CerrarModal(){
+    
+    private async Task CerrarModal()
+    {
         await OnClose.InvokeAsync(null);
     }
-    private async Task OnExportExcel_Click(){
+
+    private async Task OnExportExcel_Click()
+    {
         var _guid = Guid.NewGuid().ToString().Replace("-","").Substring(0,10);
         var _titulo = Titulo.Replace(" - ",".").Replace(" ","_").ToString();
         var _p = new ExcelExportProperties(){
@@ -132,35 +119,37 @@
         await DataGrid.ExportToExcelAsync(_p);
     }
 
-    private async Task MostrarColonias_Click(RecaudacionIngresosxPoblaciones context){
-        if(RecaudacionColonias_visible){
-            return;
-        }
-
-        busyDialog = true;
-        await Task.Delay(100);
-
-        var _datos = RecaudacionService.ObtenerRecaudacionColonias(Enlace, Desde, Hasta, Subsistema, Sector, context.Id_localidad).ToList();
-        if(_datos.Count() > 0){
-            RecaudacionColonias_visible = true;
-            RecaudacionColoniasVtn.Inicializar(_datos, context.Id_localidad, context.Localidad);
-        }else{
-            MatToaster.Add("Error al realizar la consulta", MatToastType.Danger);
-        }
-
-        await Task.Delay(100);
-        busyDialog = false;
+    private async Task MostrarColonias_Click(RecaudacionIngresosxPoblaciones context)
+    {
+        // if(RecaudacionColonias_visible){
+        //     return;
+        // }
+        // busyDialog = true;
+        // await Task.Delay(100);
+        // var _datos = RecaudacionService.ObtenerRecaudacionColonias(Enlace, Desde, Hasta, Subsistema, Sector, context.Id_localidad).ToList();
+        // if(_datos.Count() > 0){
+        //     RecaudacionColonias_visible = true;
+        //     RecaudacionColoniasVtn.Inicializar(_datos, context.Id_localidad, context.Localidad);
+        // }else{
+        //     MatToaster.Add("Error al realizar la consulta", MatToastType.Danger);
+        // }
+        // await Task.Delay(100);
+        // busyDialog = false;
+        await Task.CompletedTask;
+        throw new NotImplementedException();
     }
 
-    private async Task MostrarIngresosPorConceptos(RecaudacionIngresosxPoblaciones context){
-        if(ConceptosLocalidades_visible == true){
-            return;
-        }
-        var idLocalidad = context.Id_localidad;
-        var results = RecaudacionService.ObtenerIngresosConceptosPorLocalidadColonia(Enlace, Desde, Hasta, Subsistema, Sector, idLocalidad, 0);
-        ConceptosLocalidades_visible = true;
-        ConceptosLocalidadesVtn.Inicializar(results, context.Localidad);
-        await Task.Delay(100);
+    private async Task MostrarIngresosPorConceptos(RecaudacionIngresosxPoblaciones context)
+    {
+        // if(ConceptosLocalidades_visible == true){
+        //     return;
+        // }
+        // var idLocalidad = context.Id_localidad;
+        // var results = RecaudacionService.ObtenerIngresosConceptosPorLocalidadColonia(Enlace, Desde, Hasta, Subsistema, Sector, idLocalidad, 0);
+        // ConceptosLocalidades_visible = true;
+        // ConceptosLocalidadesVtn.Inicializar(results, context.Localidad);
+        await Task.CompletedTask;
+        throw new NotImplementedException();
     }
 
 }

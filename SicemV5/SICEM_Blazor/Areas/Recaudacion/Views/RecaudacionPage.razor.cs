@@ -350,18 +350,23 @@ public partial class RecaudacionPage
     {
         this.busyDialog = true;
         await Task.Delay(100);
-        if (!VtnPoblaciones_Visible) {
+        if (!VtnPoblaciones_Visible)
+        {
             var tmpData = RecaudacionService.ObtenerRecaudacionLocalidades(data.Enlace, this.f1, this.f2, this.subsistema, this.sector);
-            if (tmpData == null) {
+            if (tmpData == null)
+            {
                 Toaster.Add("Hubo un error al procesar la peticion, intentelo mas tarde.", MatToastType.Warning);
             }
-            else {
-                if (tmpData.Count() > 0) {
+            else
+            {
+                if (tmpData.Count() > 0)
+                {
                     VtnPoblaciones_Visible = true;
                     VtnPoblaciones.Titulo = $"{data.Enlace.Nombre} - INGRESOS POR POBLACIONES";
                     VtnPoblaciones.Inicializar(tmpData, data.Enlace);
                 }
-                else {
+                else
+                {
                     Toaster.Add("No hay datos disponibles para mostrar.", MatToastType.Info);
                 }
             }
