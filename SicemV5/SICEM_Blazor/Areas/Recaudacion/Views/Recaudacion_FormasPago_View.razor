@@ -10,7 +10,10 @@
 
             <div class="m-1 p-2 border rounded bg-white" style=" grid-area: 1/1/2/3;">
                 <div class="w-100 d-flex align-items-center">
-                    <MatButton Class="ml-1 mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">Exportar Excel <i class="fa fa-file-excel-o ml-2" aria-hidden="true"></i> </MatButton>
+                    <MatButton Class="mx-1" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">
+                        Exportar Excel
+                        <i class="fa fa-file-excel-o ml-2 ms-2" aria-hidden="true"></i>
+                    </MatButton>
                 </div>
             </div>
 
@@ -20,8 +23,7 @@
                         <GridColumn Field="@nameof(Ingresos_FormasPago.Id)" HeaderText="Id" TextAlign="TextAlign.Left" Width="20" Visible="false" />
                         <GridColumn Field="@nameof(Ingresos_FormasPago.Forma_Pago)" HeaderText="Forma de Pago" TextAlign="TextAlign.Left" Width="210" />
                         <GridColumn Field="@nameof(Ingresos_FormasPago.Cobrado)" HeaderText="Cobrado" TextAlign="TextAlign.Right" Width="120" Format="c2" />
-                        <GridColumn Field="@nameof(Ingresos_FormasPago.Arqueo)" HeaderText="Arqueo" TextAlign="TextAlign.Right" Width="120" Format="c2" />
-                        <GridColumn Field="@nameof(Ingresos_FormasPago.Diferencia)" HeaderText="Diferencia" TextAlign="TextAlign.Right" Width="120" Format="c2" />
+                        <GridColumn Field="@nameof(Ingresos_FormasPago.Cobros)" HeaderText="# Cobros" TextAlign="TextAlign.Right" Width="120" Format="n0" />
                     </GridColumns>
                 </SfGrid>
             </div>

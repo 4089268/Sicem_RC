@@ -759,32 +759,37 @@ namespace SICEM_Blazor.Recaudacion.Data {
             }
         }
         public IEnumerable<Ingresos_FormasPago> ObtenerIngresosPorFormasPago(IEnlace enlace, DateTime desde, DateTime hasta, int sb, int sect) {
-            try {
+            logger.LogInformation("Obteniendo ingresos por Formas de Pago: desde={desde}, hasta={hasta}, enlace={enlace}", desde, hasta, enlace.Nombre);
+            try
+            {
                 var _result = new List<Ingresos_FormasPago>();
-                using(var xConnecton = new SqlConnection(enlace.GetConnectionString())) {
-                    xConnecton.Open();
-                    var _query = string.Format("Exec [WEB].[usp_Recaudacion] @cAlias='FORMA_PAGO', @xano=0, @xmes=0, @xfec1='{0}', @xfec2='{1}', @sb={2}, @sector={3}", desde.ToString("yyyyMMdd"), hasta.ToString("yyyyMMdd"), sb, sect);
-                    using(var xCommand = new SqlCommand(_query, xConnecton)){
-                        using(SqlDataReader reader = xCommand.ExecuteReader()) {
-                            while(reader.Read()){
-                                var _newItem = new Ingresos_FormasPago();
-                                var tmpInt = 0;
-                                var tmpDec = 0m;
-                                _newItem.Orden = int.TryParse(reader["orden"].ToString(), out tmpInt) ? tmpInt : 0;
-                                _newItem.Id = int.TryParse(reader["id"].ToString(), out tmpInt) ? tmpInt : 0;
-                                _newItem.Forma_Pago = reader["forma_pago"].ToString().Trim();
-                                _newItem.Cobrado = decimal.TryParse(reader["cobrado"].ToString(), out tmpDec) ? tmpDec : 0m;
-                                _newItem.Arqueo = decimal.TryParse(reader["arqueo"].ToString(), out tmpDec) ? tmpDec : 0m;
-                                _newItem.Diferencia = decimal.TryParse(reader["dif"].ToString(), out tmpDec) ? tmpDec : 0m;
-                                _result.Add(_newItem);
-                            }
+                using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
+                {
+                    sqlConnection.Open();
+                    var sqlCommand = new SqlCommand("[SICEM].[Recaudacion]", sqlConnection)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    sqlCommand.Parameters.AddWithValue("@cAlias", "FORMA_PAGO");
+                    sqlCommand.Parameters.AddWithValue("@cFecha1", desde.ToString("yyyyMMdd"));
+                    sqlCommand.Parameters.AddWithValue("@cFecha2", hasta.ToString("yyyyMMdd"));
+                    sqlCommand.Parameters.AddWithValue("@xSb", sb);
+                    sqlCommand.Parameters.AddWithValue("@xSec", sect);
+
+                    using(SqlDataReader reader = sqlCommand.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
+                            _result.Add( Ingresos_FormasPago.FromDataReader(reader));
                         }
                     }
-                    xConnecton.Close();
+                    sqlConnection.Close();
                 }
-                return _result.ToArray();
-            }catch(Exception err){
-                logger.LogError(err, $">> Error al obtener ingresos por formas de pago enlace:{enlace.Nombre}");
+                return _result;
+            }
+            catch(Exception err)
+            {
+                logger.LogError(err, "Error al obtener ingresos por formas de pago: {Message}", err.Message);
                 return null;
             }
         }
