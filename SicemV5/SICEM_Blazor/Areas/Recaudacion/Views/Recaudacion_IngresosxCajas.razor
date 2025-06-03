@@ -18,7 +18,10 @@
                             <option style="font-size: 1.2rem;" value="@item.Id_Sucursal">@item.Descripcion</option>
                         }
                     </select>
-                    <MatButton Class="ml-5 mr-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">Exportar Excel <i class="fa fa-file-excel-o ml-2" aria-hidden="true"></i> </MatButton>
+                    <MatButton Class="ml-5 ms-5 mr-2 me-2" Raised="true" Style="height:2.5rem;" OnClick="@GenerarExcel">
+                        <span>Exportar Excel</span>
+                        <i class="fa fa-file-excel-o ml-2 ms-2" aria-hidden="true"></i>
+                    </MatButton>
                 </div>
             </div>
 

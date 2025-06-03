@@ -58,7 +58,7 @@
 
     <BusyIndicator Busy="@busyDialog" ContentText="Cargando datos...." />
     <Recaudacion_IngresosxDias_detalle @ref="vtn_diasDetalle" MostrarVentana=@ventanDetalle_visible CerrarModal="@(e => ventanDetalle_visible = false)" />
-    <Recaudacion_ConceptosyTiposUsuariosVtn @ref="VtnConceptosUsuarios" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" Visible="@VtnConceptosUsuarios_Visible" CerrarModal="@(e => VtnConceptosUsuarios_Visible = false)" />
     <Recaudacion_FormasPago_View @ref="VtnFormasPago" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" MostrarVentana="VtnFormasPago_Visible" CerrarModal="@( e => VtnFormasPago_Visible = false)" />
     <Recaudacion_IngresosxCajas @ref="VtnCajas" Fecha1="@Fecha1" Fecha2="@Fecha2" Subsistema="@Subsistema" Sector="@Sector" MostrarVentana="VtnCajas_visible" CerrarModal="(e => VtnCajas_visible = false)" />
+    <RecaudacionConceptosTarifaVtn @ref="VtnRConceptos" FechaDesde="@Fecha1" FechaHasta="@Fecha2" subsistema="@Subsistema" sector="@Sector" Visible="@VtnRConceptos_Visible" CerrarModal="@(e => VtnRConceptos_Visible = false)" />
 }

@@ -17,9 +17,12 @@
 
                     <input class="" type="number" min="10" max="50" @bind-value="@numeroPagos" style="width:7rem; height:2.4rem;" />
 
-                    <MatButton Class="ml-2 mr-2" Raised="true" Style="height:2.4rem;" OnClick="@ProcesarDatos">Procesar</MatButton>
+                    <MatButton Class="mx-2" Raised="true" Style="height:2.4rem;" OnClick="@ProcesarDatos">Procesar</MatButton>
 
-                    <MatButton Class="ml-5 mr-2" Raised="true" Style="height:2.4rem;" OnClick="@GenerarExcel">Exportar Excel <i class="fa fa-file-excel-o ml-2" aria-hidden="true"></i> </MatButton>
+                    <MatButton Class="ml-5 ms-5" Raised="true" Style="height:2.4rem;" OnClick="@GenerarExcel">
+                        <span>Exportar Excel</span>
+                        <i class="fa fa-file-excel-o ml-2 ms-2" aria-hidden="true"></i>
+                    </MatButton>
 
                 </div>
             </div>

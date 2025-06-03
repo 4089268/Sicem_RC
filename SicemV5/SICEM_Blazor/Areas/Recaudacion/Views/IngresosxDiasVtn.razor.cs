@@ -20,8 +20,11 @@ public partial class IngresosxDiasVtn
 {
     [Inject]
     public IRecaudacionService RecaudacionService {get;set;}
-
+    
     [Inject]
+    public SicemService SicemService1 {get;set;}
+    [Inject]
+
     public IMatToaster Toaster {get;set;}
 
     [Parameter]
@@ -49,9 +52,10 @@ public partial class IngresosxDiasVtn
 
     bool busyDialog = false, ventanDetalle_visible = false, VtnConceptosUsuarios_Visible = false, VtnFormasPago_Visible = false, VtnCajas_visible = false;
     private Recaudacion_IngresosxDias_detalle vtn_diasDetalle;
-    private Recaudacion_ConceptosyTiposUsuariosVtn VtnConceptosUsuarios;
     private Recaudacion_FormasPago_View VtnFormasPago;
     private Recaudacion_IngresosxCajas VtnCajas;
+    private RecaudacionConceptosTarifaVtn VtnRConceptos;
+    private bool VtnRConceptos_Visible = false;
 
 
     // * Funciones Generales
@@ -111,16 +115,30 @@ public partial class IngresosxDiasVtn
 
         try
         {
-            var _datos = RecaudacionService.ObtenerRecaudacionPorConceptosYTipoUsuario(Enlace, _date, _date, this.Subsistema, this.Sector).ToList();
-            if( _datos == null){
+            IEnumerable<IngresoConceptoTarifa> _datos = RecaudacionService.ObtenerIngresosPorConceptosTipoUsuarios(Enlace, _date, _date, this.Subsistema, this.Sector, 0).ToList();
+            if(_datos == null)
+            {
                 Toaster.Add("Error al tratar de obtener los ingresos por conceptos", MatToastType.Danger);
-            }else{
-                if(_datos.Count() <= 0){
+            }
+            else
+            {
+                if(_datos.Count() <= 0)
+                {
                     Toaster.Add("No hay datos disponibles para este periodo", MatToastType.Info);
-                }else{
-                    VtnConceptosUsuarios_Visible = true;
+                }else
+                {
+                    // Generar catalogo de localidades
+                    var catLocalidades = new Dictionary<int,string>();
+                    var _localidades = SicemService1.ObtenerCatalogoLocalidades(Enlace.Id).Where(i => i.Id_Poblacion > 0).ToList();
+                    catLocalidades.Add(0, "TODOS");
+                    foreach( var loc in _localidades)
+                    {
+                        catLocalidades.Add(loc.Id_Poblacion, loc.Descripcion.ToUpper().Trim());
+                    }
+
+                    VtnRConceptos_Visible = true;
                     await Task.Delay(100);
-                    VtnConceptosUsuarios.Inicializar(Enlace, _datos);
+                    VtnRConceptos.Inicializar(Enlace, _datos, null);
                 }
             }
         }catch(Exception)
