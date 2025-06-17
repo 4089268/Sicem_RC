@@ -73,10 +73,17 @@
 </style>
 
 @code {
-    [Parameter] public string Titulo { get; set; }
-    [Parameter] public EventCallback CerrarVentana { get; set; }
-    [Parameter] public string Cuenta { get; set; }
-    [Parameter] public int IdOficina { get; set; }
+    [Parameter]
+    public string Titulo { get; set; }
+
+    [Parameter]
+    public EventCallback CerrarVentana { get; set; }
+
+    [Parameter]
+    public string Cuenta { get; set; }
+
+    [Parameter]
+    public int IdOficina { get; set; }
 
     private double[] filasTemplate = new double[] { 410, 40 };
     private double[] columnasTemplate = new double[] { 500 };
@@ -100,20 +107,30 @@
         CerrarVentana.InvokeAsync(null);
     }
 
-    private void MostrarDatosGenerales() {
+    private void MostrarDatosGenerales()
+    {
         this.estatusView = Estatus.cargando;
         var _datosGenerales = consultaGralService.ConsultaGeneral(IdOficina, Cuenta);
-        if (_datosGenerales == null) {
+        if ( _datosGenerales == null)
+        {
             this.estatusView = Estatus.error;
         }
-        else {
+        else
+        {
             this.datosGenerales = _datosGenerales;
             this.estatusView = Estatus.completado;
         }
     }
-    private void MostrarConsultaGeneral(){
-        NavManager.NavigateTo($"/ConsultaGeneral/{IdOficina}/{Cuenta}");
+    
+    private void MostrarConsultaGeneral()
+    {
+        var args = new string[]{
+            $"oficina={IdOficina}",
+            $"cuenta={Cuenta}"
+        };
+        NavManager.NavigateTo("/ConsultaGeneral?" + string.Join("&", args));
     }
+    
     public enum Estatus : int {
         cargando = 0,
         completado = 1,

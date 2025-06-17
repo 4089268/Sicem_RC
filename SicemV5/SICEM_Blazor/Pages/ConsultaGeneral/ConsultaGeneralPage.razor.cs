@@ -7,6 +7,7 @@ using Syncfusion.Blazor.Charts;
 using Syncfusion.Blazor.Inputs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.JSInterop;
 using MatBlazor;
 using SICEM_Blazor.Data.Contracts;
@@ -33,17 +34,13 @@ public partial class ConsultaGeneralPage
     public SicemService sicemService {get;set;}
     
     [Inject]
-    public NavigationManager navigationManager {get;set;}
-
+    public NavigationManager NavigationManager1 {get;set;}
 
     [Parameter]
-    public string IdCuenta { get; set; }
+    public int IdCuenta { get; set; } = 0;
     
     [Parameter]
-    public int IdOficinaParam { get; set; }
-    
-    [Parameter]
-    public int IdOficina { get; set; }
+    public int IdOficina { get; set; } = 0;
 
     private SfGrid<ConsultaGralResponse_saldoItem> dataGrid;
     private SfChart grafConsumos;
@@ -78,11 +75,11 @@ public partial class ConsultaGeneralPage
     private bool MostrarModal_Imagenes { get; set; } = false;
 
     /*********** Eventos Override ***********/
-    protected override async Task OnInitializedAsync() {
-        
+    protected override async Task OnInitializedAsync()
+    {
         // Validar si se cuenta con la opcion
         if(!sicemService.Usuario.OpcionSistemas.Select(item => item.Id).Contains(OpcionesSistema.CONSULTA_GENERAL)){
-            navigationManager.NavigateTo("/");
+            NavigationManager1.NavigateTo("/");
             return;
         }
 
@@ -91,19 +88,29 @@ public partial class ConsultaGeneralPage
         var enlaces = sicemService.ObtenerOficinasDelUsuario();
         var tmpOfis = sicemService.ObtenerEnlaces().Where(item => enlaces.Select(i => i.Id).Contains(item.Id)).ToArray();
 
-        if (tmpOfis.Length > 0) {
+        if (tmpOfis.Length > 0)
+        {
             this.catOficinas = tmpOfis;
             this.IdOficina = catOficinas.First().Id;
             this.Busy = false;
         }
     }
-    protected override async Task OnParametersSetAsync(){
-        if (IdCuenta != null) {
-            if (IdCuenta.Length > 1) {
-                this.nCuenta = long.Parse(IdCuenta);
-                this.IdOficina = IdOficinaParam;
-                await Tb_Cuenta_KeyUp(new KeyboardEventArgs { Key = "Enter" });
-            }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // * check if has query params
+        var uri = NavigationManager1.ToAbsoluteUri(NavigationManager1.Uri);
+        var queryParams = QueryHelpers.ParseQuery(uri.Query);
+        if( queryParams.ContainsKey("oficina") && queryParams.ContainsKey("cuenta") )
+        {
+            this.IdOficina = ConvertUtils.ParseInteger(queryParams["oficina"]);
+            this.IdCuenta = ConvertUtils.ParseInteger(queryParams["cuenta"]);
+        }
+
+        if(this.IdCuenta > 0)
+        {
+            this.nCuenta = (long) IdCuenta;
+            await Tb_Cuenta_KeyUp(new KeyboardEventArgs { Key = "Enter" });
         }
     }
 
