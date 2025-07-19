@@ -1,8 +1,9 @@
 @namespace SICEM_Blazor.SeguimientoCobros.Views
 @using SICEM_Blazor.SeguimientoCobros.Models
     
-@if(Enlace != null){
-    <div class="flex-column border rounded bg-white @(IndexPage.ShowPanelInfo ?"d-flex": "collapse")" style="grid-area: 2/1/3/2; padding: .75rem 40.75rem .75rem .75rem;">
+@if(Enlace != null)
+{
+    <div class=" panel-horario flex-column border rounded bg-white @(IndexPage.ShowPanelInfo ?"d-flex": "collapse")">
 
         <div class="d-flex align-items-center">
             <h2 class="px-4 text-uppercase">@Enlace?.Nombre - Recaudacion por sucursales</h2>
@@ -10,12 +11,15 @@
         </div>
         
         <div style="height: calc(100% - 3.2rem); width:100%;">
-            @if(CargandoLocalidades){
+            @if(CargandoLocalidades)
+            {
                 <div class="containter d-flex flex-column align-items-center justify-content-center h-100">
                     <h2 class="text-muted fa-2x text-uppercase">Cargando datos</h2>
                     <progress style="width:24rem; height:4rem; margin-top:5px;"></progress>
                 </div>
-            }else{
+            }
+            else
+            {
                 <SfGrid DataSource="@IngresosHorarios" TValue="IngresoHorario" Height="100%" Width="100%" EnableHover="true" AllowGrouping="true">
                     <GridGroupSettings Columns="@(new string[] { "Sucursal"})" ShowDropArea="false">
                         <CaptionTemplate>

@@ -53,6 +53,12 @@ const MAPCONTEXT = {
 
         var circle = L.circle(centerCircle, circleRadius, circleOptions).addTo(MAPCONTEXT.map);
 
+        circle.on('click', function () {
+            if (dotNetHelper && typeof dotNetHelper.invokeMethodAsync === 'function') {
+                dotNetHelper.invokeMethodAsync('PushpinClick', point.id);
+            }
+        });
+
         // * save the circle reference
         MAPCONTEXT.circles[pointId] = circle;
 

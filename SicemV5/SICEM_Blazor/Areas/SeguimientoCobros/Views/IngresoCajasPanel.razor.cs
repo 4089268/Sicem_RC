@@ -45,8 +45,8 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
         private CancellationTokenSource cancellationTokenSource = new();
         
 
-        public async Task LoadData(){
-
+        public async Task LoadData()
+        {
             this.CargandoLocalidades = true;
             IngresosHorarios.Clear();
             await Task.Delay(100);
@@ -65,16 +65,20 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
 
             // * get incomes for each sucursal
             var tasks = new List<Task>();
-            foreach( var sucursal in sucursales){
-                tasks.Add( Task.Run( ()=>{
-
-                    if( cancellationToken.IsCancellationRequested){
+            foreach( var sucursal in sucursales)
+            {
+                tasks.Add( Task.Run( ()=>
+                {
+                    if( cancellationToken.IsCancellationRequested)
+                    {
                         return;
                     }
 
-                    var ingresosCaja = IncomeOfficeService.IngresosPorHorario( Enlace, sucursal);
-                    if(ingresosCaja != null && !cancellationToken.IsCancellationRequested ){
-                        lock(ingresosHorarios){
+                    var ingresosCaja = IncomeOfficeService.IngresosPorHorario(Enlace, sucursal, DateTime.Now);
+                    if(ingresosCaja != null && !cancellationToken.IsCancellationRequested)
+                    {
+                        lock(ingresosHorarios)
+                        {
                             ingresosHorarios.AddRange(ingresosCaja);
                         }
                     }
@@ -82,11 +86,11 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
             }
             
             // wait for all task to complete
-            try {
+            try
+            {
                 await Task.WhenAll(tasks);
-            } catch( OperationCanceledException){
-
             }
+            catch(OperationCanceledException){}
 
             // * update the current datacontext
             IngresosHorarios = ingresosHorarios;

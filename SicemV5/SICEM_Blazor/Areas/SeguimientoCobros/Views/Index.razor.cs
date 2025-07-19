@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MatBlazor;
@@ -16,13 +17,14 @@ using SICEM_Blazor.Models;
 using SICEM_Blazor.Data;
 using SICEM_Blazor.Services;
 using SICEM_Blazor.Recaudacion.Data;
-using Syncfusion.Blazor.RichTextEditor;
 
 namespace SICEM_Blazor.SeguimientoCobros.Views
 {
 
     public partial class Index : IDisposable
     {
+        [Inject]
+        private ILogger<Index> Logger {get; set;}
 
         [Inject]
         private IncomeMapJsInterop IncomeMapJsInterop {get;set;}
@@ -92,21 +94,17 @@ namespace SICEM_Blazor.SeguimientoCobros.Views
             Console.WriteLine("Map loaded!!");
             //Toaster.Add( "Income map loaded", MatToastType.Info);
         }
-        
+
         [JSInvokable("PushpinClick")]
         public async Task PushPinClick(int id)
         {
-            Console.WriteLine($"Push with id '{id}' clicked");
-            await Task.Delay(100);
-
-            // this.EnlaceSeleccionado = offices.Where(item => item.Id == id).FirstOrDefault();
-            // await Task.Delay(100);
-            // ShowPanelInfo = true;
-            // StateHasChanged();
-
-            // if( IngresoCajasPanel != null){
-            //     await IngresoCajasPanel.LoadData();
-            // }
+            this.EnlaceSeleccionado = offices.Where(item => item.Id == id).FirstOrDefault();
+            ShowPanelInfo = true;
+            StateHasChanged();
+            if(IngresoCajasPanel != null)
+            {
+                await IngresoCajasPanel.LoadData();
+            }
         }
 
         protected override void OnInitialized()
@@ -230,29 +228,20 @@ namespace SICEM_Blazor.SeguimientoCobros.Views
                     }
                     StateHasChanged();
                 });
-
-                // actualizar grafica
-                //var charItem = this.incomeDataGraph.Where( item => item.Id == officePushpinMap.Id ).FirstOrDefault();
-                //if(charItem != null){
-                //    charItem.Valor1 = officePushpinMap.Income;
-                //    myChart.Refresh(false);
-                //}
-
-                // t.Wait();
-
             }
             catch(Exception err)
             {
-                Console.WriteLine(err.Message);
-                Console.WriteLine(err.StackTrace);
+                Logger.LogError(err, "Error al refrescar los ingresos: {message}", err.Message);
             }
         }
 
         public void Dispose()
         {
-            try {
+            try
+            {
                 this.updateIncomeService.Dispose();
-            }catch(Exception){}
+            }
+            catch(Exception) { }
         }
 
         public void ClosePanelInfo()
@@ -263,14 +252,17 @@ namespace SICEM_Blazor.SeguimientoCobros.Views
 
         public async Task OnGridSelectionChanged(RowSelectEventArgs<OfficePushpinMap> args)
         {
-            if( args.Data.Id < 999){
-                this.EnlaceSeleccionado = offices.Where(item => item.Id == args.Data.Id).FirstOrDefault();
-                await Task.Delay(100);
-                ShowPanelInfo = true;
-                StateHasChanged();
-                if( IngresoCajasPanel != null){
-                    await IngresoCajasPanel.LoadData();
-                }
+            if(args.Data.Id >= 999)
+            {
+                return;
+            }
+
+            this.EnlaceSeleccionado = offices.Where(item => item.Id == args.Data.Id).FirstOrDefault();
+            ShowPanelInfo = true;
+            StateHasChanged();
+            if(IngresoCajasPanel != null)
+            {
+                await IngresoCajasPanel.LoadData();
             }
         }
 
