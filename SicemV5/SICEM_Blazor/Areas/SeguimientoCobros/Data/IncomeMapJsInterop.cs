@@ -20,7 +20,6 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
 
         public IncomeMapJsInterop(IJSRuntime jSRuntime)
         {
-            // moduleTask = new Lazy<Task<IJSObjectReference>>(() => jSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/sicem/incomeMap.js").AsTask() );
             moduleTask = new Lazy<Task<IJSObjectReference>>(() => jSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/sicem/seguimientoCobroMap.js").AsTask() );
         }
 
@@ -48,10 +47,10 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
             await module.InvokeVoidAsync("updateMarks", objRef, points);
         }
 
-        // public async Task UpdatePoint(object objRef, OfficePushpinMap point){
-        //     var module = await moduleTask.Value;
-        //     await module.InvokeVoidAsync("updatePoint", objRef, point);
-        // }
+        public async Task UpdatePoint(object objRef, OfficePushpinMap point){
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("updateMark", objRef, point);
+        }
 
         public async ValueTask DisposeAsync()
         {

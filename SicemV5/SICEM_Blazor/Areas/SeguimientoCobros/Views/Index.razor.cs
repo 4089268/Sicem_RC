@@ -18,9 +18,11 @@ using SICEM_Blazor.Services;
 using SICEM_Blazor.Recaudacion.Data;
 using Syncfusion.Blazor.RichTextEditor;
 
-namespace SICEM_Blazor.SeguimientoCobros.Views {
+namespace SICEM_Blazor.SeguimientoCobros.Views
+{
 
-    public partial class Index : IDisposable {
+    public partial class Index : IDisposable
+    {
 
         [Inject]
         private IncomeMapJsInterop IncomeMapJsInterop {get;set;}
@@ -144,15 +146,15 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
             // * draw the points (TESTING)
             await IncomeMapJsInterop.UpdateMarks(this.objRef, this.IncomeData.ToArray());
             
-            // set the pushpin for each elemen
-            // foreach(var officePushpin in this.IncomeData)
-            // {
-            //     RefreIncomesData(officePushpin);
-            // }
+            // * set the pushpin for each elemen
+            foreach(var officePushpin in this.IncomeData)
+            {
+                RefreIncomesData(officePushpin);
+            }
 
-            // TODO: start service of income update
-            // updateIncomeService = new UpdateIncomeService(IncomeOfficeService);
-            // updateIncomeService.Start( this.offices, RefreIncomesData );
+            // * start service of income update
+            updateIncomeService = new UpdateIncomeService(IncomeOfficeService);
+            updateIncomeService.Start( this.offices, RefreIncomesData );
 
             this.showDrawer = true;
         }
@@ -198,8 +200,8 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
         {
             try
             {
-                // // actualizar mapa
-                // * var t = Task.Run( async () => await IncomeMapJsInterop.UpdatePoint( this.objRef, officePushpinMap) );
+                // actualizar mapa
+                var t = Task.Run( async () => await IncomeMapJsInterop.UpdatePoint( this.objRef, officePushpinMap));
                 
                 // * update datagrid record
                 var refdata = IncomeData.Where(item => item.Id == officePushpinMap.Id).FirstOrDefault();
@@ -208,8 +210,11 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
                     refdata.Bills = officePushpinMap.Bills;
                     refdata.Income = officePushpinMap.Income;
                 }
-                dataGrid.Refresh();
-
+                
+                if (dataGrid != null)
+                {
+                    InvokeAsync(() => dataGrid.Refresh());
+                }
 
                 // * verify if is a changed in the data
                 var _total = IncomeData.Where(item => item.Id < 999).Sum( item => item.Income);
@@ -226,7 +231,6 @@ namespace SICEM_Blazor.SeguimientoCobros.Views {
                     StateHasChanged();
                 });
 
-                
                 // actualizar grafica
                 //var charItem = this.incomeDataGraph.Where( item => item.Id == officePushpinMap.Id ).FirstOrDefault();
                 //if(charItem != null){

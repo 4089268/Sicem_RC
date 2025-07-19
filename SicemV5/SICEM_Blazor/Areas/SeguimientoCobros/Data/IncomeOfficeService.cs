@@ -13,14 +13,16 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 
-namespace SICEM_Blazor.SeguimientoCobros.Data {
-
-    public class IncomeOfficeService {
+namespace SICEM_Blazor.SeguimientoCobros.Data
+{
+    public class IncomeOfficeService
+    {
         private readonly SicemContext sicemContext;
         private readonly ILogger<IncomeOfficeService> logger;
         private readonly TimeSpan lifeTimeCancelation = TimeSpan.FromSeconds(12);
 
-        public IncomeOfficeService(SicemContext context, ILogger<IncomeOfficeService> logger){
+        public IncomeOfficeService(SicemContext context, ILogger<IncomeOfficeService> logger)
+        {
             this.sicemContext = context;
             this.logger = logger;
         }
@@ -53,48 +55,48 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
                     sqlConnection.Close();
                 }
 
-                // TODO: Get the income office
-                // try
-                // {
-                //     var data = this.GetIncomes(enlace);
-                //     officesPushpin.Bills = data.Where( item=> item.Id < 900).Sum( item => item.Bills);
-                //     officesPushpin.Income = data.Where( item=> item.Id < 900).Sum( item => item.Income);
-                // }
-                // catch(Exception err)
-                // {
-                //     this.logger.LogError(err, "Error al obtner los datos");
-                // }
+                // * Get the income office
+                var _officePushpinIncome = this.GetIncomes(enlace).FirstOrDefault();
+                if(_officePushpinIncome != null)
+                {
+                    officesPushpin.Bills = _officePushpinIncome.Bills;
+                    officesPushpin.Income = _officePushpinIncome.Income;
+                }
 
                 return officesPushpin;
             }
-            catch(OperationCanceledException)
+            catch(Exception err)
             {
-                throw new TimeoutException("Operation timed out after 6 seconds.");
+                this.logger.LogError(err, "Error al obtener las coordenadas de la sucursal {enlace}", enlace.Nombre);
+                throw err;
             }
-
         }
 
-        public ICollection<OfficePushpinMap> GetIncomes(IEnlace enlace){
+        public ICollection<OfficePushpinMap> GetIncomes(IEnlace enlace)
+        {
             var results = new List<OfficePushpinMap>();
-            using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()) ){
+            using(var sqlConnection = new SqlConnection(enlace.GetConnectionString()))
+            {
                 sqlConnection.Open();
-                var command = new SqlCommand( "[SICEM].[usp_Cobranza_en_vivo]", sqlConnection);
-                command.CommandType = CommandType.StoredProcedure;
-                using(SqlDataReader reader = command.ExecuteReader()){
-                    while(reader.Read()){
-                        var id = ConvertUtils.ParseInteger( reader["id_sucursal"].ToString() );
-                        var oficina = reader["sucursal"].ToString();
-                        results.Add( new OfficePushpinMap(id, oficina){
-                            Lat = Convert.ToDouble(reader["latitud"]),
-                            Lon = Convert.ToDouble(reader["longitud"]),
-                            Bills = ConvertUtils.ParseInteger( reader["recibos"].ToString() ),
-                            Income = ConvertUtils.ParseDecimal( reader["cobrado"].ToString() ),
+                var command = new SqlCommand("[SICEM].[usp_Cobranza_en_vivo]", sqlConnection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                using(SqlDataReader reader = command.ExecuteReader())
+                {
+                    while(reader.Read())
+                    {
+                        results.Add(new OfficePushpinMap(enlace.Id, enlace.Nombre)
+                        {
+                            Bills = ConvertUtils.ParseInteger(reader["recibos"].ToString()),
+                            Income = ConvertUtils.ParseDecimal(reader["cobrado"].ToString()),
+                            // TODO: Add the location
                         });
                     }
                 }
                 sqlConnection.Close();
             }
-            // return results;
             return results;
         }
 
@@ -104,8 +106,10 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
         /// <param name="enalce"></param>
         /// <param name="sucursal"></param>
         /// <returns></returns>
-        public ICollection<IngresoHorario> IngresosPorHorario(IEnlace enlace, Sicem_Sucursal sucursal){
-            try{
+        public ICollection<IngresoHorario> IngresosPorHorario(IEnlace enlace, Sicem_Sucursal sucursal)
+        {
+            try
+            {
 
                 var response = new List<IngresoHorario>();
                 using( var conexion = new SqlConnection(enlace.GetConnectionString())){
@@ -147,7 +151,9 @@ namespace SICEM_Blazor.SeguimientoCobros.Data {
                 }
                 return response;
 
-            }catch(Exception err){
+            }
+            catch(Exception err)
+            {
                 this.logger.LogError(err, "Error al obtener ingresos por cajas del enlace {enlace}", enlace.Nombre);
                 return null;
             }

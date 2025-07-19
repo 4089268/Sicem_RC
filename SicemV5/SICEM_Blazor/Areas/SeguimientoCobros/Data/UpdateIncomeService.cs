@@ -23,18 +23,22 @@ namespace SICEM_Blazor.SeguimientoCobros.Data
             this.cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public void Start( IEnumerable<IEnlace> offices, Action<OfficePushpinMap> callback){
+        public void Start( IEnumerable<IEnlace> offices, Action<OfficePushpinMap> callback)
+        {
             this.offices = offices;
             this.callbackAction = callback;
 
             officesTask = new List<Task>();
-            foreach( var office in this.offices){
+            foreach( var office in this.offices)
+            {
                 officesTask.Add( Task.Run( () => FetchData(office, cancellationTokenSource.Token) ) );
             }
         }
 
-        private void FetchData( IEnlace office, CancellationToken cancellationToken ) {
-            while (!cancellationToken.IsCancellationRequested) {
+        private void FetchData(IEnlace office, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
                 OfficePushpinMap incomeData = this.incomeOfficeService.GetPushpinOfOffice(office);
 
                 // * for testing
@@ -43,17 +47,21 @@ namespace SICEM_Blazor.SeguimientoCobros.Data
                 // incomeData.Income += (decimal)randomValue;
                 // * for testing
 
-                try{
+                try
+                {
                     callbackAction.Invoke(incomeData);
-                }catch(Exception){}
+                }
+                catch(Exception) { }
 
-                try {
+                try
+                {
                     Random random = new();
                     var _randomMulti = random.NextDouble() * (1.25 - 0.75) + 0.75;
                     var _delay = 10000 * _randomMulti;
                     Task.Delay( (int) _delay, cancellationToken).Wait(cancellationToken);
                 }
-                catch (OperationCanceledException) {
+                catch (OperationCanceledException)
+                {
                     // Handle cancellation
                     break;
                 }

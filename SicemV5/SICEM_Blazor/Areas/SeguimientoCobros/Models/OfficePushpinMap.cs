@@ -5,9 +5,11 @@ namespace SICEM_Blazor.SeguimientoCobros.Models
     public class OfficePushpinMap {
 
         public int Id {get;set;}
-        public string Title {
+        public string Title
+        {
             get {
-                if(Income == 0){
+                if(Income == 0)
+                {
                     return "0";
                 }
                 return Income.ToString("c2", new CultureInfo("es-MX") );

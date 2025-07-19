@@ -23,20 +23,71 @@ const MAPCONTEXT = {
         "color3": "#BED0F4",
     },
     map: null,
-    markers: [],
-    circles: [],
-    initZoom: 11.5,
-    clearMarkers: ()=>{
-        MAPCONTEXT.markers.forEach(m => {
-            MAPCONTEXT.map.removeLayer(m);
-        });
-        MAPCONTEXT.markers = [];
+    markers: {},
+    circles: {},
+    initZoom: 10,
+    maxRadius: 20000,
+    minRadius: 1000,
+    colors: ["#c0392b", "#f6b53f", "#6faab0", "#229954", "#223199", "#3EC6B6", "#e96188"],
+    addCircle: function (dotNetHelper, point)
+    {
+        const pointId = point.id.toString()
+
+        // * remove the previous circle if it exists
+        if(MAPCONTEXT.circles[pointId])
+        {
+            MAPCONTEXT.map.removeLayer(MAPCONTEXT.circles[pointId]);
+        }
+
+        // * create the circle polygon with the colors
+        var centerCircle = [point.lat, point.lon];
+        var circleOptions = {
+            color: MAPCONTEXT.colors[point.id - 1],
+            fillColor: MAPCONTEXT.colors[point.id - 1],
+            fillopacity: 0.75,
+        };
+
+        // * calculate the radius based on the income
+        var circleRadius = 0.04 * point.income;
+        circleRadius = Math.max(MAPCONTEXT.minRadius, Math.min(MAPCONTEXT.maxRadius, circleRadius));
+
+        var circle = L.circle(centerCircle, circleRadius, circleOptions).addTo(MAPCONTEXT.map);
+
+        // * save the circle reference
+        MAPCONTEXT.circles[pointId] = circle;
+
+
+        // * remove the previous textLabel if it exists
+        if(MAPCONTEXT.markers[pointId])
+        {
+            MAPCONTEXT.map.removeLayer(MAPCONTEXT.markers[pointId]);
+        }
+
+        // * create the text label for the circle
+        var textLabel = L.marker(centerCircle, {
+            icon: L.divIcon({
+                className: 'circle-text-label',
+                html: `${point.title}`,
+            }),
+            zIndexOffset: 1000
+        }).addTo(MAPCONTEXT.map);
+
+        // * save the text label reference
+        MAPCONTEXT.markers[pointId] = textLabel;
     },
-    clearCircles: ()=>{
-        MAPCONTEXT.circles.forEach(m => {
+    clearMarkers: ()=>
+    {
+        Object.values(MAPCONTEXT.markers).forEach(m => {
             MAPCONTEXT.map.removeLayer(m);
         });
-        MAPCONTEXT.circles = [];
+        MAPCONTEXT.markers = {};
+    },
+    clearCircles: ()=>
+    {
+        Object.values(MAPCONTEXT.circles).forEach(m => {
+            MAPCONTEXT.map.removeLayer(m);
+        });
+        MAPCONTEXT.circles = {};
     },
 };
 
@@ -85,12 +136,13 @@ export function initialize(dotNetHelper, elementId, mapPoint) {
  * @param {MapPoint} point 
  * @param {Number} zoom 
  */
-export function moveMap(dotNetHelper, point, zoom) {
-    
+export function moveMap(dotNetHelper, point, zoom)
+{
     MAPCONTEXT.map.setView([point.latitude, point.longitude], zoom !== null && zoom !== void 0 ? zoom : 17);
     //var marker = MAPCONTEXT.markers[point.idCuenta.toString()];
     var marker = MAPCONTEXT.markers.find( item => item.descripcion == point.descripcion);
-    if (marker != null) {
+    if (marker != null)
+        {
         marker.openPopup();
     }
 }
@@ -100,57 +152,22 @@ export function moveMap(dotNetHelper, point, zoom) {
  * @param {any} dotNetHelper 
  * @param {Array<OfficeMapMark>} marks
  */
-export function updateMarks(dotNetHelper, marks) {
-    // var customIcon = L.icon({
-    //     iconUrl: '/img/caev-map-icon.png',
-    //     iconSize:     [30, 35], // size of the icon
-    //     iconAnchor:   [15, 17.5], // point of the icon which will correspond to marker's location
-    //     popupAnchor:  [0, -10] // point from which the popup should open relative to the iconAnchor
-    // });
+export function updateMark(dotNetHelper, point)
+{
+    const pointId = point.id.toString();
+    MAPCONTEXT.addCircle(dotNetHelper, point);
+}
 
+export function updateMarks(dotNetHelper, marks)
+{
     // clear previous data
     MAPCONTEXT.clearMarkers();
     MAPCONTEXT.clearCircles();
 
     // Add pushpins
-    MAPCONTEXT.points = marks;
-    marks.forEach(point => {
-
-        var marker = L.marker([point.lat, point.lon],
-        {
-            opacity: 0.75,
-            riseOnHover: true,
-            // icon: customIcon
-            icon: L.divIcon({
-                className: 'custom-map-label', // Set class for CSS styling
-                html: `<div class='container'><div class='blur-bg'></div> <div class='text'>${point.office}<br/>${point.title}</div> </div>`,
-                iconSize: [140, 55],
-                iconAnchor: [70, 20]
-            }),
-        });
-        marker.bindPopup(`<b>${point.office}</b> <br/> ${point.title}`).openPopup();
-        
-        // added the event
-        marker.on('click', function (e) {
-            dotNetHelper.invokeMethodAsync('PushpinClick', point.id);
-        });
-        
-        // save the reference of the marker
-        MAPCONTEXT.markers.push(marker);
-
-        // create the circle
-        var circle = L.circle([point.lat, point.lon], point.radius, {
-            opacity:0.9,
-            fillColor: MAPCONTEXT.pushpinColors["color1"],
-            color: MAPCONTEXT.pushpinColors["color2"]
-        });
-
-        MAPCONTEXT.circles.push(circle);
-
-
-        // add the marker to the map
-        MAPCONTEXT.map.addLayer(marker);
-        MAPCONTEXT.map.addLayer(circle);
+    marks.forEach(point =>
+    {
+        MAPCONTEXT.addCircle(dotNetHelper, point);
     });
 
 }
